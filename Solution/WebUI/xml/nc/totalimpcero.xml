@@ -1,0 +1,6 @@
+﻿<totalImpuesto>
+  <codigo>2</codigo>
+  <codigoPorcentaje source="electronico.ele_codigoiva0"></codigoPorcentaje>
+  <baseImponible source="electronico.ele_iva0"></baseImponible>
+  <valor>0</valor>
+</totalImpuesto>

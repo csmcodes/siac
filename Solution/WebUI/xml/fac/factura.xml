@@ -1,0 +1,47 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<factura version="1.1.0" id="comprobante">
+  <infoTributaria>
+    <ambiente source="electronico.ele_ambiente"></ambiente>
+    <tipoEmision source="electronico.ele_emision"></tipoEmision>
+    <razonSocial source="empresa.emp_nombre"></razonSocial>
+    <nombreComercial source="empresa.emp_nombre"></nombreComercial>
+    <ruc source="empresa.emp_id"></ruc>
+    <claveAcceso source="electronico.ele_clave"></claveAcceso>
+    <codDoc>01</codDoc>
+    <estab source="electronico.ele_almacen"></estab>
+    <ptoEmi source="electronico.ele_pventa"></ptoEmi>
+    <secuencial source="electronico.ele_secuencia"></secuencial>
+    <dirMatriz source="electronico.ele_dirmatriz"></dirMatriz>
+    <regimenMicroempresas empty="no" source="empresa.emp_regimenmicro"></regimenMicroempresas>
+    <agenteRetencion empty="no" source="empresa.emp_agenteretxml"></agenteRetencion>
+	<contribuyenteRimpe empty="no" source="empresa.emp_regimenrimpe"></contribuyenteRimpe>
+  </infoTributaria>
+  <infoFactura>
+    <fechaEmision source="comprobante.com_fecha"></fechaEmision>
+    <dirEstablecimiento source="electronico.ele_dirsucursal"></dirEstablecimiento>
+    <contribuyenteEspecial source="electronico.ele_especial" empty="no"></contribuyenteEspecial>
+    <obligadoContabilidad source="electronico.ele_contabilidad"></obligadoContabilidad>
+    <tipoIdentificacionComprador source="electronico.ele_tipoid"></tipoIdentificacionComprador>
+    <guiaRemision source="electronico.ele_guiaremision" empty="no"></guiaRemision>
+    <razonSocialComprador source="electronico.ele_razonsocial"></razonSocialComprador>
+    <identificacionComprador source="electronico.ele_idcomprador"></identificacionComprador>
+    <direccionComprador source="electronico.ele_dircomprador"></direccionComprador>
+    <totalSinImpuestos source="electronico.ele_totalsinimp"></totalSinImpuestos>
+    <totalDescuento source="electronico.ele_totaldesc"></totalDescuento>
+    <totalConImpuestos></totalConImpuestos>    
+    <propina source="electronico.ele_propina">0.00</propina>
+    <importeTotal source="electronico.ele_total"></importeTotal>
+    <moneda>DOLAR</moneda>
+    <pagos empty="no"></pagos>
+  </infoFactura>
+  <detalles></detalles>
+  <infoAdicional empty="no">
+    <campoAdicional nombresource="electronico.ele_nomadicional1" source="electronico.ele_adicional1" empty="no"></campoAdicional>
+    <campoAdicional nombresource="electronico.ele_nomadicional2" source="electronico.ele_adicional2" empty="no"></campoAdicional>
+    <campoAdicional nombresource="electronico.ele_nomadicional3" source="electronico.ele_adicional3" empty="no"></campoAdicional>
+    <campoAdicional nombresource="electronico.ele_nomadicional4" source="electronico.ele_adicional4" empty="no"></campoAdicional>
+    <campoAdicional nombresource="electronico.ele_nomadicional5" source="electronico.ele_adicional5" empty="no"></campoAdicional>
+    <campoAdicional nombresource="electronico.ele_nomadicional6" source="electronico.ele_adicional6" empty="no"></campoAdicional>
+    <campoAdicional nombre="Agente de Retención" source="empresa.emp_agenteretxml" empty="no"></campoAdicional>
+  </infoAdicional>
+</factura>

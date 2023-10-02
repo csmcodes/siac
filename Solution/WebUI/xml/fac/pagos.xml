@@ -1,0 +1,6 @@
+﻿<pago>
+  <formaPago source="pago.codigo"></formaPago>
+  <total source="pago.valor"></total>
+  <plazo source="pago.plazo" empty="no"></plazo>
+  <unidadTiempo source="pago.tiempo" empty="no"></unidadTiempo>
+</pago>

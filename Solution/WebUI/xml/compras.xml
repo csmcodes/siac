@@ -1,0 +1,49 @@
+﻿<detalleCompras >
+	<codSustento source="compras.codsustentoats"></codSustento>
+	<tpIdProv source="compras.tipoidats"></tpIdProv>
+	<idProv source="compras.ruc"></idProv>
+	<tipoComprobante source="compras.tipocomprobanteats"></tipoComprobante>
+  <parteRel>NO</parteRel>
+	<fechaRegistro source="compras.fecha"></fechaRegistro>
+	<establecimiento source="compras.almacenfac"></establecimiento>
+	<puntoEmision source="compras.pventafac"></puntoEmision>
+	<secuencial source="compras.numerofac"></secuencial>
+	<fechaEmision source="compras.fechafac"></fechaEmision>
+	<autorizacion source="compras.autorizacionfac"></autorizacion>
+	<baseNoGraIva>0.00</baseNoGraIva>
+	<baseImponible source="compras.subtotal0"></baseImponible>
+	<baseImpGrav source="compras.subtotalice"></baseImpGrav>
+  <baseImpExe>0.00</baseImpExe>
+	<montoIce source="compras.ice"></montoIce>
+	<montoIva source="compras.impuesto"></montoIva>
+  <valRetBien10 source="compras.retiva10"></valRetBien10>
+  <valRetServ20 source="compras.retiva20"></valRetServ20>
+  <valorRetBienes source="compras.retiva30"></valorRetBienes>
+  <valRetServ50 source="compras.retiva50"></valRetServ50>
+	<valorRetServicios source="compras.retiva70"></valorRetServicios>
+	<valRetServ100 source="compras.retiva100"></valRetServ100>
+  <totbasesImpReemb>0.00</totbasesImpReemb>
+	<pagoExterior>
+		<pagoLocExt>01</pagoLocExt>
+		<paisEfecPago>NA</paisEfecPago>
+		<aplicConvDobTrib>NA</aplicConvDobTrib>
+		<pagExtSujRetNorLeg>NA</pagExtSujRetNorLeg>
+    <pagoRegFis>NA</pagoRegFis>
+	</pagoExterior>
+	<formasDePago empty="no">		
+	</formasDePago>
+	<air>		
+	</air>
+	<estabRetencion1 source="compras.almacenret" empty="no"></estabRetencion1>
+	<ptoEmiRetencion1 source="compras.pventaret" empty="no"></ptoEmiRetencion1>
+	<secRetencion1 source="compras.numeroret" empty="no"></secRetencion1>
+	<autRetencion1 source="compras.autorizacionret" empty="no"></autRetencion1>
+	<fechaEmiRet1 source="compras.fecharet" empty="no"></fechaEmiRet1>
+
+  <docModificado source="compras.docmod" empty="no"></docModificado>
+  <estabModificado source="compras.almacenmod" empty="no"></estabModificado>
+  <ptoEmiModificado source="compras.pventamod" empty="no"></ptoEmiModificado>
+  <secModificado source="compras.numeromod" empty="no"></secModificado>
+  <autModificado source="compras.autorizacionmod" empty="no"></autModificado>
+  
+  </detalleCompras>

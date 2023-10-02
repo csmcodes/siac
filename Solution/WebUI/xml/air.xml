@@ -1,0 +1,6 @@
+﻿<detalleAir>
+	<codRetAir source="retencion.conceptoid" ></codRetAir>
+	<baseImpAir source="retencion.baseimp"></baseImpAir>
+	<porcentajeAir source="retencion.porcentaje"></porcentajeAir>
+	<valRetAir source="retencion.valor"></valRetAir>
+</detalleAir>

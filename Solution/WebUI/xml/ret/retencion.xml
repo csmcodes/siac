@@ -1,0 +1,39 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<comprobanteRetencion version="1.0.0" id="comprobante">
+  <infoTributaria>
+    <ambiente source="electronico.ele_ambiente"></ambiente>
+    <tipoEmision source="electronico.ele_emision"></tipoEmision>
+    <razonSocial source="empresa.emp_nombre"></razonSocial>
+    <nombreComercial source="empresa.emp_nombre"></nombreComercial>
+    <ruc source="empresa.emp_id"></ruc>
+    <claveAcceso source="electronico.ele_clave"></claveAcceso>
+    <codDoc>07</codDoc>
+    <estab source="electronico.ele_almacen"></estab>
+    <ptoEmi source="electronico.ele_pventa"></ptoEmi>
+    <secuencial source="electronico.ele_secuencia"></secuencial>
+    <dirMatriz source="electronico.ele_dirmatriz"></dirMatriz>
+    <regimenMicroempresas empty="no" source="empresa.emp_regimenmicro"></regimenMicroempresas>
+    <agenteRetencion empty="no" source="empresa.emp_agenteretxml"></agenteRetencion>
+  </infoTributaria>
+  <infoCompRetencion>
+    <fechaEmision source="comprobante.com_fecha"></fechaEmision>
+    <dirEstablecimiento source="electronico.ele_dirsucursal"></dirEstablecimiento>
+    <contribuyenteEspecial source="electronico.ele_especial" empty="no"></contribuyenteEspecial>
+    <obligadoContabilidad source="electronico.ele_contabilidad"></obligadoContabilidad>
+    <tipoIdentificacionSujetoRetenido source="electronico.ele_tipoid"></tipoIdentificacionSujetoRetenido>
+    <razonSocialSujetoRetenido source="ccomdoc.cdoc_nombre"></razonSocialSujetoRetenido>
+    <identificacionSujetoRetenido source="ccomdoc.cdoc_ced_ruc"></identificacionSujetoRetenido>
+    <periodoFiscal source="electronico.ele_periodo"></periodoFiscal>
+  
+  </infoCompRetencion>
+  <impuestos></impuestos>
+  <infoAdicional empty="no">
+    <campoAdicional nombresource="electronico.ele_nomadicional1" source="electronico.ele_adicional1" empty="no"></campoAdicional>
+    <campoAdicional nombresource="electronico.ele_nomadicional2" source="electronico.ele_adicional2" empty="no"></campoAdicional>
+    <campoAdicional nombresource="electronico.ele_nomadicional3" source="electronico.ele_adicional3" empty="no"></campoAdicional>
+    <campoAdicional nombresource="electronico.ele_nomadicional4" source="electronico.ele_adicional4" empty="no"></campoAdicional>
+    <campoAdicional nombresource="electronico.ele_nomadicional5" source="electronico.ele_adicional5" empty="no"></campoAdicional>
+    <campoAdicional nombresource="electronico.ele_nomadicional6" source="electronico.ele_adicional6" empty="no"></campoAdicional>
+    <campoAdicional nombre="Agente de Retención" source="empresa.emp_agenteretxml" empty="no"></campoAdicional>
+  </infoAdicional>
+</comprobanteRetencion>

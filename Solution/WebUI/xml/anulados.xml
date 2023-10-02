@@ -1,0 +1,8 @@
+﻿<detalleAnulados>
+	<tipoComprobante source="anulados.tipo" ></tipoComprobante>
+	<establecimiento source="anulados.almacen" ></establecimiento>
+	<puntoEmision source="anulados.pventa" ></puntoEmision>
+	<secuencialInicio source="anulados.desde" ></secuencialInicio>
+	<secuencialFin source="anulados.hasta" ></secuencialFin>
+	<autorizacion source="anulados.autorizacion">5694897897897899999999998</autorizacion>
+</detalleAnulados>

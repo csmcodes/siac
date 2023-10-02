@@ -1,0 +1,86 @@
+﻿
+@import url('bootstrap.min.css');
+@import url('bootstrap-responsive.min.css');
+@import url('jquery.ui.css');
+@import url('animate.min.css');
+@import url('animate.delay.css');
+
+body 
+
+{
+   
+}
+
+#area
+{               
+    overflow: hidden;
+    position: absolute;
+    height: 614px;
+    width: 819px;
+    left: 50%;
+    top: 50%;
+    margin-top: -307px;
+    margin-left: -409px;
+}
+
+#fondo
+{
+    background-image: url(../images/cloudsP.jpg);
+    opacity: 0.5;  
+    height: 614px;
+    width: 819px;
+    z-index : 0;
+}
+
+#datos
+{
+    background-color: transparent ;
+    position : absolute;
+    top: 80px;
+    left : 450px;    
+    z-index : 1;
+}
+
+
+#logo
+{
+     background-image: url(../images/SIAC.png);
+     background-size:cover;
+     position:absolute;  
+     height : 160px;
+     width : 150px;
+     top: 75px;    
+     left : 150px;      
+     z-index : 1;
+}
+
+#ecu
+{
+     background-image: url(../images/logogtec.png);
+      background-repeat:no-repeat;
+     background-position:center;
+     position:absolute;  
+     height : 151px;
+     width : 315px;
+     bottom : 80px;    
+     left : 420px;      
+     z-index : 1;
+}
+
+.inputwrapper input { border: 0; padding: 10px; background: #fff; width: 250px; }
+.inputwrapper input:active, .inputwrapper input:focus { background: #fff; border: 0; }
+.inputwrapper button {
+		  display: block; border: 1px solid #0c57a3; padding: 10px; background: #0972dd; width: 100%;
+		  color: #fff; text-transform: uppercase; }
+.inputwrapper button:focus, .inputwrapper button:active, .inputwrapper button:hover { background: #1e82e8; }
+.inputwrapper label {
+		  display: inline-block; margin-top: 10px; color: rgba(255,255,255,0.8); font-size: 8px; vertical-align: middle; }
+.inputwrapper label input { width: auto; margin: -3px 5px 0 0; vertical-align: middle; }
+.inputwrapper .remember { padding: 0; background: none; font-size: 8px; }
+.inputwrapper select { border: 0;  background: #fff; width: 270px; }
+.inputwrapper select:active, .inputwrapper select:focus { background: #fff; border: 0; }
+.login-alert { display: none; }
+.login-alert .alert { font-size: 8px; text-align: center; padding: 5px 0; border: 0; }
+.loginfooter {
+		  font-size: 11px; color: rgba(0,0,0,0.5); position: absolute; position: fixed; bottom: 0; left: 0;
+		  width: 100%; text-align: center; font-family: arial, sans-serif !important; padding: 5px 0; }

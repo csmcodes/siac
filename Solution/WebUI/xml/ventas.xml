@@ -1,0 +1,17 @@
+﻿<detalleVentas>
+	<tpIdCliente source="ventas.tipoid"></tpIdCliente>
+	<idCliente source="ventas.ruc"></idCliente>
+  <parteRelVtas source="ventas.parterel"  empty="no"></parteRelVtas>
+	<tipoComprobante source="ventas.tipoats"></tipoComprobante>
+  <tipoEmision>F</tipoEmision>
+	<numeroComprobantes source="ventas.comprobantes"></numeroComprobantes>
+	<baseNoGraIva>0.00</baseNoGraIva>
+	<baseImponible source="ventas.subtotal"></baseImponible>
+	<baseImpGrav source="ventas.subimpuesto"></baseImpGrav>
+	<montoIva source="ventas.impuesto"></montoIva>
+  <montoIce>0.00</montoIce>
+	<valorRetIva source="ventas.retiva"></valorRetIva>
+	<valorRetRenta source="ventas.retfue"></valorRetRenta>
+  <formasDePago empty="no">
+  </formasDePago>
+</detalleVentas>

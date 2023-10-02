@@ -1,0 +1,204 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{30D94F10-58EF-4674-8B33-95DD172EF8CC}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>BusinessLogicLayer</RootNamespace>
+    <AssemblyName>BusinessLogicLayer</AssemblyName>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <SccProjectName>SAK</SccProjectName>
+    <SccLocalPath>SAK</SccLocalPath>
+    <SccAuxPath>SAK</SccAuxPath>
+    <SccProvider>SAK</SccProvider>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="AlmacenBLL.cs" />
+    <Compile Include="AutorizaBLL.cs" />
+    <Compile Include="AutpersonaBLL.cs" />
+    <Compile Include="ElectronicoBLL.cs" />
+    <Compile Include="ElectronicocargaBLL.cs" />
+    <Compile Include="LogBLL.cs" />
+    <Compile Include="BancoBLL.cs" />
+    <Compile Include="BLL.cs" />
+    <Compile Include="BodegaBLL.cs" />
+    <Compile Include="CalculoprecioBLL.cs" />
+    <Compile Include="CatalogoBLL.cs" />
+    <Compile Include="BitacoraxvehiculoBLL.cs" />
+    <Compile Include="CatclienteBLL.cs" />
+    <Compile Include="CcomdocBLL.cs" />
+    <Compile Include="CcomenvBLL.cs" />
+    <Compile Include="CcomremBLL.cs" />
+    <Compile Include="CentroBLL.cs" />
+    <Compile Include="ChoferBLL.cs" />
+    <Compile Include="CmovinvBLL.cs" />
+    <Compile Include="ComprobanteBLL.cs" />
+    <Compile Include="ComprobantehistorialBLL.cs" />
+    <Compile Include="ConceptoBLL.cs" />
+    <Compile Include="ConstanteBLL.cs" />
+    <Compile Include="DcancelacionsocioBLL.cs" />
+    <Compile Include="DcomremBLL.cs" />
+    <Compile Include="DestinoBLL.cs" />
+    <Compile Include="DmovinvBLL.cs" />
+    <Compile Include="ExcepcionBLL.cs" />
+    <Compile Include="FormatoBLL.cs" />
+    <Compile Include="ImpresionBLL.cs" />
+    <Compile Include="RubroBLL.cs" />
+    <Compile Include="RubrosplanillaBLL.cs" />
+    <Compile Include="SaldoinvBLL.cs" />
+    <Compile Include="TokenBLL.cs" />
+    <Compile Include="vCancelacionBLL.cs" />
+    <Compile Include="vCancelacionDetalleBLL.cs" />
+    <Compile Include="vCobroSocioBLL.cs" />
+    <Compile Include="vCompBLL.cs" />
+    <Compile Include="vComprasBLL.cs" />
+    <Compile Include="vComprobanteBLL.cs" />
+    <Compile Include="vComprobanteDescuadradoBLL.cs" />
+    <Compile Include="vComprobanteHojaRutaBLL.cs" />
+    <Compile Include="vCuentasPorBLL.cs" />
+    <Compile Include="vCuentasSaldosBLL.cs" />
+    <Compile Include="vDbancarioBLL.cs" />
+    <Compile Include="SalbanBLL.cs" />
+    <Compile Include="vCuentaBLL.cs" />
+    <Compile Include="SaldoBLL.cs" />
+    <Compile Include="vDetalleBLL.cs" />
+    <Compile Include="vDocumentoVentaBLL.cs" />
+    <Compile Include="vEgresoBancoBLL.cs" />
+    <Compile Include="vGuiasFacturasBLL.cs" />
+    <Compile Include="vGuiaPlanillaBLL.cs" />
+    <Compile Include="vHojaRutaReporteBLL.cs" />
+    <Compile Include="vObligacionBLL.cs" />
+    <Compile Include="vPlanillaSocioTotBLL.cs" />
+    <Compile Include="vPlanillaTotalBLL.cs" />
+    <Compile Include="vReciboBLL.cs" />
+    <Compile Include="vDcontableBLL.cs" />
+    <Compile Include="vPersonaBLL.cs" />
+    <Compile Include="CuetransaccBLL.cs" />
+    <Compile Include="DbancarioBLL.cs" />
+    <Compile Include="DcontableBLL.cs" />
+    <Compile Include="GproductoBLL.cs" />
+    <Compile Include="vDnotacreBLL.cs" />
+    <Compile Include="DnotacreBLL.cs" />
+    <Compile Include="TiponcBLL.cs" />
+    <Compile Include="vDretencionBLL.cs" />
+    <Compile Include="DcalculoprecioBLL.cs" />
+    <Compile Include="DretencionBLL.cs" />
+    <Compile Include="vDEstadocuentaBLL.cs" />
+    <Compile Include="vEstadocuentaBLL.cs" />
+    <Compile Include="DcancelacionguiasBLL.cs" />
+    <Compile Include="PlanillacomprobanteBLL.cs" />
+    <Compile Include="vGuiasBLL.cs" />
+    <Compile Include="vHojadeRutaBLL.cs" />
+    <Compile Include="vMenuUsuarioBLL.cs" />
+    <Compile Include="vPlanillaClienteBLL.cs" />
+    <Compile Include="vPlanillasBLL.cs" />
+    <Compile Include="PlanillacliBLL.cs" />
+    <Compile Include="vDdocumentoBLL.cs" />
+    <Compile Include="CpersonaBLL.cs" />
+    <Compile Include="DcancelacionBLL.cs" />
+    <Compile Include="DcomdocBLL.cs" />
+    <Compile Include="DdocumentoBLL.cs" />
+    <Compile Include="DlistadscBLL.cs" />
+    <Compile Include="DreciboBLL.cs" />
+    <Compile Include="DtipocomBLL.cs" />
+    <Compile Include="FactorBLL.cs" />
+    <Compile Include="ImpuestoBLL.cs" />
+    <Compile Include="MensajeBLL.cs" />
+    <Compile Include="MensajedestinoBLL.cs" />
+    <Compile Include="PoliticaBLL.cs" />
+    <Compile Include="RetdatoBLL.cs" />
+    <Compile Include="RutaxfacturaBLL.cs" />
+    <Compile Include="TablacoaBLL.cs" />
+    <Compile Include="TipopagoBLL.cs" />
+    <Compile Include="TotalBLL.cs" />
+    <Compile Include="TpersonaBLL.cs" />
+    <Compile Include="TransaccBLL.cs" />
+    <Compile Include="ProductoBLL.cs" />
+    <Compile Include="TproductoBLL.cs" />
+    <Compile Include="UmedidaBLL.cs" />
+    <Compile Include="MonedaBLL.cs" />
+    <Compile Include="DlistaprecioBLL.cs" />
+    <Compile Include="ListaprecioBLL.cs" />
+    <Compile Include="CtipocomBLL.cs" />
+    <Compile Include="CuentaBLL.cs" />
+    <Compile Include="DtipodocBLL.cs" />
+    <Compile Include="FormularioBLL.cs" />
+    <Compile Include="ModuloBLL.cs" />
+    <Compile Include="ParametroBLL.cs" />
+    <Compile Include="EmpresaBLL.cs" />
+    <Compile Include="MenuBLL.cs" />
+    <Compile Include="PerfilBLL.cs" />
+    <Compile Include="PerfilxmenuBLL.cs" />
+    <Compile Include="PersonaxtipoBLL.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="PersonaBLL.cs" />
+    <Compile Include="PuntoventaBLL.cs" />
+    <Compile Include="RutaBLL.cs" />
+    <Compile Include="SocioempleadoBLL.cs" />
+    <Compile Include="TipodocBLL.cs" />
+    <Compile Include="UsrdocBLL.cs" />
+    <Compile Include="UsuarioBLL.cs" />
+    <Compile Include="UsuarioxempresaBLL.cs" />
+    <Compile Include="vDcancelacionBLL.cs" />
+    <Compile Include="VehiculoBLL.cs" />
+    <Compile Include="vRetencionBLL.cs" />
+    <Compile Include="vRetencionesBLL.cs" />
+    <Compile Include="vRetencionVentaBLL.cs" />
+    <Compile Include="vSaldoBLL.cs" />
+    <Compile Include="vVehiculoBLL.cs" />
+    <Compile Include="vVentaBLL.cs" />
+    <Compile Include="vVentasRetencionesBLL.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\BusinessObjects\BusinessObjects.csproj">
+      <Project>{607A449B-8C29-45F5-8EF8-1C554AFC3B20}</Project>
+      <Name>BusinessObjects</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\DataAccessLayer\DataAccessLayer.csproj">
+      <Project>{2268D6E1-1347-4C9D-B6A7-F4639CF62A36}</Project>
+      <Name>DataAccessLayer</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

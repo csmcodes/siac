@@ -1,0 +1,255 @@
+﻿@page { margin: 0cm } /* All margins set to 2cm */
+
+body 
+{
+	font-family:Sans-Serif;
+	font-size: 9pt;
+}
+
+div
+{	
+	position:absolute;
+}
+
+.bultos
+{
+	top:10.5cm;
+}
+
+.area
+{
+	display:none;
+	top:0px;
+	left:0px;
+	width:21.60cm;
+	height:14cm;
+	border: 1px solid Gray;
+	
+}
+.cantidad
+{
+	left :2cm;
+	width:1.5cm;
+}
+
+.copy
+{
+	top:2cm !important;
+}
+
+.conductor
+{
+	top:12.6cm;
+	left:6.5cm;
+	width:4cm;	
+}
+
+.cliente, .direcciondes
+{
+	top:3.1cm;
+}
+
+.datader
+{
+	
+	width:260px;
+	left:12.5cm;	
+	overflow:hidden;
+	text-overflow:ellipsis;
+	white-space:nowrap; 
+}
+.datadownder
+{
+	left:18cm;
+	width:2cm;
+	text-align:right;
+}
+.datadownizq1
+{
+	left:11.7cm;
+	width:3cm;
+	overflow:hidden;
+	text-overflow:ellipsis;
+	white-space:nowrap; 
+}
+
+.datadownizq
+{
+	left:5.4cm;
+	width:95px;
+	overflow:hidden;
+	text-overflow:ellipsis;
+	white-space:nowrap; 
+}
+.dataizq
+{
+	width:220px;
+	left:4cm;	
+	overflow:hidden;
+	text-overflow:ellipsis;
+	white-space:nowrap; 
+}
+
+.declarado, .seguro
+{
+	top:10.9cm;
+}
+
+.descripcion
+{
+	left:3.8cm;
+	width:9.8cm;
+	text-align:left !important;
+	
+}
+
+.details
+{
+	top: 6cm;
+	height: 4.3cm;
+	text-align:center;
+	vertical-align:top;
+	overflow:hidden;
+}
+
+.direccion, .remitente
+{
+	top:3.9cm;
+}
+
+.fecha, .destinatario
+{
+	top:2.7cm;
+}
+
+.fechacrea
+{
+	top:15px;
+	left:580px;
+}
+
+.guia, .politica
+{
+	top:11.3cm;
+	
+}
+
+.iva
+{
+	top:11.7cm;
+}
+.labeldownder
+{
+	left:15cm;
+	width:2.8cm;
+	text-align:right;
+}
+
+.labeldownizq
+{
+	left:2cm;
+	width:3.3cm;
+	text-align:right;
+}
+.labeldownizq1
+{
+	left:10cm;
+	width:1.6cm;
+	text-align:right;
+}
+
+.labelizq
+{
+	left:2cm;
+	width:75px;
+	text-align: right;
+}
+
+.labelder
+{
+	left:10cm;
+	width:90px;
+	text-align: right;
+}
+
+.large
+{
+	width:300px;
+}
+.lugar
+{
+	top:11.7cm;
+}
+
+.medium
+{
+	width:150px;
+}
+
+.numero
+{
+	top: 15px;
+	left:325px;
+	
+}
+
+.peso
+{
+	width: 1.5cm;
+	left:14cm;
+}
+
+.propietario
+{
+	top:12.6cm;
+	left:2cm;
+	width:4cm;	
+}
+
+.ruc, .ciudaddes
+{
+	 top:3.5cm;
+}
+
+.subtotal
+{
+	top:11.3cm;
+}
+
+.subtotal0
+{
+	top:10.5cm;
+}
+
+.subtotal12
+{
+	top:10.9cm;
+}
+
+.telefono
+{
+	top:4.3cm;
+}
+.total
+{
+	top:12.1cm;
+}
+
+.usuario
+{
+	top: 13.2cm;
+	left:18cm;
+	width:2cm;
+}
+.valorunitario
+{
+	width:2cm;
+	left:15.8cm;
+}
+
+.valortotal
+{
+	width:2cm;
+	left:18cm;
+	text-align:right;
+}

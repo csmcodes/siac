@@ -1,0 +1,20 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<iva>
+	<TipoIDInformante source="">R</TipoIDInformante>
+	<IdInformante source="empresa.emp_id"></IdInformante>
+	<razonSocial source="empresa.emp_nombre"></razonSocial>
+	<Anio source="params.anio"></Anio>
+	<Mes source="params.mes"></Mes>
+	<numEstabRuc source="establecimiento.id" function="count"></numEstabRuc>
+	<totalVentas source="ventas.total" function="sum" filter=""></totalVentas>
+	<codigoOperativo source="">IVA</codigoOperativo>
+  <compras>
+  </compras>
+		<ventas>		
+	</ventas>
+	<ventasEstablecimiento>		
+	</ventasEstablecimiento>
+	<anulados>		
+	</anulados>
+</iva>
+

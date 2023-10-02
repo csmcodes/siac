@@ -1,0 +1,46 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<notaCredito id="comprobante" version="1.1.0">
+  <infoTributaria>
+    <ambiente source="electronico.ele_ambiente"></ambiente>
+    <tipoEmision source="electronico.ele_emision"></tipoEmision>
+    <razonSocial source="empresa.emp_nombre"></razonSocial>
+    <nombreComercial source="empresa.emp_nombre"></nombreComercial>
+    <ruc source="empresa.emp_id"></ruc>
+    <claveAcceso source="electronico.ele_clave"></claveAcceso>
+    <codDoc>04</codDoc>
+    <estab source="electronico.ele_almacen"></estab>
+    <ptoEmi source="electronico.ele_pventa"></ptoEmi>
+    <secuencial source="electronico.ele_secuencia"></secuencial>
+    <dirMatriz source="electronico.ele_dirmatriz"></dirMatriz>
+    <regimenMicroempresas empty="no" source="empresa.emp_regimenmicro"></regimenMicroempresas>
+    <agenteRetencion empty="no" source="empresa.emp_agenteretxml"></agenteRetencion>
+  </infoTributaria>
+  <infoNotaCredito>
+    <fechaEmision source="comprobante.com_fecha"></fechaEmision>
+    <dirEstablecimiento source="electronico.ele_dirsucursal"></dirEstablecimiento>
+    <tipoIdentificacionComprador source="electronico.ele_tipoid"></tipoIdentificacionComprador>
+    <razonSocialComprador source="ccomdoc.cdoc_nombre"></razonSocialComprador>
+    <identificacionComprador source="ccomdoc.cdoc_ced_ruc"></identificacionComprador>
+    <contribuyenteEspecial source="electronico.ele_especial" empty="no"></contribuyenteEspecial>
+    <obligadoContabilidad source="electronico.ele_contabilidad"></obligadoContabilidad>              
+    <codDocModificado source="electronico.ele_coddocsustento"></codDocModificado>
+    <numDocModificado source="electronico.ele_numdocsustento"></numDocModificado>
+    <fechaEmisionDocSustento source="electronico.ele_fechadocsustento"></fechaEmisionDocSustento>
+    <totalSinImpuestos source="electronico.ele_totalsinimp"></totalSinImpuestos>
+    <valorModificacion source="electronico.ele_total"></valorModificacion>
+    <moneda>DOLAR</moneda>
+    <totalConImpuestos></totalConImpuestos>
+    <motivo  source="comprobante.com_concepto"></motivo>   
+  </infoNotaCredito>
+  <detalles></detalles>
+  <infoAdicional empty="no">
+    <campoAdicional nombresource="electronico.ele_nomadicional1" source="electronico.ele_adicional1" empty="no"></campoAdicional>
+    <campoAdicional nombresource="electronico.ele_nomadicional2" source="electronico.ele_adicional2" empty="no"></campoAdicional>
+    <campoAdicional nombresource="electronico.ele_nomadicional3" source="electronico.ele_adicional3" empty="no"></campoAdicional>
+    <campoAdicional nombresource="electronico.ele_nomadicional4" source="electronico.ele_adicional4" empty="no"></campoAdicional>
+    <campoAdicional nombresource="electronico.ele_nomadicional5" source="electronico.ele_adicional5" empty="no"></campoAdicional>
+    <campoAdicional nombresource="electronico.ele_nomadicional6" source="electronico.ele_adicional6" empty="no"></campoAdicional>
+    <campoAdicional nombre="Agente de Retención" source="empresa.emp_agenteretxml" empty="no"></campoAdicional>
+  </infoAdicional>
+</notaCredito>
+

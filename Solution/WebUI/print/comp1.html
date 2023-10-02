@@ -1,0 +1,303 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+    <meta charset="utf-8" />
+
+    <style>
+        /*Estilos elementos*/
+        body {
+            background: white;
+            font-family: Sans-Serif;
+            font-size: 10pt;
+        }
+
+        div {
+            /* border:1px dotted Gray;*/
+        }
+
+
+        /*Estilos por nombre*/
+        .box {
+            width: 100%;
+        }
+
+        .boxtittle {
+            text-align: center;
+            font-weight: bold;
+            border-bottom: 1px dotted Black;
+            border-top: 1px dotted Black;
+        }
+
+        .boxbody {
+            height: 10em;
+            border-bottom: 1px dotted Black;
+        }
+
+        .center {
+            text-align: center;
+        }
+
+        .col2 {
+            width: 2in;
+        }
+
+        .col3 {
+            width: 3in;
+        }
+
+        .col4 {
+            width: 4in;
+        }
+
+        .col6 {
+            width: 6in;
+        }
+
+        .col8 {
+            width: 8in;
+            max-width: 8in;
+        }
+
+        .col10 {
+            width: 10in;
+        }
+
+        .col12 {
+            width: 20in;
+            max-width: 20in;
+        }
+
+        .col14 {
+            width: 14in;
+        }
+
+        .col, .col2, .col3, .col4, .col6, .col8, .col10, .col12, .col14 {
+            display: table-cell;
+            display: table-cell;
+            padding-left: 0.3em;
+            padding-right: 0.3em;
+            padding-top: 0.3em;
+        }
+
+        .division {
+            height: 0.3em;
+            width: 100%;
+        }
+
+        .derecha {
+            float: right;
+        }
+
+        .destino, .origen {
+            text-transform: uppercase;
+        }
+
+        .etiqueta {
+            font-weight: bold;
+        }
+
+        .fix {
+            width: 2in;
+        }
+
+        .grupo {
+            display: inline-block;
+            white-space: nowrap;
+        }
+
+            .grupo div {
+                display: inline-block;
+                white-space: nowrap;
+            }
+
+        .izquierda {
+            float: left;
+        }
+
+        .left {
+            text-align: right;
+        }
+
+        .oscuro {
+            font-weight: bold;
+        }
+
+        .propietario, .remitente, .recibi {
+            text-align: center;
+            border-top: 1px dashed Black;
+            width: 100%;
+            font-size: 0.8em;
+            font-weight: bold;
+        }
+
+        .row {
+            width: 100%;
+            display: table-row;
+        }
+
+        .textobig {
+            font-size: 2em;
+            font-weight: bold;
+        }
+
+        .total {
+            font-size: 1.3em;
+            font-weight: bold;
+        }
+
+        .width3 {
+            max-width: 3in;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            overflow: hidden;
+        }
+
+        .width4 {
+            max-width: 4in;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            overflow: hidden;
+        }
+
+        .width5 {
+            max-width: 5in;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            overflow: hidden;
+        }
+
+        .width6 {
+            max-width: 6in;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            overflow: hidden;
+        }
+
+        /*Reglas*/
+        @page {
+            margin-top: 0em;
+            margin-bottom: 0em;
+            margin-left: 0em;
+            margin-right: 0em;
+        }
+     
+    </style>
+    <script type="text/javascript" src="../js/prefixfree.min.js"></script>
+    <script type="text/javascript" src="../js/jquery.js"></script>
+    <script type="text/javascript" src="../js/jquery-ui.js"></script>
+    <script type="text/javascript" src="../js/login.js"></script>
+    <script type="text/javascript" src="../js/general.js"></script>
+    <script type="text/javascript" src="../js/functions.js"></script>
+    <script type="text/javascript" src="../js/methods.js"></script>
+    <script type="text/javascript" src="../js/forms/comp.js"></script>
+</head>
+<body>
+    <div class="izquierda">
+        <div class="numero"></div>
+    </div>
+    <div class="derecha">
+        <div class="reimpresion grupo"><div class="etiqueta"></div><div class="texto"></div></div>
+        <div class="fechacrea grupo"><div class="etiqueta"></div><div class="texto"></div></div>
+        <div class="usuario grupo"><div class="etiqueta"></div><div class="texto"></div></div>
+    </div>
+    <br />
+    <br />
+    <br />
+    <br />
+    <br />
+    <br />
+    <br />
+    <div class="derecha">
+        <div class="numerogui grupo"><div class="etiqueta"></div><div class="textobig"></div></div>
+    </div>
+    <br />
+    <div class="col12">
+        <div class="origen grupo"><div class="etiqueta"></div><div class="texto oscuro"></div></div> <div class="fecha grupo"><div class="etiqueta"></div><div class="texto"></div></div><br />
+        <div class="nombresrem grupo"><div class="etiqueta">REMITENTE:</div><div class="texto "></div></div><br />
+        <div class="direccionrem grupo"><div class="etiqueta">DIRECCIÓN:</div><div class="texto "></div></div><br />
+        <div class="nombresdes grupo"><div class="etiqueta">DESTINATARIO:</div><div class="texto"></div></div><br />
+        <div class="direcciondes grupo"><div class="etiqueta">DIRECCIÓN:</div><div class="texto "></div></div><br />
+    </div>
+    <div class="col8">
+        <div class="destino grupo"><div class="etiqueta">DESTINO:</div><div class="texto oscuro"></div></div><br />
+        <div class="rucrem grupo"><div class="etiqueta">RUC:</div><div class="texto"></div></div><br />
+        <div class="telefonorem grupo"><div class="etiqueta">TELEF:</div><div class="texto"></div></div><br />
+        <div class="rucdes grupo"><div class="etiqueta">RUC:</div><div class="texto"></div></div><br />
+        <div class="telefonodes grupo"><div class="etiqueta">TELEF:</div><div class="texto"></div></div><br />
+    </div>
+    <div class="division"></div>
+    <div class="col2">
+        <div class="cantidad box">
+            <div class="boxtittle">BULTOS</div>
+            <div class="boxbody center">
+            </div>
+        </div>
+    </div>
+    <div class="col12">
+        <div class="contenido box">
+            <div class="boxtittle">CONTENIDO</div>
+            <div class="boxbody">
+            </div>
+        </div>
+    </div>
+    <div class="col3">
+        <div class="valoru box">
+            <div class="boxtittle">VALOR UNIT.</div>
+            <div class="boxbody left">
+            </div>
+        </div>
+    </div>
+    <div class="col3">
+        <div class="flete box">
+            <div class="boxtittle">FLETE</div>
+            <div class="boxbody left">
+            </div>
+        </div>
+    </div>
+    <div class="division"></div>
+
+    <div class="col8">
+        <div class="bultos grupo"><div class="etiqueta">TOT BULTOS:</div><div class="texto"></div></div><br />
+        <div class="guia grupo"><div class="etiqueta">GUIA REM:</div><div class="texto"></div></div><br />
+        <div class="politica grupo"><div class="etiqueta">FORMA PAGO:</div><div class="texto"></div></div><br />
+    </div>
+    <div class="col6">
+        <div class="declarado grupo"><div class="etiqueta">VAL DECLARADO:</div><div class="texto"></div></div><br />
+        <div class="seguro grupo"><div class="etiqueta">VAL SEGURO:</div><div class="texto"></div></div><br />
+        <div class="monto grupo"><div class="etiqueta">MONTO:</div><div class="texto"></div></div><br />        
+    </div>
+    <div class="col3">
+        <div class="etiqueta left">DOMICILIO:</div>
+        <div class="etiqueta left">SUBTOTAL:</div>
+        <div class="etiqueta left">IVA 0%:</div>
+        <div class="etiqueta left">IVA 12%:</div>
+        <div class="etiqueta left">TOTAL:</div>
+    </div>
+    <div class="col3">
+        <div class="transporte left"></div>
+        <div class="subtotal left"></div>
+        <div class="subtotal0 left"></div>
+        <div class="iva left"></div>
+        <div class="total left"></div>
+    </div>
+    <br />
+    <div class="col4">
+        <div class="propietario">
+            PROPIETARIO
+        </div>
+    </div>
+    <div class="col4">
+        <div class="remitente">
+            REMITENTE
+        </div>
+    </div>
+    <div class="col4">
+        <div class="recibi">
+            RECIBÍ CONFORME
+        </div>
+    </div>
+    <div class="col8">
+    </div>
+</body>
+</html>
