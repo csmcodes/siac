@@ -1,0 +1,12 @@
+﻿<?xml version='1.0' encoding='utf-8'?>
+<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="Packages.Properties" GeneratedClassName="Settings">
+  <Profiles />
+  <Settings>
+    <Setting Name="Packages_SICE_Metodos" Type="(Web Service URL)" Scope="Application">
+      <Value Profile="(Default)">http://216.120.250.222/SICE/ws/Metodos.asmx</Value>
+    </Setting>
+    <Setting Name="Packages_COMP_Metodos" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">http://3.15.178.203/ws/Metodos.asmx</Value>
+    </Setting>
+  </Settings>
+</SettingsFile>
