@@ -2134,6 +2134,8 @@ namespace Packages
             comp.documentos = DdocumentoBLL.GetAll(new WhereParams("ddo_empresa ={0} and ddo_comprobante={1}", comp.com_empresa, comp.com_codigo), "");
             comp.cancelaciones = DcancelacionBLL.GetAll(new WhereParams("dca_empresa ={0} and dca_comprobante={1}", comp.com_empresa, comp.com_codigo), "");
 
+            List<IvaCompras> ivas = Constantes.cIVACompras;
+
             int vdebcre = Constantes.cCredito;
             int vdebcre_m = Constantes.cDebito;
 

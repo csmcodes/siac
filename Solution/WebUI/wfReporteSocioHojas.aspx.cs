@@ -33,7 +33,7 @@ namespace WebUI
             html.AppendLine("<div class=\"row-fluid\">");
             html.AppendLine("<div class=\"span6\">");
             HtmlTable tdatos = new HtmlTable();
-            tdatos.CreteEmptyTable(9, 2);
+            tdatos.CreteEmptyTable(8, 2);
             tdatos.rows[0].cells[0].valor = "Almacen";
             tdatos.rows[0].cells[1].valor = new Select { id = "cmbALMACEN", diccionario = Dictionaries.GetIDAlmacen(), clase = Css.large, withempty = true }.ToString();
             tdatos.rows[1].cells[0].valor = "Punto Venta";
@@ -47,11 +47,9 @@ namespace WebUI
             tdatos.rows[5].cells[0].valor = "Ruta:";
             tdatos.rows[5].cells[1].valor = new Select { id = "cmbRUTA", clase = Css.medium, withempty = true, diccionario = Dictionaries.GetRuta() }.ToString();
             tdatos.rows[6].cells[0].valor = " ";
-            tdatos.rows[6].cells[1].valor = new Boton { click = "LoadReporte();return false;", valor = "Generar Total" }.ToString();// + " " + new Boton { click = "LoadReporteN();return false;", valor = "Generar Total" }.ToString();
+            tdatos.rows[6].cells[1].valor = new Boton { click = "LoadReporteCon();return false;", valor = "Generar Consolidado" }.ToString();// + " " + new Boton { click = "LoadReporteN();return false;", valor = "Generar Total" }.ToString();
             tdatos.rows[7].cells[0].valor = " ";
-            tdatos.rows[7].cells[1].valor = new Boton { click = "LoadReporteTotales();return false;", valor = "Generar Detallado" }.ToString();
-            tdatos.rows[8].cells[0].valor = " ";
-            tdatos.rows[8].cells[1].valor = new Boton { click = "LoadReporteOrdenado();return false;", valor = "Generar Detallado Ordenado" }.ToString();
+            tdatos.rows[7].cells[1].valor = new Boton { click = "LoadReporteDet();return false;", valor = "Generar Detallado" }.ToString();            
 
             //tdatos.rows[4].cells[0].valor = "";
             //tdatos.rows[4].cells[1].valor = "";

@@ -1,0 +1,7 @@
+﻿<impuesto>
+  <codigo>2</codigo>
+  <codigoPorcentaje source="electronicodet.eled_codigoiva"></codigoPorcentaje>
+  <tarifa source="electronicodet.eled_porciva"></tarifa>
+  <baseImponible source="electronicodet.eled_totalsinimp"></baseImponible>
+  <valor source="electronicodet.eled_iva"></valor>
+</impuesto>

@@ -1704,7 +1704,7 @@ namespace Packages
 
         #endregion
 
-
+        #region Personas
         public static List<Persona> getPersonas(string type)
         {
             if (type == "RUC")
@@ -1728,6 +1728,21 @@ namespace Packages
 
         }
 
+        public static List<Persona> GetPersonas(int empresa, string id, string persona, string tipo)
+        {
+            WhereParams where = new WhereParams();
+            where.where = "per_empresa=" + empresa;
+
+            List<Persona> lst = new List<Persona>();
+            
+            lst = PersonaBLL.GetAllTop(where,"",100 );
+            return lst;
+
+        }
+
+
+
+        #endregion
 
         public static List<vHojadeRuta> getCobrosSocio(DateTime desde, DateTime hasta, int? codigosocio, int? empresa)
         {
@@ -7186,5 +7201,472 @@ namespace Packages
 
 
 
+        public static List<vHojaRutaCab> getHojasRutaCabSocio(DateTime desde, DateTime hasta, int empresa, int? almacen, int? pventa, int? socio)
+        {
+            int contador = 0;
+            WhereParams parametros = new WhereParams();
+            List<object> valores = new List<object>();
+            hasta = hasta.AddDays(1).AddSeconds(-1);
+
+
+            parametros.where += ((parametros.where != "") ? " and " : "") + " cabecera.com_empresa=  {" + contador + "}  and cabecera.com_estado <> "+ (int)Enums.EstadoRegistro.ANULADO;
+            valores.Add(empresa);
+            contador++;
+
+            parametros.where += ((parametros.where != "") ? " and " : "") + " cabecera.com_fecha BETWEEN  {" + contador + "} and {" + (contador + 1) + "} ";
+            valores.Add(desde);
+            contador++;
+            valores.Add(hasta);
+            contador++;
+
+            if (almacen.HasValue)
+            {
+                parametros.where += ((parametros.where != "") ? " and " : "") + " cabecera.com_almacen=  {" + contador + "} ";
+                valores.Add(almacen);
+                contador++;
+            }
+            if (pventa.HasValue)
+            {
+                parametros.where += ((parametros.where != "") ? " and " : "") + " cabecera.com_pventa=  {" + contador + "} ";
+                valores.Add(pventa);
+                contador++;
+            }
+            if (socio.HasValue)
+            {
+                parametros.where += ((parametros.where != "") ? " and " : "") + " ccomenv.cenv_socio =  {" + contador + "} ";
+                valores.Add(socio);
+                contador++;
+            }
+            parametros.valores = valores.ToArray();
+            List<vHojaRutaCab> lst = vHojaRutaCabBLL.GetAll(parametros, "");
+            return lst;
+        }
+
+
+
+        public static object[] CuadreDocumento(Ddocumento ddocumento, List<Dcancelacion> lstcancelaciones)
+        {
+            List<Dcancelacion> lstdcaUp = new List<Dcancelacion>();
+            //List<Dcancelacion> lstdcaDel = new List<Dcancelacion>();
+            List<Dcontable> lstdcoUp = new List<Dcontable>();
+            List<Dcontable> lstdcoIn = new List<Dcontable>();
+
+
+            decimal totdca = 0;
+            decimal diff = 0;
+            
+
+            //List<Dcontable> lstcon = DcontableBLL.GetAll("dco_ddo_comproba=" + ddocumento.ddo_comprobante + " and dco_nropago="+ddocumento.ddo_pago, "");
+            List<Dcontable> lstcon = DcontableBLL.GetAll("dco_ddo_comproba=" + ddocumento.ddo_comprobante, "");
+            int c = 0;
+            foreach (var dca in lstcancelaciones)
+            {
+                
+                totdca += (dca.dca_monto ?? 0);
+
+                if (totdca> (ddocumento.ddo_monto??0))
+                {
+                    var monto = dca.dca_monto;
+                    var exceso = totdca - (ddocumento.ddo_monto ?? 0);
+                    var diferencia = (dca.dca_monto ?? 0) - exceso;
+
+
+                    if (diferencia <= 0)
+                    {
+                        exceso = monto??0;
+                        diferencia = 0;
+                        
+                        //diferencia =0
+                        //diferencia = exceso + diferencia;
+                        //exceso = 0;                        
+                    }
+
+                    //dca.dca_monto = exceso;
+                    dca.dca_monto = diferencia;
+
+
+
+                    /*var d = totdca - (ddocumento.ddo_monto ?? 0) - diff;
+                    //dca.dca_monto = ddocumento.ddo_monto - d;
+                    dca.dca_monto = ddocumento.ddo_monto - d;
+                    if (dca.dca_monto < 0)
+                        dca.dca_monto = 0;
+
+
+                    diff += d;*/
+
+
+                    lstdcaUp.Add(dca);
+                    Dcontable dco = lstcon.Find(f => f.dco_comprobante == dca.dca_comprobante_can && f.dco_nropago == dca.dca_pago && f.dco_valor_nac == monto);
+                    if (dco != null)
+                    {
+                        dco.dco_valor_nac = dca.dca_monto.Value;
+                        lstdcoUp.Add(dco);
+
+
+
+                        Dcontable dcoNew = new Dcontable();
+                        dcoNew.dco_empresa = dco.dco_empresa;
+                        dcoNew.dco_comprobante = dco.dco_comprobante;
+                        //dcoNew.dco_secuencia = seq;
+                        dcoNew.dco_cuenta = 252; // Codigo de cuenta de descuadres
+                        dcoNew.dco_centro = dco.dco_centro;
+                        dcoNew.dco_transacc = dco.dco_transacc;
+                        dcoNew.dco_debcre = dco.dco_debcre;
+                        //dcoNew.dco_valor_nac = diferencia;
+                        dcoNew.dco_valor_nac = exceso;
+                        dcoNew.dco_concepto = " Cuadre Aut " + dco.dco_concepto;
+                        dcoNew.dco_almacen = dco.dco_almacen;
+                        dcoNew.dco_cliente = dco.dco_cliente;
+                        dcoNew.dco_doctran = dco.dco_doctran;
+                        dcoNew.dco_nropago = dco.dco_nropago;
+                        dcoNew.dco_fecha_vence = dco.dco_fecha_vence;
+                        dcoNew.dco_ddo_comproba = dco.dco_ddo_comproba;
+                        dcoNew.dco_ddo_transacc = dco.dco_ddo_transacc;
+                        dcoNew.crea_usr = dco.crea_usr;
+                        dcoNew.crea_fecha = DateTime.Now;
+                        lstdcoIn.Add(dcoNew);
+                        //seq++;
+                    }                    
+                }
+                c++;
+            }
+
+
+
+            return new object[] { lstdcaUp, lstdcoUp, lstdcoIn };
+
+
+
+
+
+        }
+
+
+        public static object[] EliminaDeuda(Ddocumento ddocumento, List<Dcancelacion> lstcancelaciones)
+        {
+            List<Dcancelacion> lstdcaUp = new List<Dcancelacion>();
+            List<Dcontable> lstdcoUp = new List<Dcontable>();
+            List<Dcontable> lstdcoIn = new List<Dcontable>();
+
+
+            decimal totdca = 0;
+            decimal diff = 0;
+
+
+            List<Dcontable> lstconddo = DcontableBLL.GetAll("dco_ddo_comproba=" + ddocumento.ddo_comprobante + " and dco_nropago="+ddocumento.ddo_pago, "");
+            foreach (Dcontable dco in lstconddo)
+            {
+                var monto = dco.dco_valor_nac;
+                dco.dco_valor_nac = 0;
+                lstdcoUp.Add(dco);
+
+                Dcontable dcoNew = new Dcontable();
+                dcoNew.dco_empresa = dco.dco_empresa;
+                dcoNew.dco_comprobante = dco.dco_comprobante;
+                //dcoNew.dco_secuencia = seq;
+                dcoNew.dco_cuenta = 252; // Codigo de cuenta de descuadres
+                dcoNew.dco_centro = dco.dco_centro;
+                dcoNew.dco_transacc = dco.dco_transacc;
+                dcoNew.dco_debcre = dco.dco_debcre;
+                //dcoNew.dco_valor_nac = diferencia;
+                dcoNew.dco_valor_nac = monto;
+                dcoNew.dco_concepto = " Cuadre Aut " + dco.dco_concepto;
+                dcoNew.dco_almacen = dco.dco_almacen;
+                dcoNew.dco_cliente = dco.dco_cliente;
+                dcoNew.dco_doctran = dco.dco_doctran;
+                dcoNew.dco_nropago = dco.dco_nropago;
+                dcoNew.dco_fecha_vence = dco.dco_fecha_vence;
+                dcoNew.dco_ddo_comproba = dco.dco_ddo_comproba;
+                dcoNew.dco_ddo_transacc = dco.dco_ddo_transacc;
+                dcoNew.crea_usr = dco.crea_usr;
+                dcoNew.crea_fecha = DateTime.Now;
+                lstdcoIn.Add(dcoNew);
+            }
+            List<Dcontable> lstcon = DcontableBLL.GetAll("dco_ddo_comproba=" + ddocumento.ddo_comprobante, "");
+            int c = 0;
+            foreach (var dca in lstcancelaciones)
+            {
+
+                //totdca += (dca.dca_monto ?? 0);
+
+                //if (totdca > (ddocumento.ddo_monto ?? 0))
+                //{
+                var monto = dca.dca_monto ?? 0;
+                dca.dca_monto = 0;
+                lstdcaUp.Add(dca);
+                Dcontable dco = lstcon.Find(f => f.dco_comprobante == dca.dca_comprobante_can && f.dco_nropago == dca.dca_pago && f.dco_valor_nac == monto);
+                if (dco != null)
+                {
+                    dco.dco_valor_nac = dca.dca_monto.Value;
+                    lstdcoUp.Add(dco);
+
+
+
+                    Dcontable dcoNew = new Dcontable();
+                    dcoNew.dco_empresa = dco.dco_empresa;
+                    dcoNew.dco_comprobante = dco.dco_comprobante;
+                    //dcoNew.dco_secuencia = seq;
+                    dcoNew.dco_cuenta = 252; // Codigo de cuenta de descuadres
+                    dcoNew.dco_centro = dco.dco_centro;
+                    dcoNew.dco_transacc = dco.dco_transacc;
+                    dcoNew.dco_debcre = dco.dco_debcre;
+                    //dcoNew.dco_valor_nac = diferencia;
+                    dcoNew.dco_valor_nac = monto;
+                    dcoNew.dco_concepto = " Cuadre Aut " + dco.dco_concepto;
+                    dcoNew.dco_almacen = dco.dco_almacen;
+                    dcoNew.dco_cliente = dco.dco_cliente;
+                    dcoNew.dco_doctran = dco.dco_doctran;
+                    dcoNew.dco_nropago = dco.dco_nropago;
+                    dcoNew.dco_fecha_vence = dco.dco_fecha_vence;
+                    dcoNew.dco_ddo_comproba = dco.dco_ddo_comproba;
+                    dcoNew.dco_ddo_transacc = dco.dco_ddo_transacc;
+                    dcoNew.crea_usr = dco.crea_usr;
+                    dcoNew.crea_fecha = DateTime.Now;
+                    lstdcoIn.Add(dcoNew);
+                    //seq++;
+                }
+
+                c++;
+            }
+
+
+
+            return new object[] { lstdcaUp, lstdcoUp, lstdcoIn };
+
+
+
+
+
+        }
+
+        public static string Cuadrar_ContablesAnexos(DateTime? desde, DateTime? hasta, int empresa, int? persona, long? codigo )
+        {
+
+
+            
+            WhereParams pardoc = new WhereParams();
+            List<object> valdoc = new List<object>();
+
+            WhereParams parcan = new WhereParams();
+            List<object> valcan = new List<object>();
+
+            
+            string wheredoc = "ddo_empresa = " + empresa ;
+            if (persona.HasValue)
+                wheredoc += " and ddo_codclipro=" + persona;
+            if (codigo.HasValue)
+                wheredoc += " and ddo_comprobante=" + codigo;
+            if (desde.HasValue)
+            {
+                wheredoc += " and com_fecha>={0}";
+                valdoc.Add(desde);
+            }
+            if (hasta.HasValue)
+            {
+                wheredoc += " and com_fecha<={1}";
+                valdoc.Add(hasta);
+            }
+
+            pardoc.where = wheredoc;                        
+            if (valdoc.Count>0)
+                pardoc.valores = valdoc.ToArray();
+
+            List<Ddocumento> lstdoc = DdocumentoBLL.GetAll(pardoc, "");
+
+
+            string wherecan = "com_estado=2 and dca_comprobante in (" + string.Join(",", lstdoc.Select(s => s.ddo_comprobante).ToList()) + ")";
+            parcan.where = wherecan;
+            List<Dcancelacion> lstcan = DcancelacionBLL.GetAll(parcan, "dca_comprobante_can, dca_comprobantecanfecha");
+
+
+            //Contables documentos            
+            //List<Dcontable> lstcondoc = DcontableBLL.GetAll("com_estado= 2 and dco_comprobante in (" + string.Join(",", lstdoc.Select(s => s.ddo_comprobante).ToList()) + ")", "");
+
+            //Contables cancela            
+            //List<Dcontable> lstcondca = DcontableBLL.GetAll("com_estado= 2 and dco_comprobante in (" + string.Join(",", lstcan.Select(s => s.dca_comprobante_can).ToList()) + ")", "");
+
+
+
+
+            List<Ddocumento> lstdocUp = new List<Ddocumento>();
+            List<Dcancelacion> lstdcaUp = new List<Dcancelacion>();
+            List<Dcontable> lstdcoUp = new List<Dcontable>();
+            List<Dcontable> lstdcoIn = new List<Dcontable>();
+
+
+            /*parcom.where = "com_codigo in (select ddo_comprobante from ddocumento where " + wheredoc + ") and com_estado=2";
+            valcom.Add(desde);
+            valcom.Add(hasta);
+
+
+
+            valcan.Add(desde);
+            valcan.Add(hasta);
+
+
+            parcon.where = "dco_comprobante in (select ddo_comprobante from ddocumento where " + wheredoc + ") and com_estado=2";
+            valcon.Add(desde);
+            valcon.Add(hasta);
+
+
+            parcom.valores = valcom.ToArray();
+            pardoc.valores = valdoc.ToArray();
+            parcan.valores = valcan.ToArray();
+            parcon.valores = valcon.ToArray();
+            */
+
+            //List<Comprobante> lstcom = ComprobanteBLL.GetAll(parcom, "");            
+
+            //List<Dcontable> lstcon = DcontableBLL.GetAll(parcon, "");
+
+            StringBuilder html = new StringBuilder();
+            int tiporec = Constantes.cRecibo.tpd_codigo;
+            int r = 0;
+            foreach (var ddo in lstdoc)
+            {
+                bool update = false;
+
+                if (ddo.ddo_comprobantetipodoc == tiporec)
+                {
+                    if (ddo.ddo_monto > 0)
+                    {
+                        //elimina las deudas de los recibos
+                        List<Dcancelacion> lstdca = lstcan.FindAll(f => f.dca_comprobante == ddo.ddo_comprobante && ddo.ddo_pago == f.dca_pago);
+                        html.Append("Elimina deuda REC (dca mayor): " + ddo.ddo_compdoctran + " Ddo:" + ddo.ddo_comprobante + " Nro:" + ddo.ddo_pago + " Monto= " + ddo.ddo_monto + "<br>");
+                        object[] retorno = EliminaDeuda(ddo, lstdca);
+                        if (retorno != null)
+                        {
+                            lstdcaUp.AddRange(retorno[0] as List<Dcancelacion>);
+                            lstdcoUp.AddRange(retorno[1] as List<Dcontable>);
+                            lstdcoIn.AddRange(retorno[2] as List<Dcontable>);
+                        }
+                        ddo.ddo_monto = 0;
+                        ddo.ddo_cancela = ddo.ddo_monto;
+                        ddo.ddo_cancelado = 1;
+                        update = true;
+                    }
+                }
+                else
+                {
+
+                    //get cancelaciones
+                    List<Dcancelacion> lstdca = lstcan.FindAll(f => f.dca_comprobante == ddo.ddo_comprobante && ddo.ddo_pago == f.dca_pago);
+
+                    decimal totdca = lstdca.Sum(s => s.dca_monto ?? 0);
+                    if (totdca > ddo.ddo_monto)
+                    {
+                        html.Append("Descuadre (dca mayor): " + ddo.ddo_compdoctran + " Ddo:" + ddo.ddo_comprobante + " Nro:" + ddo.ddo_pago + " Monto= " + ddo.ddo_monto + " Cancela=" + totdca + "<br>");
+
+                        //object[] retorno = CuadreDocumento(ddo, lstdca.OrderByDescending(o => o.dca_monto).ToList());
+                        object[] retorno = CuadreDocumento(ddo, lstdca);
+                        if (retorno != null)
+                        {
+                            html.Append("Cuadre contable" + ddo.ddo_compdoctran + " Ddo: " + ddo.ddo_comprobante + " Nro: " + ddo.ddo_pago + "<br>");
+                            List<Dcancelacion> lst = retorno[0] as List<Dcancelacion>;
+                            foreach (var dca in lst)
+                            {
+                                html.Append("       Dca:" + dca.dca_compcandoctran + " Monto:" + dca.dca_monto + "<br>");
+                            }
+                            lstdcaUp.AddRange(lst);
+                            lstdcoUp.AddRange(retorno[1] as List<Dcontable>);
+                            lstdcoIn.AddRange(retorno[2] as List<Dcontable>);
+                        }
+
+                        ddo.ddo_cancela = ddo.ddo_monto;
+                        ddo.ddo_cancelado = 1;
+                        update = true;
+
+
+
+                    }
+                    else
+                    {
+                        if (totdca != ddo.ddo_cancela)
+                        {
+                            html.Append("Descuadre: (ddo_cancela diff)" + ddo.ddo_compdoctran + " Ddo:" + ddo.ddo_comprobante + " Nro:" + ddo.ddo_pago + " Monto= " + ddo.ddo_monto + " Ddo_cancela=" + ddo.ddo_cancela + " Cancela=" + totdca + "<br>");
+                            ddo.ddo_cancela = totdca;
+                            ddo.ddo_cancelado = ddo.ddo_monto == totdca ? 1 : 0;
+                            update = true;
+                        }
+                        if (ddo.ddo_monto == ddo.ddo_cancela && ddo.ddo_cancelado == 0)
+                        {
+                            html.Append("Descuadre: (cancelado)" + ddo.ddo_compdoctran + " Ddo:" + ddo.ddo_comprobante + " Nro:" + ddo.ddo_pago + " Monto= " + ddo.ddo_monto + " Cancela=" + totdca + "<br>");
+                            ddo.ddo_cancelado = 1;
+                            update = true;
+                        }
+                    }
+                }
+                if (update)
+                    lstdocUp.Add(ddo);
+                r++;
+                Console.WriteLine(r + "/" + lstdoc.Count());
+            }
+
+            int seq = 99999;
+
+            BLL transaction = new BLL();
+            transaction.CreateTransaction();
+            try
+            {
+                transaction.BeginTransaction();
+
+                foreach (var item in lstdocUp)
+                {
+                    item.ddo_empresa_key = item.ddo_empresa;
+                    item.ddo_comprobante_key = item.ddo_comprobante;
+                    item.ddo_transacc_key = item.ddo_transacc;
+                    item.ddo_doctran_key = item.ddo_doctran;
+                    item.ddo_pago_key = item.ddo_pago;
+                    DdocumentoBLL.Update(transaction, item);
+                }
+
+                foreach (var item in lstdcaUp)
+                {
+                    item.dca_empresa_key = item.dca_empresa;
+                    item.dca_comprobante_key = item.dca_comprobante;
+                    item.dca_transacc_key = item.dca_transacc;
+                    item.dca_doctran_key = item.dca_doctran;
+                    item.dca_pago_key = item.dca_pago;
+                    item.dca_comprobante_can_key = item.dca_comprobante_can;
+                    DcancelacionBLL.Update(transaction, item);
+
+                }
+
+                foreach (var item in lstdcoUp)
+                {
+                    item.dco_empresa_key = item.dco_empresa;
+                    item.dco_comprobante_key = item.dco_comprobante;
+                    item.dco_secuencia_key = item.dco_secuencia;                    
+                    DcontableBLL.Update(transaction, item);
+
+                }
+
+                foreach (var item in lstdcoIn)
+                {
+                    item.dco_secuencia = seq;
+                    DcontableBLL.Insert(transaction, item);
+                    seq++;
+
+                }
+
+                transaction.Commit();
+                
+            }
+            catch (Exception ex)
+            {
+                transaction.Rollback();
+                throw ex;
+            }
+
+
+
+
+            return html.ToString();
+
+
+
+        }
+      
     }
 }

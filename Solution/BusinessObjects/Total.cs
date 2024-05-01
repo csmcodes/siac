@@ -11,7 +11,19 @@ namespace BusinessObjects
     public class Total
     {
         #region Properties
+        //nuevas porpiedades para iva dif 
+        public Int32? tot_codimpuesto { get; set; }
+        public Decimal? tot_subtotal1 { get; set; }
+        public Decimal? tot_subtotal2 { get; set; }
 
+        public Decimal? tot_porc_impuesto1 { get; set; }
+        public Decimal? tot_timpuesto1 { get; set; }
+        public Int32? tot_codimpuesto1 { get; set; }
+
+        public Decimal? tot_porc_impuesto2 { get; set; }
+        public Decimal? tot_timpuesto2 { get; set; }
+        public Int32? tot_codimpuesto2 { get; set; }
+        //////
         public Decimal tot_subtotal { get; set; }
         public Decimal tot_descuento1 { get; set; }
         public Decimal tot_descuento2 { get; set; }
@@ -151,7 +163,18 @@ namespace BusinessObjects
             this.mod_usr = reader["mod_usr"].ToString();
             this.mod_fecha = (reader["mod_fecha"] != DBNull.Value) ? (DateTime?)reader["mod_fecha"] : null;
             this.tot_tseguro = (reader["tot_tseguro"] != DBNull.Value) ? (Decimal?)reader["tot_tseguro"] : null;
-          
+
+            this.tot_subtotal1 = (reader["tot_subtotal1"] != DBNull.Value) ? (Decimal?)reader["tot_subtotal1"] : null;
+            this.tot_subtotal2 = (reader["tot_subtotal2"] != DBNull.Value) ? (Decimal?)reader["tot_subtotal2"] : null;
+
+            this.tot_porc_impuesto1 = (reader["tot_porc_impuesto1"] != DBNull.Value) ? (Decimal?)reader["tot_porc_impuesto1"] : null;
+            this.tot_porc_impuesto2 = (reader["tot_porc_impuesto2"] != DBNull.Value) ? (Decimal?)reader["tot_porc_impuesto2"] : null;
+            this.tot_timpuesto1 = (reader["tot_timpuesto1"] != DBNull.Value) ? (Decimal?)reader["tot_timpuesto1"] : null;
+            this.tot_timpuesto2 = (reader["tot_timpuesto2"] != DBNull.Value) ? (Decimal?)reader["tot_timpuesto2"] : null;
+            this.tot_codimpuesto = (reader["tot_codimpuesto"] != DBNull.Value) ? (Int32?)reader["tot_codimpuesto"] : null;
+            this.tot_codimpuesto1 = (reader["tot_codimpuesto1"] != DBNull.Value) ? (Int32?)reader["tot_codimpuesto1"] : null;
+            this.tot_codimpuesto2 = (reader["tot_codimpuesto2"] != DBNull.Value) ? (Int32?)reader["tot_codimpuesto2"] : null;
+
 
         }
 
@@ -197,7 +220,17 @@ namespace BusinessObjects
                 object tot_porc_servicio = null;
                 object tot_porc_seguro = null;
                 object tot_cantidad = null;
-               
+
+                object tot_subtotal1 = null;
+                object tot_subtotal2 = null;
+                object tot_porc_impuesto1 = null;
+                object tot_timpuesto1 = null;
+                object tot_codimpuesto1 = null;
+
+                object tot_porc_impuesto2 = null;
+                object tot_timpuesto2 = null;
+                object tot_codimpuesto2 = null;
+                object tot_codimpuesto = null;
 
 
                 tmp.TryGetValue("tot_empresa", out tot_empresa);
@@ -235,7 +268,18 @@ namespace BusinessObjects
                 tmp.TryGetValue("tot_porc_servicio", out tot_porc_servicio);
                 tmp.TryGetValue("tot_porc_seguro", out tot_porc_seguro);
                 tmp.TryGetValue("tot_cantidad", out tot_cantidad);
-               
+
+                tmp.TryGetValue("tot_subtotal1", out tot_subtotal1);
+                tmp.TryGetValue("tot_subtotal2", out tot_subtotal2);
+                tmp.TryGetValue("tot_porc_impuesto1", out tot_porc_impuesto1);
+                tmp.TryGetValue("tot_timpuesto1", out tot_timpuesto1);
+                tmp.TryGetValue("tot_codimpuesto1", out tot_codimpuesto1);
+
+                tmp.TryGetValue("tot_porc_impuesto2", out tot_porc_impuesto2);
+                tmp.TryGetValue("tot_timpuesto2", out tot_timpuesto2);
+                tmp.TryGetValue("tot_codimpuesto2", out tot_codimpuesto2);
+                tmp.TryGetValue("tot_codimpuesto", out tot_codimpuesto);
+
 
 
                 this.tot_empresa = (Int32)Conversiones.GetValueByType(tot_empresa, typeof(Int32));
@@ -274,7 +318,16 @@ namespace BusinessObjects
                 this.tot_porc_seguro = (Decimal?)Conversiones.GetValueByType(tot_porc_seguro, typeof(Decimal?));
                 this.tot_cantidad = (Decimal?)Conversiones.GetValueByType(tot_cantidad, typeof(Decimal?));
 
+                this.tot_subtotal1 = (Decimal?)Conversiones.GetValueByType(tot_subtotal1, typeof(Decimal?));
+                this.tot_subtotal2 = (Decimal?)Conversiones.GetValueByType(tot_subtotal2, typeof(Decimal?));
+                this.tot_porc_impuesto1 = (Decimal?)Conversiones.GetValueByType(tot_porc_impuesto1, typeof(Decimal?));
+                this.tot_timpuesto1 = (Decimal?)Conversiones.GetValueByType(tot_timpuesto1, typeof(Decimal?));
+                this.tot_codimpuesto1 = (Int32?)Conversiones.GetValueByType(tot_codimpuesto1, typeof(Int32?));
 
+                this.tot_porc_impuesto2 = (Decimal?)Conversiones.GetValueByType(tot_porc_impuesto2, typeof(Decimal?));
+                this.tot_timpuesto2 = (Decimal?)Conversiones.GetValueByType(tot_timpuesto2, typeof(Decimal?));
+                this.tot_codimpuesto2 = (Int32?)Conversiones.GetValueByType(tot_codimpuesto2, typeof(Int32?));
+                this.tot_codimpuesto = (Int32?)Conversiones.GetValueByType(tot_codimpuesto, typeof(Int32?));
 
                 /*obj.crea_usr = (crea_usr != null) ? (int)crea_usr : obj.crea_usr;
                 obj.crea_fecha = (crea_fecha != null) ? (int)crea_fecha : obj.crea_fecha;

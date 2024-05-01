@@ -1,0 +1,259 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title></title>
+    <style>
+        body
+        {
+            font-family:Sans-Serif;
+            font-size: 10px;
+            
+        }
+        .cantidad
+        {
+            width:100px;
+        }
+        .descripcion
+        {
+            width:300px;
+        }
+       
+      
+        .etiqueta
+        {
+            font-weight:bold;
+            width:100px;                
+        }
+        .etiquetadet
+        {
+            vertical-align:top;
+            background-color:LightGray;
+            height:4.5cm;
+        }
+         .peso
+        {
+            width:100px;
+        }
+        .texto
+        {
+            width: 200px;
+        }
+        .total
+        {
+            font-weight:bolder;
+        }
+          .valoru
+        {
+            width:100px;
+        }
+        .valortotal
+        {
+            width:100px;
+        }
+        
+        
+        #cabecera
+        {
+            position:absolute;
+            top:2.5cm;
+            left:1.5cm;
+        }
+        
+        #datos
+        {
+             position:absolute;
+            top:10.7cm;
+            left:1.5cm;
+        }
+        #detalle
+        {
+            position:absolute;
+            top:6cm;
+            left:1.5cm;
+        }
+        
+        #pie
+        {
+            position:absolute;
+            top:10.7cm;
+            left:15cm;
+        }
+        #propietario
+        {
+            position:absolute;
+            top:13cm;
+            left:1.2cm;
+        }
+          #conductor
+        {
+            position:absolute;
+            top:13cm;
+            left:5.7cm;
+        }
+          #nombreusuario
+        {
+            position:absolute;
+            top:13cm;
+            left:10.2cm;
+        }
+          #usuario
+        {
+            position:absolute;
+            top:13.6cm;
+            left:18.1cm;
+        }
+        
+           #numeroup
+        {
+            position:absolute;
+            top:0.1cm;
+            left:8.7cm;
+        }
+        
+           #numerodown
+        {
+            position:absolute;
+            top:1.8cm;
+            left:8.7cm;
+        }
+           #fechacrea
+        {
+            position:absolute;
+            top:1.8cm;
+            left:13.5cm;
+        }
+        
+    </style>
+      <script type="text/javascript" src="../js/prefixfree.min.js"  ></script>
+    <script type="text/javascript" src="../js/jquery.js"></script>
+    <script type="text/javascript" src="../js/jquery-ui.js"></script>    
+    <script type="text/javascript" src="../js/login.js"></script>
+    <script type="text/javascript" src="../js/general.js"></script>    
+    <script type="text/javascript" src="../js/functions.js"></script>    
+    <script type="text/javascript" src="../js/methods.js"></script>    
+    <script type="text/javascript" src="../js/forms/comprobanteprint.js"></script>
+</head>
+<body>
+    <div id="numeroup">%numero%</div>
+    <div id="numerodown">%numero%</div>
+    <div id="fechacrea">%fechacrea%</div>
+    <div id="cabecera">
+        <table>
+            <tr>
+                <td class='etiqueta'>FECHA:</td>
+                <td class='texto'>%fecha%</td>
+                <td class='etiqueta'>DESTINATARIO:</td>
+                <td class='texto'>%destinatario%</td>
+            </tr>
+            <tr>
+                <td class='etiqueta'>CLIENTE:</td>
+                <td class='texto'>%cliente%</td>
+                <td class='etiqueta'>DIRECCIÓN:</td>
+                <td class='texto'>%direcciondes%</td>
+            </tr>
+            <tr>
+                <td class='etiqueta'>RUC:</td>
+                <td class='texto'>%ruc%</td>
+                <td class='etiqueta'>CIUDAD:</td>
+                <td class='texto'>%ciudaddes%</td>
+            </tr>
+            <tr>
+                <td class='etiqueta'>DIRECCIÓN:</td>
+                <td class='texto'>%fecha%</td>
+                <td class='etiqueta'>REMITENTE:</td>
+                <td class='texto'>%destinatario%</td>
+            </tr>
+            <tr>
+                <td class='etiqueta'>TELÉFONO:</td>
+                <td class='texto'>%telefono%</td>
+                <td class='etiqueta'></td>
+                <td class='texto'></td>
+            </tr>
+
+        </table>
+    </div>
+    <div id="detalle">
+        <table>
+            <tr>
+                <td class="etiquetadet cantidad">%cantidad%</td>
+                <td class="etiquetadet descripcion">%descripcion%</td>
+                <td class="etiquetadet peso">%peso%</td>
+                <td class="etiquetadet valoru">%valorunitario%</td>
+                <td class="etiquetadet valortotal">%valortotal%</td>
+            </tr>
+        </table>
+    </div>
+    <div id="pie">
+        <table>
+            <tr>
+                <td class="etiqueta">SEGURO:</td>
+                <td class="texto">%valorseguro%</td>
+            </tr>
+            <tr>
+                <td class="etiqueta">TRANSPORTE:</td>
+                <td class="texto">%transporte%</td>
+            </tr>
+            <tr>
+                <td class="etiqueta">SUBTOTAL 0%:</td>
+                <td class="texto">%subtotal0%</td>
+            </tr>
+            <tr>
+                <td class="etiqueta">SUBTOTAL 12%:</td>
+                <td class="texto">%subtotal12%</td>
+            </tr>
+            <tr>
+                <td class="etiqueta">SUBTOTAL:</td>
+                <td class="texto">%subtotal%</td>
+            </tr>
+            <tr>
+                <td class="etiqueta">IVA 12%:</td>
+                <td class="texto">%iva%</td>
+            </tr>
+            <tr>
+                <td class="etiqueta total">VALOR TOTAL:</td>
+                <td class="texto">%total%</td>
+            </tr>
+        </table>
+    </div>
+    <div id="datos">
+        <table>
+            <tr>
+                <td class="etiqueta">TOTAL BULTOS:</td>
+                <td class="texto">%totalcantidad%</td>
+                <td class="etiqueta"></td>
+                <td class="texto"></td>
+            </tr>
+            <tr>
+                <td class="etiqueta">VALOR DECLARADO:</td>
+                <td class="texto">%valordeclarado%</td>
+                <td class="etiqueta">TIPO:</td>
+                <td class="texto">%politica%</td>
+            </tr>
+            <tr>
+                <td class="etiqueta">GUIA REMISIÓN:</td>
+                <td class="texto">%guia%</td>
+                <td class="etiqueta">HOJA RUTA:</td>
+                <td class="texto">%hojaruta%</td>
+            </tr>
+            <tr>
+                <td class="etiqueta">LUGAR ENTREGA:</td>
+                <td class="texto" colspan="3">%entrega%</td>
+            
+            </tr>
+        </table>
+    </div>
+    <div id="propietario">
+        %propietario%
+    </div>
+    <div id="conductor">
+    %conductor%
+    </div>
+    <div id="nombreusuario">
+    %nombreusuario%
+    </div>
+    <div id="usuario">
+        %usuario%
+    </div>
+
+</body>
+</html>

@@ -21,6 +21,50 @@ namespace Packages
             LocalReport rep = reportviewer.LocalReport;
             switch (reportcode)
             {
+                case "HOJARUTACABCON":
+                case "HOJARUTACAB"://ESTE REPORTE NO SE ENCUENTRA EN USO
+                    string sociohrcab = parameters[2].ToString();
+                    string usuariohrcab = parameters[3].ToString();
+
+                    string almacenhrcab = parameters[4].ToString();
+                    string pventahrcab = parameters[5].ToString();
+                    string nomalamcenhrcab = parameters[6].ToString();
+                    string nompventavhrcab = parameters[7].ToString();
+                    if (string.IsNullOrEmpty(nomalamcenhrcab))
+                        nomalamcenhrcab = "TODOS";
+                    if (string.IsNullOrEmpty(nompventavhrcab))
+                        nompventavhrcab = "TODOS";
+
+                    int? almhrcab = null;
+                    int? pvehrcab = null;
+                    if (!string.IsNullOrEmpty(almacenhrcab))
+                        almhrcab = int.Parse(almacenhrcab);
+                    if (!string.IsNullOrEmpty(pventahrcab))
+                        pvehrcab = int.Parse(pventahrcab);
+
+                    int? codsociohrcab = null;
+                    if (!string.IsNullOrEmpty(sociohrcab))
+                        codsociohrcab = int.Parse(sociohrcab);
+
+
+                    if (reportcode == "HOJARUTACAB")
+                        rep.ReportPath = reportfolder + "HojasRutaCab.rdlc";
+                    if (reportcode == "HOJARUTACABCON")
+                        rep.ReportPath = reportfolder + "HojasRutaCabCon.rdlc";
+                    
+                    rep.DataSources.Add(new ReportDataSource("DataSet1", Packages.General.getHojasRutaCabSocio(DateTime.Parse(parameters[0].ToString()), DateTime.Parse(parameters[1].ToString()), emp.emp_codigo, almhrcab, pvehrcab, codsociohrcab)));
+                    rep.SetParameters(new ReportParameter("desde", DateTime.Parse(parameters[0].ToString()).ToShortDateString()));
+                    rep.SetParameters(new ReportParameter("hasta", DateTime.Parse(parameters[1].ToString()).ToShortDateString()));
+                    rep.SetParameters(new ReportParameter("almacen", nomalamcenhrcab));
+
+                    rep.SetParameters(new ReportParameter("pventa", nompventavhrcab));
+                    // rep.SetParameters(new ReportParameter("anuladas", "0"));
+                    //rep.SetParameters(new ReportParameter("usuario", usuarioth));
+                    rep.SetParameters(new ReportParameter("empresa", emp.emp_nombre));
+
+                    break;
+
+
                 case "DETALLEBAN":
                     DateTime? desde_DBAN = Functions.Conversiones.ObjectToDateTimeNull(parameters[0].ToString());
                     DateTime? hasta_DBAN = Functions.Conversiones.ObjectToDateTimeNull(parameters[1].ToString());

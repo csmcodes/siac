@@ -142,6 +142,18 @@ namespace Services
         }
 
 
+        public static List<IvaCompras> cIVACompras
+        {
+            get
+            {
+                string parametro = GetParameter("ivacompras");
+                var serializer = new JavaScriptSerializer();
+                List<IvaCompras> lstimp = serializer.Deserialize<List<IvaCompras>>(parametro);                
+                return lstimp;
+            }
+        }
+
+
 
 
 

@@ -1,0 +1,10 @@
+﻿<impuesto>
+  <codigo  source="electronicodet.eled_codigo"></codigo>
+  <codigoRetencion source="electronicodet.eled_codigoaux"></codigoRetencion>
+  <baseImponible source="electronicodet.eled_baseimp"></baseImponible>
+  <porcentajeRetener source="electronicodet.eled_porcret"></porcentajeRetener>
+  <valorRetenido source="electronicodet.eled_valorret"></valorRetenido>
+  <codDocSustento source="electronicodet.eled_coddocsustento"></codDocSustento>
+  <numDocSustento source="electronicodet.eled_numdocsustento"></numDocSustento>
+  <fechaEmisionDocSustento source="electronicodet.eled_fechadocsustento"></fechaEmisionDocSustento>   
+</impuesto>

@@ -1,0 +1,133 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title></title>
+    <script type="text/javascript" src="js/prefixfree.min.js"  ></script>
+    <script type="text/javascript" src="js/jquery.js"></script>
+    <script type="text/javascript" src="js/jquery-ui.js"></script>    
+    <script type="text/javascript" src="js/modernizr.min.js"></script>
+    <script type="text/javascript" src="js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="js/jquery.jgrowl.js"></script>
+    <script type="text/javascript" src="js/jquery.alerts.js"></script>
+      <script type="text/javascript" src="js/jquery.cookie.js"></script>    
+    <script type="text/javascript" src="js/flot/jquery.flot.min.js"></script>
+    <script type="text/javascript" src="js/flot/jquery.flot.resize.min.js"></script>
+    <script type="text/javascript" src="js/responsive-tables.js"></script>
+    <script type="text/javascript" src="js/chosen.jquery.min.js"></script>
+    <script src="js/jquery.PrintArea.js" type="text/javascript"></script>
+     <script type="text/javascript" src="js/functions.js"></script>
+    <script type="text/javascript" src="js/general.js"></script>    
+    <script type="text/javascript" src="js/methods.js"></script>    
+    <script type="text/javascript" src="js/forms/PrintComprobante.js"></script>
+    
+    <style>
+      body
+      {
+      	font-family:Arial;
+      	font-size: smaller;
+      	
+      }
+        
+        
+        
+    </style>
+</head>
+<body>
+    <div id="printArea">
+    <div id="numero"></div>
+    <table id="cabecera"> 
+        <tr>
+            <td>FECHA:</td>
+            <td id="fecha"></td>
+            <td>DESTINATARIO</td>
+            <td id="destinatario"></td>
+        </tr>
+        <tr>
+            <td>CLIENTE:</td>
+            <td id="cliente"></td>
+            <td>DIRECCION</td>
+            <td id="direcciondestino"></td>
+        </tr>
+        <tr>
+            <td>RUC/CI:</td>
+            <td id="ruc"></td>
+            <td>CIUDAD</td>
+            <td id="ciudadestino"></td>
+        </tr>
+        <tr>
+            <td>DIRECCION:</td>
+            <td id="direccioncliente"></td>
+            <td>REMITENTE</td>
+            <td id="remitente"></td>
+        </tr>
+    </table>
+    </div>
+
+    <table id="detalle">
+        
+    </table>
+    <table id="pie">
+        <tr>
+            <td id="piedata">
+                <table>
+                    <tr>
+                        <td>TOTAL BULTOS:</td>
+                        <td id="bultos"></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>VALOR DECLARADO:</td>
+                        <td id="valordeclarado"></td>
+                        <td>VALOR</td>
+                        <td id="valorseguro"></td>
+                    </tr>
+                    <tr>
+                        <td>GUIA REMISION:</td>
+                        <td id="guia"></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>LUGAR ENTREGA:</td>
+                        <td id="entrega"></td>
+                        <td>TIPO</td>
+                        <td id="politica"></td>
+                    </tr>
+
+                </table>
+            </td>
+            <td id="pietotal">
+                <table>
+                    <tr>
+                        <td>SUBTOTAL 0%:</td>
+                        <td id="subtotal0"></td>                        
+                    </tr>
+                    <tr>
+                        <td>SUBTOTAL 12%:</td>
+                        <td id="subtotal12"></td>                        
+                    </tr>
+                    <tr>
+                        <td>SUBTOTAL:</td>
+                        <td id="subtotal"></td>                        
+                    </tr>
+                    <tr>
+                        <td>IVA:</td>
+                        <td id="valoriva"></td>
+                        
+                    </tr>
+                    <tr>
+                        <td>VALOR TOTAL:</td>
+                        <td id="total"></td>
+                        
+                    </tr>
+
+                </table>
+            </td>
+             
+        </tr>
+    </table>
+
+
+</body>
+</html>

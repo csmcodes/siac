@@ -1,0 +1,469 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title></title>
+    <style>
+
+       
+        body {
+            background: white;
+            font-family: Sans-Serif;
+            font-size: 14pt;
+            /*font-family: Georgia, ‘Times New Roman’, serif;*/
+        }
+
+        div{
+            /*border:1px solid Gray;*/
+
+        }
+
+        #nav, #sidebar { display: none; } 
+        #content { width: 100%; margin: 0; float: none; } 
+        #content { background: transparent; } 
+
+
+
+        .cantidad {
+            width: 100pt;
+        }
+
+        .descripcion {
+            width: 500pt;
+        }
+
+
+        .etiqueta {
+            font-weight: bold;
+            width: 100px;
+        }
+
+        .etiquetadet {
+            vertical-align: top;
+            background-color: LightGray;
+            height: 240px;
+        }
+
+        .peso {
+            width:80pt;
+        }
+
+        .texto {
+            width: 200px;
+        }
+
+        .total {
+            font-weight: bolder;
+        }
+
+        .valoru {
+            width: 90pt;
+        }
+
+        .valortotal {
+            width: 90pt;
+        }
+
+
+        #cabecera {
+            position: absolute;
+            top: 128pt;
+            left: 43pt;
+            width:541pt;
+        }
+
+     
+        #detalle {
+            position: absolute;
+            top: 290pt;
+            left: 50pt;
+           
+        }
+
+        #pie {
+            position: absolute;
+            top: 427pt;
+            left: 574px;
+        }
+
+        #propietario {
+            position: absolute;
+            top: 540pt;
+            left: 57px;
+        }
+
+        #conductor {
+            position: absolute;
+            top: 590pt;
+            left: 57px;
+        }
+
+        #nombreusuario {
+            position: absolute;
+            top: 590pt;
+            left: 385px;
+        }
+
+        #usuario {
+            position: absolute;
+            top: 3px;
+            left: 984px;
+        }
+
+        #numeroup {
+            position: absolute;
+            top: 3px;
+            left: 45px;
+        }
+        #hojaruta{
+            position: absolute;
+            top: 3px;
+            left: 265px;
+        }
+
+        #numerodown {
+            position: absolute;
+            top: 68px;
+            left: 329px;
+        }
+
+        #fechacrea {
+            position: absolute;
+            top: 3px;
+            left: 510px;
+        }
+        #valordeclarado {
+            position: absolute;
+            top: 490pt;
+            left: 227px;
+        }
+
+        #valorseguro{
+            position: absolute;
+            top:510pt;
+            left: 227px;
+        }
+        #politica{
+            position: absolute;
+            top:470pt;
+            left: 227px;
+        }
+        #totalcantidad
+        {
+              position: absolute;
+            top:470pt;
+            left: 57px;
+        }
+
+
+        #lblsubtotal {
+            position: absolute;
+            top: 470pt;
+            left: 950px;
+        }
+        #subtotal {
+            position: absolute;
+            top: 470pt;
+            left: 1070px;
+        }
+         #lblsubtotal0 {
+            position: absolute;
+            top: 490pt;
+            left: 950px;
+        }
+        #subtotal0 {
+            position: absolute;
+            top: 490pt;
+            left: 1070px;
+        }
+        #lbliva {
+            position: absolute;
+            top: 510pt;
+            left: 950px;
+        }
+        #iva {
+            position: absolute;
+            top: 510pt;
+            left: 1070px;
+        }
+        #lbltotal {
+            position: absolute;
+            top: 530pt;
+            left: 950px;
+            font-weight: bolder;
+        }
+        #total {
+            position: absolute;
+            top: 530pt;
+            left: 1070px;
+            font-weight: bolder;
+        }
+
+        #lblfecha
+        {
+            position: absolute;
+            top: 180pt;
+            left: 70px;
+        }
+        #fecha {
+            position: absolute;
+            top: 180pt;
+            left: 150px;
+        }
+        #lblcliente{
+            position: absolute;
+            top: 180pt;
+            left: 340px;
+        }
+        #remitente {
+            position: absolute;
+            top: 180pt;
+            left: 480px;
+            max-width:400px;
+            white-space:nowrap;
+            text-overflow:ellipsis;
+            overflow:hidden;
+        }
+        #lblruccli
+        {
+             position: absolute;
+            top: 180pt;
+            left: 890px;
+        }
+        #rucrem {
+            position: absolute;
+            top: 180pt;
+            left: 935px;
+        }
+
+        #lblciudaddes{
+            position: absolute;
+            top: 210pt;
+            left: 48px;
+        }
+        #ciudaddes {
+            position: absolute;
+            top: 210pt;
+            left: 130px;
+        }
+
+        #lbldestinatario
+        {
+            position: absolute;
+            top: 210pt;
+            left: 310px;
+        }
+        #destinatario {
+            position: absolute;
+            top: 210pt;
+            left:450px;
+            max-width:420px;
+            white-space:nowrap;
+            text-overflow:ellipsis;
+            overflow:hidden;
+        }
+
+        #lblrucdes{
+            position: absolute;
+            top: 210pt;
+            left: 890px;
+        }
+        #rucdes {
+            position: absolute;
+            top: 210pt;
+            left: 935px;
+        }
+        #lbldirecciondes{
+            position: absolute;
+            top: 240pt;
+            left: 70px;
+        }
+        #direcciondes {
+            position: absolute;
+            top: 240pt;
+            left: 106px;
+             max-width:460px;
+            white-space:nowrap;
+            text-overflow:ellipsis;
+            overflow:hidden;
+        }
+
+
+        #lbltelefonodes
+        {
+            position: absolute;
+            top: 240pt;
+            left: 600px;
+        }
+        #telefonodes {
+            position: absolute;
+            top: 240pt;
+            left: 665px;
+        }
+
+        #lblguia{
+            position: absolute;
+            top: 240pt;
+            left: 890px;
+        }
+        #guia {
+            position: absolute;
+            top: 240pt;
+            left: 945px;
+        }
+                  
+        .imprime{
+            font-weight:bold;
+        }
+
+    </style>
+    <script type="text/javascript" src="../js/prefixfree.min.js"></script>
+    <script type="text/javascript" src="../js/jquery.js"></script>
+    <script type="text/javascript" src="../js/jquery-ui.js"></script>
+    <script type="text/javascript" src="../js/login.js"></script>
+    <script type="text/javascript" src="../js/general.js"></script>
+    <script type="text/javascript" src="../js/functions.js"></script>
+    <script type="text/javascript" src="../js/methods.js"></script>
+    <script type="text/javascript" src="../js/forms/comprobanteprint.js"></script>
+</head>
+<body>
+    <div id="numeroup">%numero%</div>    
+    <div id="fechacrea">%fechacrea%</div>
+
+    <div id="lblfecha" class="imprime">
+        FECHA:
+    </div>
+    <div id="fecha">
+        %fecha%
+    </div>
+    <div id="lblcliente" class="imprime">
+        REMITE:
+    </div>
+    <div id="remitente">
+        %remitente%
+    </div>
+
+    <div id="lblruccli" class="imprime">
+        RUC:
+    </div>
+    <div id="rucrem">
+        %ruc%
+    </div>
+
+    <div id="lblciudaddes" class="imprime">
+        DESTINO:
+    </div>
+    <div id="ciudaddes">
+        %ciudaddes%
+    </div>  
+
+    <div id="lbldestinatario" class="imprime">
+        PARA:
+    </div>
+    <div id="destinatario">
+        %destinatario%
+    </div>
+
+
+    <div id="lblrucdes" class="imprime">
+        RUC:
+    </div>
+    <div id="rucdes">
+        %rucdes%
+    </div>
+
+
+    <div id="lbldirecciondes" class="imprime">
+        DIR:
+    </div>
+    <div id="direcciondes">
+        %direcciondes%
+    </div>
+
+    <div id="lbltelefonodes" class="imprime">
+        TELF:
+    </div>
+
+    <div id="telefonodes">
+        %telefonodes%
+    </div>
+
+    <div id="lblguia" class="imprime">
+        GUIA:
+    </div>
+
+    <div id="guia">
+        %guia%
+    </div>
+
+    
+    <div id="detalle">
+        <table>
+            <tr>
+                <td class="etiquetadet cantidad"></td>
+                <td class="etiquetadet descripcion"></td>
+                <td class="etiquetadet peso"></td>
+                <td class="etiquetadet valoru"></td>
+                <td class="etiquetadet valortotal"></td>
+            </tr>
+        </table>
+    </div>
+   
+    <div id="lblsubtotal" class="imprime">
+        SUMAN:
+    </div>
+    <div id="subtotal">
+       %subtotal%
+    </div>
+    <div id="lblsubtotal0" class="imprime">
+        IVA 0:
+    </div>
+    <div id="subtotal0">
+        %subtotal0%
+    </div>
+    <div id="lbliva" class="imprime">
+        IVA:
+    </div>
+    <div id="iva">
+        %iva%
+    </div>
+    <div id="lbltotal" class="imprime">
+        TOTAL:
+    </div>
+    <div id="total">
+        %total%
+    </div>
+
+   
+    <div id="totalcantidad">
+        TOTAL BUL
+        %totalcantidad%
+    </div>
+
+    <div id="politica">
+        %politica%
+    </div>
+    <div id="valorseguro">
+        %valorseguro%
+    </div>
+    <div id="valordeclarado">
+        %valordeclarado%
+    </div>
+
+    <div id="propietario">
+        %propietario%
+    </div>
+    <div id="hojaruta">
+        
+    </div>
+    <div id="conductor">
+        
+    </div>
+    <div id="nombreusuario">
+        
+    </div>
+    <div id="usuario">
+        %usuario%
+    </div>
+
+</body>
+</html>

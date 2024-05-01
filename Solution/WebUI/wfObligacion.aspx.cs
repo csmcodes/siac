@@ -294,16 +294,20 @@ namespace WebUI
             tdatos.AddColumn("Valor", "width10", Css.right, new Input() { id = "txtVALOR", placeholder = "VALOR", clase = Css.blocklevel + Css.amount, numeric = true}.ToString());
             tdatos.AddColumn("Desc.%", "width5", Css.right, new Input() { id = "txtDESC", placeholder = "DESC", clase = Css.blocklevel + Css.amount }.ToString());
             tdatos.AddColumn("TOTAL", "width10", Css.right, new Input() { id = "txtTOTAL", placeholder = "TOTAL", clase = Css.blocklevel + Css.amount, habilitado = false }.ToString());
-            tdatos.AddColumn("IVA", "width5", Css.center, new Check() { id = "chkIVA", clase = Css.blocklevel + Css.cantidades,  valor = 0 }.ToString());
+            tdatos.AddColumn("IVA", "width5", Css.center, new Select() { id = "cmbIVA", clase = Css.blocklevel + Css.cantidades, valor = 0, diccionario= Dictionaries.GetIVACompras() }.ToString());
+            //tdatos.AddColumn("IVA", "width5", Css.center, new Check() { id = "chkIVA", clase = Css.blocklevel + Css.cantidades,  valor = 0 }.ToString());
+            //tdatos.AddColumn("IVA5", "width5", Css.center, new Check() { id = "chkIVA5", clase = Css.blocklevel + Css.cantidades, valor = 0 }.ToString());
             tdatos.AddColumn("", "width5", Css.center, new Boton { removerow = true, tooltip = "Eliminar registro" }.ToString());
 
             tdatos.editable = true;
+            
 
             foreach (Dcomdoc item in comprobante.ccomdoc.detalle)
             {
                 HtmlRow row = new HtmlRow();
                 row.data = "data-codcue=" + item.ddoc_cuenta;
                 row.removable = true;
+                
 
                 row.cells.Add(new HtmlCell { valor = item.ddoc_cuentaid});//ID CUENTA
                 row.cells.Add(new HtmlCell { valor = item.ddoc_cuentanombre});//NOMBRE CUENTA
@@ -312,7 +316,10 @@ namespace WebUI
                 row.cells.Add(new HtmlCell { valor = Formatos.CurrencyFormat(item.ddoc_precio), clase = Css.right });
                 row.cells.Add(new HtmlCell { valor = Formatos.CurrencyFormat(item.ddoc_dscitem), clase = Css.right });
                 row.cells.Add(new HtmlCell { valor = Formatos.CurrencyFormat(item.ddoc_total), clase = Css.right });
-                row.cells.Add(new HtmlCell { valor = ((item.ddoc_grabaiva.HasValue) ? ((item.ddoc_grabaiva.Value == 1) ? "SI" : "NO") : "NO"), clase = Css.center });
+                row.cells.Add(new HtmlCell { valor = item.ddoc_codiva, clase = Css.right });
+
+                //row.cells.Add(new HtmlCell { valor = ((item.ddoc_grabaiva.HasValue) ? ((item.ddoc_grabaiva.Value == 1) ? "SI" : "NO") : "NO"), clase = Css.center });
+                //row.cells.Add(new HtmlCell { valor = ((item.ddoc_grabaiva5.HasValue) ? ((item.ddoc_grabaiva5.Value == 1) ? "SI" : "NO") : "NO"), clase = Css.center });
                 row.cells.Add(new HtmlCell { valor = new Boton { removerow = true, tooltip = "Eliminar registro" }.ToString(), clase = Css.center });
                 tdatos.AddRow(row);
                 //tdatos.AddRow(new HtmlRow(item.ddoc_productoid, item.ddoc_productonombre, item.ddoc_observaciones, item.ddoc_productounidad, item.ddoc_cantidad, item.ddoc_precio, item.ddoc_dscitem, item.ddoc_total, item.ddoc_productoiva) { data = "data-codpro=" + item.ddoc_producto });   
@@ -328,7 +335,7 @@ namespace WebUI
 
         
         [WebMethod]
-        public static string GetPie(object objeto)
+        public static string GetPieOld(object objeto)
         {
             Comprobante comprobante = new Comprobante(objeto);
             DateTime fecha = comprobante.com_fecha;
@@ -382,6 +389,8 @@ namespace WebUI
             tdatos1.rows[0].cells[1].valor = new Input { id = "txtICE", clase = Css.medium + Css.amount, habilitado = habilitado, valor = Formatos.CurrencyFormat(comprobante.total.tot_ice) }.ToString();
             tdatos1.rows[1].cells[0].valor = new Select { id = "cmbIMPUESTO", diccionario = Dictionaries.GetImpuestoIVA(), clase = Css.medium, valor=1 }.ToString();
             tdatos1.rows[1].cells[1].valor = new Input { id = "txtIVAPORCENTAJE", visible = false, valor = valoriva.ToString().Replace(",", ".") }.ToString() + new Input { id = "txtIVA", clase = Css.medium + Css.amount, habilitado = false, valor = Formatos.CurrencyFormat(comprobante.total.tot_timpuesto) }.ToString();
+            tdatos1.rows[1].cells[0].valor = new Select { id = "cmbIMPUESTO5", diccionario = Dictionaries.GetImpuestoIVA(), clase = Css.medium, valor = 1 }.ToString();
+            tdatos1.rows[1].cells[1].valor = new Input { id = "txtIVAPORCENTAJE5", visible = false, valor = "5" }.ToString() + new Input { id = "txtIVA", clase = Css.medium + Css.amount, habilitado = false, valor = Formatos.CurrencyFormat(comprobante.total.tot_timpuesto1) }.ToString();
             tdatos1.rows[2].cells[0].valor = "SEGURO:";
             tdatos1.rows[2].cells[1].valor = new Input { id = "txtSEGURO", clase = Css.medium + Css.amount, habilitado = false, valor = Formatos.CurrencyFormat(comprobante.total.tot_tseguro) }.ToString();
             tdatos1.rows[3].cells[0].valor = "TRANSPORTE:";
@@ -390,6 +399,88 @@ namespace WebUI
             tdatos1.rows[4].cells[1].valor = new Input { id = "txtTOTALCOM", clase = Css.medium + Css.totalamount, habilitado = false, valor = Formatos.CurrencyFormat(comprobante.total.tot_total) }.ToString();
         
             html.AppendLine(tdatos1.ToString());
+
+            return html.ToString();
+
+        }
+
+
+        [WebMethod]
+        public static string GetPie(object objeto)
+        {
+            Comprobante comprobante = new Comprobante(objeto);
+            DateTime fecha = comprobante.com_fecha;
+            comprobante.com_empresa_key = comprobante.com_empresa;
+            comprobante.com_codigo_key = comprobante.com_codigo;
+
+            comprobante = ComprobanteBLL.GetByPK(comprobante);
+
+            bool habilitado = true;
+            if (comprobante.com_estado == Constantes.cEstadoEliminado || comprobante.com_estado == Constantes.cEstadoMayorizado)
+                habilitado = false;
+
+            comprobante.total = new Total();
+            comprobante.total.tot_empresa = comprobante.com_empresa;
+            comprobante.total.tot_empresa_key = comprobante.com_empresa;
+            comprobante.total.tot_comprobante = comprobante.com_codigo;
+            comprobante.total.tot_comprobante_key = comprobante.com_codigo;
+            comprobante.total = TotalBLL.GetByPK(comprobante.total);
+
+            decimal valoriva = Constantes.GetValorIVA(fecha);
+            if (comprobante.total.tot_porc_impuesto.HasValue)
+                valoriva = comprobante.total.tot_porc_impuesto.Value;
+
+
+            //OBTENER DE LA BD
+            decimal valoriva1 = 5;            
+            //
+
+            StringBuilder html = new StringBuilder();
+            HtmlTable tdatos = new HtmlTable();
+            tdatos.CreteEmptyTable(10, 2);
+
+
+
+
+
+            tdatos.rows[0].cells[0].valor = "SUBTOT 0";
+            tdatos.rows[0].cells[1].valor = new Input { id = "txtSUBTOTAL0", clase = Css.small + Css.amount, habilitado = false, valor = Formatos.CurrencyFormat(comprobante.total.tot_subtot_0) }.ToString();
+            tdatos.rows[1].cells[0].valor = "SUBTOT "+valoriva1+"%";
+            tdatos.rows[1].cells[1].valor = new Input { id = "txtSUBTOTALIVA1", clase = Css.small + Css.amount, habilitado = false, valor = Formatos.CurrencyFormat(comprobante.total.tot_subtotal1) }.ToString();
+            tdatos.rows[2].cells[0].valor = "SUBTOT "+valoriva+"%";
+            tdatos.rows[2].cells[1].valor = new Input { id = "txtSUBTOTALIVA", clase = Css.small + Css.amount, habilitado = false, valor = Formatos.CurrencyFormat(comprobante.total.tot_subtotal) }.ToString();
+
+
+            tdatos.rows[3].cells[0].valor = "DESC 0% ";
+            tdatos.rows[3].cells[1].valor = new Input { id = "txtDESC0", clase = Css.small + Css.amount, habilitado = false, valor = Formatos.CurrencyFormat(comprobante.total.tot_desc1_0) }.ToString();
+            tdatos.rows[4].cells[0].valor = "DESC "+valoriva1+"% ";
+            tdatos.rows[4].cells[1].valor = new Input { id = "txtDESCIVA1", clase = Css.small + Css.amount, habilitado = false, valor = Formatos.CurrencyFormat(comprobante.total.tot_desc1_0) }.ToString();
+            tdatos.rows[5].cells[0].valor = "DESC " + valoriva + "%";
+            tdatos.rows[5].cells[1].valor = new Input { id = "txtDESCIVA", clase = Css.small + Css.amount, habilitado = false, valor = Formatos.CurrencyFormat(comprobante.total.tot_descuento1) }.ToString();
+
+            //tdatos.rows[3].cells[0].valor = "Descuento:";
+            //tdatos.rows[3].cells[1].valor = new Input { id = "txtDESCUENTO0", clase = Css.small + Css.amount, numeric = true, valor = Formatos.CurrencyFormat(comprobante.total.tot_desc2_0) }.ToString();
+            //tdatos.rows[3].cells[2].valor = new Input { id = "txtDESCUENTOIVA", clase = Css.small + Css.amount, numeric = true, valor = Formatos.CurrencyFormat(comprobante.total.tot_descuento2) }.ToString();
+
+            tdatos.rows[6].cells[0].valor = "ICE:";
+            tdatos.rows[6].cells[1].valor = new Input { id = "txtICE", clase = Css.medium + Css.amount, habilitado = habilitado, valor = Formatos.CurrencyFormat(comprobante.total.tot_ice) }.ToString();
+
+            tdatos.rows[7].cells[0].valor = "IVA " + valoriva1 + "%: " + new Select { id = "cmbIMPUESTO1", diccionario = Dictionaries.GetImpuestoIVA(), clase = Css.medium, valor = comprobante.total.tot_codimpuesto1??1 }.ToString();
+            tdatos.rows[7].cells[1].valor = new Input { id = "txtIVAPORCENTAJE1", visible = false, valor = valoriva1 }.ToString() + new Input { id = "txtIVA1", clase = Css.medium + Css.amount, habilitado = false, valor = Formatos.CurrencyFormat(comprobante.total.tot_timpuesto1) }.ToString();
+
+            tdatos.rows[8].cells[0].valor = "IVA " + valoriva + "%: " + new Select { id = "cmbIMPUESTO", diccionario = Dictionaries.GetImpuestoIVA(), clase = Css.medium, valor = comprobante.total.tot_impuesto }.ToString();
+            tdatos.rows[8].cells[1].valor = new Input { id = "txtIVAPORCENTAJE", visible = false, valor = valoriva }.ToString() + new Input { id = "txtIVA", clase = Css.medium + Css.amount, habilitado = false, valor = Formatos.CurrencyFormat(comprobante.total.tot_timpuesto) }.ToString();
+
+
+            tdatos.rows[9].cells[0].valor = "TOTAL:";
+            tdatos.rows[9].cells[1].valor = new Input { id = "txtTOTALCOM", clase = Css.medium + Css.totalamount, habilitado = false, valor = Formatos.CurrencyFormat(comprobante.total.tot_total) }.ToString();
+
+
+
+            html.AppendLine(tdatos.ToString());         
+         
+          
+                    
 
             return html.ToString();
 

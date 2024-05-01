@@ -117,6 +117,7 @@ namespace WebUI
                 csv.Append("SEGURO" + separador);
                 csv.Append("IMPUESTO" + separador);
                 csv.Append("TOTAL" + separador);
+                csv.Append("DOMICILIO" + separador);
                 csv.AppendLine();
 
 
@@ -146,6 +147,7 @@ namespace WebUI
                     csv.Append(Functions.Formatos.CurrencyFormat(item.segurodetalle) + separador);
                     csv.Append(Functions.Formatos.CurrencyFormat(item.impuestodetalle) + separador);
                     csv.Append(Functions.Formatos.CurrencyFormat(item.totaldetalle) + separador);
+                    csv.Append(Functions.Formatos.CurrencyFormat(item.transportedetalle) + separador);
                     csv.AppendLine();
 
                 }

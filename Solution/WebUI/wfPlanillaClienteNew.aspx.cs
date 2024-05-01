@@ -271,7 +271,7 @@ namespace WebUI
             //decimal valoriva = 12;//AQUI SE DEBE OBTENER EL VALOR DE IVA DESDE LA BD
 
 
-            decimal valoriva = Constantes.GetValorIVA(DateTime.Now);
+            decimal valoriva = Constantes.GetValorIVA(comprobante.com_fecha);
             if (comprobante.com_estado == Constantes.cEstadoMayorizado)
             {
                 if (comprobante.total.tot_porc_impuesto.HasValue)

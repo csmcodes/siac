@@ -2273,6 +2273,99 @@ namespace WebUI.ws
 
         #endregion
 
+        #region Personas
+
+        [WebMethod]
+        public string GetFormPersonas(object objeto)
+        {
+            JsonObj jsonObj = new JsonObj(objeto);            
+            
+            Usuario usr = UsuarioBLL.GetByPK(new Usuario { usr_id = jsonObj.crea_usr, usr_id_key = jsonObj.crea_usr });
+           
+
+
+            StringBuilder html = new StringBuilder();
+            //html.AppendLine("<form role = \"form\" action = \"#\" >");
+            //INICIO PRIMER FORM GRUOUP
+
+            html.AppendLine("<div class=\"row form-group\">");
+            html.Append(Document.LabelIconInput("txtid_f", "", "CI/RUC/Id", "fa-tag", "", "", "col-md-3", ElementEnums.InputType.text).ToString());
+            html.Append(Document.LabelIconInput("txtpersona_f", "", "Nombres/Apellidos/Razón", "fa-tag", "", "", "col-md-6", ElementEnums.InputType.text).ToString());
+            html.Append(Document.LabelIconSelect("cmbtipo_f", "", Dictionaries.GetTipoPersonas(), "Tipo", "fa-tag", "", "", "col-md-2", true, false, false, false).ToString());
+            html.AppendLine("</div>");
+
+            html.AppendLine("<button class=\"btn blue btn-block margin-top-20\" id='btnsearch'>BUSCAR<i class=\"m-icon-swapright m-icon-white\"></i></button>");
+
+
+            html.AppendLine("<table class='table table-bordered table-bordered table-hover' id='tdlistado'>");
+            html.AppendLine("<thead>");
+            html.AppendLine("<th></th>");
+            html.AppendLine("<th>Id</th>");
+            html.AppendLine("<th>Persona</th>");
+            html.AppendLine("<th>Email</th>");
+            html.AppendLine("<th>Datos</th>");
+            html.AppendLine("<th>Estado</th>");
+            html.AppendLine("</tr>");
+            html.AppendLine("</thead>");
+            html.AppendLine("<tbody></tbody>");
+            html.AppendLine("</table>");
+            return html.ToString();
+        }
+
+
+        [WebMethod]
+        public string GetDataPersonas(object objeto)
+        {
+            JsonObj obj = new JsonObj(objeto);
+            Usuario usr = UsuarioBLL.GetByPK(new Usuario { usr_id = obj.crea_usr, usr_id_key = obj.crea_usr });
+
+            string id = (string)Dictionaries.GetObject(objeto, "id", typeof(string));
+            string persona = (string)Dictionaries.GetObject(objeto, "persona", typeof(string));
+            string tipo = (string)Dictionaries.GetObject(objeto, "tipo", typeof(string));
+            List<Persona> personas = Packages.General.GetPersonas(obj.empresa, id, persona, tipo);
+
+            StringBuilder html = new StringBuilder();
+
+            /*foreach (vComprobante item in lista)
+            {
+                if (!string.IsNullOrEmpty(item.doctran))
+                {
+
+                    decimal cancelado = (item.cancela ?? 0) + (item.cancelasocio ?? 0);
+                    decimal saldo = (item.total ?? 0) - cancelado;
+                    if (saldo < 0)
+                        saldo = 0;
+
+
+                    html.AppendFormat("<tr data-codigo='{0}' class='{1}'>", item.codigo, saldo > 0 ? "pendiente" : "");
+                    html.Append("<td>");
+                    //if (saldo > 0)
+                    //html.Append(Document.CircleSmallButton("btnpay", "", "Cobrar", "fa-usd", "blue", "Cobrar(" + item.codigo + ");"));
+                    html.Append(Document.CircleSmallButton("btninf", "", "Detalle Hoja Ruta", "fa-folder-open", "blue", "Detalle(" + item.codigo + ");"));
+                    html.Append("</td>");
+                    html.AppendFormat("<td><div class='textolistado'>{0}</div><div class='textolistadomin'>{1} {2}<div></td>", item.fecha, item.crea_usr, item.crea_fecha);
+                    html.AppendFormat("<td><div class='textolistado'><a href = '#' onclick = 'CallFormulario({2});' >{0}</a></div><div class='textolistadomin'>{1}<div><div class='textolistadomin'>{2}</div></td>", item.doctran, Constantes.GetEstadoName(item.estado.Value), item.codigo);
+                    html.AppendFormat("<td><div class='textolistado'>{0}</div><div class='textolistadomin'>Disco:{1} Placa:{2}<div></td>", item.nombreruta, item.disco, item.placa);
+                    html.AppendFormat("<td><div class='textolistado'>{0}</div></td>", Formatos.CurrencyFormat(item.subtotal));
+                    html.AppendFormat("<td><div class='textolistado'>{0}</div></td>", Formatos.CurrencyFormat(item.impuesto));
+                    html.AppendFormat("<td><div class='textolistado'>{0}</div></td>", Formatos.CurrencyFormat(item.total));
+                    //html.AppendFormat("<td><div class='textolistado'>{0}</div></td>", Formatos.CurrencyFormat(item.retiva));
+                    //html.AppendFormat("<td><div class='textolistado'>{0}</div></td>", Formatos.CurrencyFormat(item.retren));
+                    html.AppendFormat("<td><div class='textolistado'>{0}</div></td>", Formatos.CurrencyFormat(item.cancela));
+                    html.AppendFormat("<td><div class='textolistado'>{0}</div></td>", Formatos.CurrencyFormat(item.cancelasocio));
+                    html.AppendFormat("<td><div class='textolistado'>{0}</div></td>", Formatos.CurrencyFormat(saldo));
+                    html.AppendLine("</tr>");
+                }
+
+            }
+            */
+            return html.ToString();
+
+
+        }
+
+        #endregion
+
         #region Tools
 
         [WebMethod]

@@ -267,6 +267,27 @@ namespace Services
             List<Impuesto> lstimpuesto = ImpuestoBLL.GetAll("imp_iva=1 and imp_estado=1 and imp_empresa=" + cod_empresa, "imp_codigo");
             return lstimpuesto.ToDictionary(p => p.imp_codigo.ToString(), p => p.imp_nombre.ToString());
         }
+
+        public static Dictionary<string, string> GetIVACompras()
+        {
+            List<IvaCompras> lstimp = Constantes.cIVACompras;
+
+            Dictionary<string, string> dic = new Dictionary<string, string>();
+
+            foreach (IvaCompras item in lstimp)
+            {
+                dic.Add(item.codigo.ToString(), item.porcentaje.ToString());
+
+
+            }
+
+
+
+            return dic;
+        }
+
+
+
         #endregion
         #region TProducto
         public static Dictionary<string, string> GetTproducto()
@@ -958,6 +979,27 @@ namespace Services
 
 
             }
+
+            return dic;
+        }
+
+
+        public static Dictionary<string, string> GetElectronicosImp()
+        {
+            string parelectronicimp = Constantes.GetParameter("electronicimp");
+            var serializer = new JavaScriptSerializer();
+            List<ElectronicImp> lstimp = serializer.Deserialize<List<ElectronicImp>>(parelectronicimp);
+
+            Dictionary<string, string> dic = new Dictionary<string, string>();
+
+            foreach (ElectronicImp item in lstimp)
+            {                
+                dic.Add(item.codigo.ToString(),item.porcentaje.ToString());
+
+
+            }
+
+
 
             return dic;
         }

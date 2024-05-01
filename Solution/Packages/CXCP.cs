@@ -256,34 +256,75 @@ namespace Packages
         public static List<Dcontable> contable_impuesto(Comprobante comp, int debcre)
         {
             List<Dcontable> lst = new List<Dcontable>();
+            List<IvaCompras> ivas = Constantes.cIVACompras;
 
-            if (comp.total.tot_impuesto.HasValue && comp.total.tot_timpuesto > 0)
+            //if (comp.total.tot_impuesto.HasValue && comp.total.tot_timpuesto > 0)
+            if (comp.total.tot_timpuesto>0) // IVA 12 o 15
+            {
+                Impuesto imp = ImpuestoBLL.GetByPK(new Impuesto { imp_codigo = comp.total.tot_impuesto.Value, imp_codigo_key = comp.total.tot_impuesto.Value, imp_empresa = comp.com_empresa, imp_empresa_key = comp.com_empresa });                
+                if (imp!= null)
+                {                    
+                    Dcontable dco = new Dcontable();
+                    dco.dco_empresa = comp.com_empresa;
+                    dco.dco_comprobante = comp.com_codigo;
+                    dco.dco_cuenta = imp.imp_cuenta.Value;
+                    dco.dco_centro = comp.com_centro.Value;
+                    dco.dco_transacc = comp.com_transacc;
+                    dco.dco_debcre = debcre;
+                    dco.dco_valor_nac = comp.total.tot_timpuesto;
+                    //dco.dco_valor_ext = 
+                    dco.dco_tipo_cambio = comp.com_tipo_cambio;
+                    dco.dco_concepto = comp.com_doctran + " " + comp.ccomdoc.cdoc_nombre;
+                    dco.dco_almacen = comp.com_almacen;
+                    dco.dco_cliente = null;// comp.com_codclipro;
+                    dco.dco_agente = null;
+                    dco.dco_doctran = comp.com_doctran;
+                    dco.dco_nropago = null;
+                    dco.dco_fecha_vence = null;
+                    dco.dco_ddo_comproba = null;
+                    dco.dco_ddo_transacc = null;
+                    dco.dco_producto = null;
+                    dco.dco_bodega = null;
+                    lst.Add(dco);
+
+                }
+                //
+                //Impuesto imp = ImpuestoBLL.GetByPK(new Impuesto { imp_codigo = comp.total.tot_impuesto.Value, imp_codigo_key = comp.total.tot_impuesto.Value, imp_empresa = comp.com_empresa, imp_empresa_key = comp.com_empresa });
+                //return dco;
+            }
+            //Contabiliza el segudo IVA (5%) --> ABRIL 2024
+            if ((comp.total.tot_timpuesto1??0) > 0) // IVA 12 o 15
             {
 
-                Impuesto imp = ImpuestoBLL.GetByPK(new Impuesto { imp_codigo = comp.total.tot_impuesto.Value, imp_codigo_key = comp.total.tot_impuesto.Value, imp_empresa = comp.com_empresa, imp_empresa_key = comp.com_empresa });
+                Impuesto imp = ImpuestoBLL.GetByPK(new Impuesto { imp_codigo = comp.total.tot_codimpuesto1.Value, imp_codigo_key = comp.total.tot_codimpuesto1.Value, imp_empresa = comp.com_empresa, imp_empresa_key = comp.com_empresa });
+                if (imp != null)
+                {
+                    Dcontable dco = new Dcontable();
+                    dco.dco_empresa = comp.com_empresa;
+                    dco.dco_comprobante = comp.com_codigo;
+                    dco.dco_cuenta = imp.imp_cuenta.Value;
+                    dco.dco_centro = comp.com_centro.Value;
+                    dco.dco_transacc = comp.com_transacc;
+                    dco.dco_debcre = debcre;
+                    dco.dco_valor_nac = comp.total.tot_timpuesto1.Value;
+                    //dco.dco_valor_ext = 
+                    dco.dco_tipo_cambio = comp.com_tipo_cambio;
+                    dco.dco_concepto = comp.com_doctran + " " + comp.ccomdoc.cdoc_nombre;
+                    dco.dco_almacen = comp.com_almacen;
+                    dco.dco_cliente = null;// comp.com_codclipro;
+                    dco.dco_agente = null;
+                    dco.dco_doctran = comp.com_doctran;
+                    dco.dco_nropago = null;
+                    dco.dco_fecha_vence = null;
+                    dco.dco_ddo_comproba = null;
+                    dco.dco_ddo_transacc = null;
+                    dco.dco_producto = null;
+                    dco.dco_bodega = null;
+                    lst.Add(dco);
 
-                Dcontable dco = new Dcontable();
-                dco.dco_empresa = comp.com_empresa;
-                dco.dco_comprobante = comp.com_codigo;
-                dco.dco_cuenta = imp.imp_cuenta.Value;
-                dco.dco_centro = comp.com_centro.Value;
-                dco.dco_transacc = comp.com_transacc;
-                dco.dco_debcre = debcre;
-                dco.dco_valor_nac = comp.total.tot_timpuesto;
-                //dco.dco_valor_ext = 
-                dco.dco_tipo_cambio = comp.com_tipo_cambio;
-                dco.dco_concepto = comp.com_doctran + " " + comp.ccomdoc.cdoc_nombre;
-                dco.dco_almacen = comp.com_almacen;
-                dco.dco_cliente = null;// comp.com_codclipro;
-                dco.dco_agente = null;
-                dco.dco_doctran = comp.com_doctran;
-                dco.dco_nropago = null;
-                dco.dco_fecha_vence = null;
-                dco.dco_ddo_comproba = null;
-                dco.dco_ddo_transacc = null;
-                dco.dco_producto = null;
-                dco.dco_bodega = null;
-                lst.Add(dco);
+                }
+                //
+                //Impuesto imp = ImpuestoBLL.GetByPK(new Impuesto { imp_codigo = comp.total.tot_impuesto.Value, imp_codigo_key = comp.total.tot_impuesto.Value, imp_empresa = comp.com_empresa, imp_empresa_key = comp.com_empresa });
                 //return dco;
             }
             return lst;

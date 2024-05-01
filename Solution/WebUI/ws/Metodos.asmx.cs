@@ -3488,9 +3488,9 @@ namespace WebUI.ws
 
                 List<vDdocumento> lista = new List<vDdocumento>();
                 if (codcomp.HasValue)
-                    lista = vDdocumentoBLL.GetAll(new WhereParams("ddo_empresa={0} AND ddo_cancelado=0 AND ddo_codclipro={1} AND ddo_debcre ={2} and ddo_comprobante={3}", obj.com_empresa, obj.com_codclipro, debcre, codcomp), "");
+                    lista = vDdocumentoBLL.GetAll(new WhereParams("ddo_empresa={0} AND ddo_cancelado=0 AND ddo_codclipro={1} AND ddo_debcre ={2} and ddo_comprobante={3}", obj.com_empresa, obj.com_codclipro, debcre, codcomp), "ddo_fecha_emi desc");
                 else
-                    lista = vDdocumentoBLL.GetAll(new WhereParams("ddo_empresa={0} AND ddo_cancelado=0 AND ddo_codclipro={1} AND ddo_debcre ={2}", obj.com_empresa, obj.com_codclipro, debcre), "");
+                    lista = vDdocumentoBLL.GetAll(new WhereParams("ddo_empresa={0} AND ddo_cancelado=0 AND ddo_codclipro={1} AND ddo_debcre ={2}", obj.com_empresa, obj.com_codclipro, debcre), "ddo_fecha_emi desc");
                 html.AppendLine("<div class=\"row-fluid\">");
                 html.AppendLine("<div class=\"span8\">");
                 HtmlTable tdatos = new HtmlTable();
@@ -3722,7 +3722,7 @@ namespace WebUI.ws
 
                 Auto.actualiza_documentos(obj.com_empresa, null, null, obj.com_codclipro, objref.com_codigo, null, null, 0);
 
-                List<vDdocumento> lista = vDdocumentoBLL.GetAll(new WhereParams("ddo_empresa={0} AND ddo_cancelado=0 AND ddo_codclipro={1} AND ddo_debcre ={2} AND ddo_comprobante ={3}", obj.com_empresa, obj.com_codclipro, debcre, objref.com_codigo), "");
+                List<vDdocumento> lista = vDdocumentoBLL.GetAll(new WhereParams("ddo_empresa={0} AND ddo_cancelado=0 AND ddo_codclipro={1} AND ddo_debcre ={2} AND ddo_comprobante ={3}", obj.com_empresa, obj.com_codclipro, debcre, objref.com_codigo), "ddo_fecha_emi desc");
                 html.AppendLine("<div class=\"row-fluid\">");
                 html.AppendLine("<div class=\"span5\">");
                 HtmlTable tdatos = new HtmlTable();
@@ -3955,7 +3955,7 @@ namespace WebUI.ws
 
 
 
-                    lista = vDdocumentoBLL.GetAll(new WhereParams("ddo_empresa={0} AND ddo_cancelado=0 AND ddo_codclipro={1} AND ddo_debcre ={2} AND ddo_comprobante ={3}", obj.com_empresa, obj.com_codclipro, debcre, comprobante.com_codigo), "");
+                    lista = vDdocumentoBLL.GetAll(new WhereParams("ddo_empresa={0} AND ddo_cancelado=0 AND ddo_codclipro={1} AND ddo_debcre ={2} AND ddo_comprobante ={3}", obj.com_empresa, obj.com_codclipro, debcre, comprobante.com_codigo), "ddo_fecha_emi desc");
                 }
                 else
                 {
@@ -3971,7 +3971,7 @@ namespace WebUI.ws
                     if (where != "")
                     {
                         parametros.where += "and (" + where + ")";
-                        lista = vDdocumentoBLL.GetAll(parametros, "");
+                        lista = vDdocumentoBLL.GetAll(parametros, "ddo_fecha_emi desc");
                     }
 
                 }
@@ -4147,7 +4147,7 @@ namespace WebUI.ws
 
                 }
                 Auto.actualiza_documentos(obj.com_empresa, null, null, obj.com_codclipro, null, null, null, 1);
-                List<vDdocumento> lista = vDdocumentoBLL.GetAll(new WhereParams("ddo_empresa={0} AND ddo_cancelado=0 AND ddo_codclipro={1} AND ddo_debcre ={2}", obj.com_empresa, obj.com_codclipro, debcre), "");
+                List<vDdocumento> lista = vDdocumentoBLL.GetAll(new WhereParams("ddo_empresa={0} AND ddo_cancelado=0 AND ddo_codclipro={1} AND ddo_debcre ={2}", obj.com_empresa, obj.com_codclipro, debcre), "ddo_fecha_emi desc");
 
 
                 html.AppendLine("<div class=\"row-fluid\">");
@@ -4260,7 +4260,6 @@ namespace WebUI.ws
         }
 
 
-
         [WebMethod]
         public string GetAfectaDeudas(object objeto)
         {
@@ -4317,7 +4316,7 @@ namespace WebUI.ws
                 }
 
                 Auto.actualiza_documentos(obj.com_empresa, null, null, obj.com_codclipro, null, null, null, 1);
-                List<vDdocumento> lista = vDdocumentoBLL.GetAll(new WhereParams("ddo_empresa={0} AND ddo_cancelado=0 AND ddo_codclipro={1} AND ddo_debcre ={2}", obj.com_empresa, obj.com_codclipro, debcre), "");
+                List<vDdocumento> lista = vDdocumentoBLL.GetAll(new WhereParams("ddo_empresa={0} AND ddo_cancelado=0 AND ddo_codclipro={1} AND ddo_debcre ={2}", obj.com_empresa, obj.com_codclipro, debcre), "ddo_fecha_emi desc");
 
 
                 html.AppendLine("<div class=\"row-fluid\">");
@@ -5736,7 +5735,7 @@ namespace WebUI.ws
         [WebMethod(EnableSession = true)]
         public string ActualizarDocumentos(object objeto)
         {
-            /*DateTime? desde = (DateTime?)Dictionaries.GetObject(objeto, "desde", typeof(DateTime?));
+            DateTime? desde = (DateTime?)Dictionaries.GetObject(objeto, "desde", typeof(DateTime?));
             DateTime? hasta = (DateTime?)Dictionaries.GetObject(objeto, "hasta", typeof(DateTime?));
             string ruc = (string)Dictionaries.GetObject(objeto, "ruc", typeof(string));
 
@@ -5748,12 +5747,12 @@ namespace WebUI.ws
             }
             return "NO";
 
-            */
+            
 
-            Auto.actualiza_documentos(1, null, null);
+            //Auto.actualiza_documentos(1, null, null);
 
 
-            return "OK";
+            //return "OK";
 
 
 
@@ -5764,7 +5763,7 @@ namespace WebUI.ws
         [WebMethod(EnableSession = true)]
         public string ActualizarCancelaciones(object objeto)
         {
-            /*DateTime? desde = (DateTime?)Dictionaries.GetObject(objeto, "desde", typeof(DateTime?));
+            DateTime? desde = (DateTime?)Dictionaries.GetObject(objeto, "desde", typeof(DateTime?));
             DateTime? hasta = (DateTime?)Dictionaries.GetObject(objeto, "hasta", typeof(DateTime?));
             string ruc = (string)Dictionaries.GetObject(objeto, "ruc", typeof(string));
 
@@ -5776,9 +5775,9 @@ namespace WebUI.ws
             }
             return "NO";
 
-            */
+            
 
-            return Auto.actualiza_cancelaciones(1, null, null);
+            //return Auto.actualiza_cancelaciones(1, null, null);
 
 
             //return "OK";
@@ -6108,6 +6107,21 @@ namespace WebUI.ws
             DateTime? hasta = (DateTime?)Dictionaries.GetObject(objeto, "hasta", typeof(DateTime?));
 
             return Packages.Electronico.CuadreElectronico(1, desde.Value, hasta.Value);            
+
+
+
+        }
+
+
+        [WebMethod(EnableSession = true)]
+        public string CuadrarContablesAnexos(object objeto)
+        {
+            DateTime? desde = (DateTime?)Dictionaries.GetObject(objeto, "desde", typeof(DateTime?));
+            DateTime? hasta = (DateTime?)Dictionaries.GetObject(objeto, "hasta", typeof(DateTime?));
+            int? persona = (int?)Dictionaries.GetObject(objeto, "persona", typeof(int?));
+            long? codigo = (long?)Dictionaries.GetObject(objeto, "codigo", typeof(long?));
+
+            return Packages.General.Cuadrar_ContablesAnexos(desde, hasta, 1, persona,codigo);
 
 
 

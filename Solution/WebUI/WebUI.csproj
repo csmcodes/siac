@@ -109,6 +109,7 @@
     <Content Include="html\footer.html" />
     <Content Include="html\header.html" />
     <Content Include="html\hrdetsocios.html" />
+    <Content Include="html\personas.html" />
     <Content Include="html\hrsocios.html" />
     <Content Include="html\img\siac_white.png" />
     <Content Include="html\Index.html" />
@@ -123,8 +124,8 @@
     <Content Include="html\scripts\bootbox.js" />
     <Content Include="html\scripts\contract.js" />
     <Content Include="html\scripts\forms\cerrarhr.js" />
-    <Content Include="html\scripts\forms\hrdetsocios.js" />
     <Content Include="html\scripts\forms\hrsocios.js" />
+    <Content Include="html\scripts\forms\personas.js" />
     <Content Include="html\scripts\forms\cobrossocios.js" />
     <Content Include="html\scripts\forms\cobros.js" />
     <Content Include="html\scripts\forms\cuadres.js" />
@@ -135,7 +136,7 @@
     <Content Include="html\scripts\forms\loadobligacion.js" />
     <Content Include="html\scripts\forms\login.js" />
     <Content Include="html\scripts\forms\perfiles.js" />
-    <Content Include="html\scripts\forms\personas.js" />
+    <Content Include="html\scripts\forms\personasold.js" />
     <Content Include="html\scripts\forms\productosaldo.js" />
     <Content Include="html\scripts\forms\usuarios.js" />
     <Content Include="html\scripts\functions.js" />
@@ -179,6 +180,7 @@
     <Content Include="js\forms\ListaComprobantes.js" />
     <Content Include="js\forms\ListadoPersonas.js" />
     <Content Include="js\forms\NotaCredito.js" />
+    <Content Include="js\forms\ObligacionOld.js" />
     <Content Include="js\forms\ObligacionInv.js" />
     <Content Include="js\forms\PagoSocio.js" />
     <Content Include="js\forms\PasarSaldos.js" />
@@ -202,6 +204,7 @@
     <Content Include="js\forms\ReportePlanillaSocioTot.js" />
     <Content Include="js\forms\ReporteRetenciones.js" />
     <Content Include="js\forms\ReporteSeguro.js" />
+    <Content Include="js\forms\ReporteHojaRutaCab.js" />
     <Content Include="js\forms\ReporteSocioHojas.js" />
     <Content Include="js\forms\ReporteTpagos.js" />
     <Content Include="js\forms\ReportePlanillasClientes.js" />
@@ -326,6 +329,7 @@
     <Content Include="wfReportePlanillaSocioTot.aspx" />
     <Content Include="wfReporteRetenciones.aspx" />
     <Content Include="wfReporteSeguro.aspx" />
+    <Content Include="wfReporteHojaRutaCab.aspx" />
     <Content Include="wfReporteSocioHojas.aspx" />
     <Content Include="wfReporteTpagos.aspx" />
     <Content Include="wfReportePlanillasClientes.aspx" />
@@ -1620,6 +1624,13 @@
     <Compile Include="wfReporteSeguro.aspx.designer.cs">
       <DependentUpon>wfReporteSeguro.aspx</DependentUpon>
     </Compile>
+    <Compile Include="wfReporteHojaRutaCab.aspx.cs">
+      <DependentUpon>wfReporteHojaRutaCab.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="wfReporteHojaRutaCab.aspx.designer.cs">
+      <DependentUpon>wfReporteHojaRutaCab.aspx</DependentUpon>
+    </Compile>
     <Compile Include="wfReporteSocioHojas.aspx.cs">
       <DependentUpon>wfReporteSocioHojas.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
@@ -2316,6 +2327,8 @@
     <EmbeddedResource Include="reports\GuiaPlanilla.rdlc" />
     <EmbeddedResource Include="reports\hojarutaCT.rdlc" />
     <EmbeddedResource Include="reports\hojarutaTMC.rdlc" />
+    <EmbeddedResource Include="reports\HojasRutaCab.rdlc" />
+    <EmbeddedResource Include="reports\HojasRutaCabCon.rdlc" />
     <EmbeddedResource Include="reports\HojasRutaSocio.rdlc" />
     <EmbeddedResource Include="reports\ListadoComprobante.rdlc" />
     <EmbeddedResource Include="reports\DetalleBancario.rdlc" />

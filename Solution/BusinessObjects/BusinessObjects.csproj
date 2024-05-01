@@ -104,6 +104,7 @@
     <Compile Include="vEstablecimiento.cs" />
     <Compile Include="vGuiaPlanilla.cs" />
     <Compile Include="vGuiasFacturas.cs" />
+    <Compile Include="vHojaRutaCab.cs" />
     <Compile Include="vHojaRutaReporte.cs" />
     <Compile Include="vMayor.cs" />
     <Compile Include="vObligacion.cs" />

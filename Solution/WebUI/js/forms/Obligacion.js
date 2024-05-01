@@ -326,11 +326,14 @@ function GetAutorizacionDataResult(data) {
 }
 
 
-
+function ChangeIVA() {
+    CalculaLinea();
+    RowDown(); 
+}
 
 function SetFormDetalle() {
     SetAutocompleteById("txtIDCUE");
-    $("#chkIVA").on("change", CalculaLinea);
+    $("#cmbIVA").on("change", ChangeIVA);
 
     var codigocomp = $("#txtcodigocomp").val();
     if ($("#txtESTADO").val() == $("#txtCERRADO").val()) {
@@ -371,7 +374,7 @@ function CleanRow() {
     $("#txtVALOR").val(0);
     $("#txtDESC").val(0);
     $("#txtTOTAL").val(0);
-    $("#chkIVA").prop("checked", false);
+    $("#cmbIVA").val("");    
     $("#txtIDCUE").select();
     return false;
 }
@@ -463,12 +466,20 @@ function CalculaLinea() {
     CalculaTotales();
 }
 
+
+
+
 function CalculaTotales() {
     var htmltable = $("#tdinvoice")[0];
     var subtotal0 = 0;
+    var subtotalIVA1 = 0;
     var subtotalIVA = 0;
     var desc0 = 0;
+    var descIVA1 = 0;
     var descIVA = 0;
+
+    var codIVA1 = 5;
+    var codIVA = 4; 
 
 
     for (var r = 0; r < htmltable.rows.length; r++) {
@@ -477,37 +488,38 @@ function CalculaTotales() {
         var hijopre = $(htmltable.rows[r].cells[c + 1]).children("input");
         var hijodes = $(htmltable.rows[r].cells[c + 2]).children("input");
         var hijotot = $(htmltable.rows[r].cells[c + 3]).children("input");
-        var hijoiva = $(htmltable.rows[r].cells[c + 4]).children("input");
+        var hijoiva = $(htmltable.rows[r].cells[c + 4]).children("select");
         var cant = 0;
         var prec = 0;
         var desc = 0;
         var valor = 0;
+        var iva = 0;
 
-
-        var iva = false;
         if (hijotot.length > 0) {
             cant = $(hijocan).val();
             prec = $(hijopre).val();
             desc = $(hijodes).val();
             valor = $(hijotot).val();
-            iva = $(hijoiva).is(':checked') ? true : false;
+            iva = $(hijoiva).val();
         }
         else {
             cant = $(htmltable.rows[r].cells[c]).text();
             prec = $(htmltable.rows[r].cells[c + 1]).text();
             desc = $(htmltable.rows[r].cells[c + 2]).text();
             valor = $(htmltable.rows[r].cells[c + 3]).text();
-            iva = ($(htmltable.rows[r].cells[c + 4]).text() == "SI") ? true : false;
+            iva = $(htmltable.rows[r].cells[c + 4]).text();
         }
 
-        subtotalIVA += ($.isNumeric(valor)) ? ((iva) ? parseFloat(valor) : 0) : 0;
-        subtotal0 += ($.isNumeric(valor)) ? ((!iva) ? parseFloat(valor) : 0) : 0;
+        subtotalIVA1 += ($.isNumeric(valor)) ? ((iva==codIVA1) ? parseFloat(valor) : 0) : 0;
+        subtotalIVA += ($.isNumeric(valor)) ? ((iva==codIVA) ? parseFloat(valor) : 0) : 0;
+        subtotal0 += ($.isNumeric(valor)) ? ((iva==0) ? parseFloat(valor) : 0) : 0;
 
         var subtotal = parseFloat(cant) * parseFloat(prec)
         var subtotaldesc = subtotal * (parseFloat(desc) / 100);
 
-        descIVA += ($.isNumeric(desc)) ? ((iva) ? subtotaldesc : 0) : 0;
-        desc0 += ($.isNumeric(desc)) ? ((!iva) ? subtotaldesc : 0) : 0;
+        descIVA1 += ($.isNumeric(desc)) ? ((iva==codIVA1) ? subtotaldesc : 0) : 0;
+        descIVA += ($.isNumeric(desc)) ? ((iva==codIVA) ? subtotaldesc : 0) : 0;
+        desc0 += ($.isNumeric(desc)) ? ((iva==0) ? subtotaldesc : 0) : 0;
 
         //descIVA += ($.isNumeric(desc)) ? ((iva) ? parseFloat(desc) : 0) : 0;
 
@@ -517,31 +529,36 @@ function CalculaTotales() {
 
     var valorICE = ($.isNumeric($("#txtICE").val())) ? parseFloat($("#txtICE").val()) : 0;
 
+    var descuentoiva1 = ($.isNumeric($("#txtDESCUENTOIVA1").val())) ? parseFloat($("#txtDESCUENTOIVA1").val()) : 0;
     var descuentoiva = ($.isNumeric($("#txtDESCUENTOIVA").val())) ? parseFloat($("#txtDESCUENTOIVA").val()) : 0;
     var descuento0 = ($.isNumeric($("#txtDESCUENTO0").val())) ? parseFloat($("#txtDESCUENTO0").val()) : 0;
 
     var porcentajeiva = ($.isNumeric($("#txtIVAPORCENTAJE").val())) ? parseFloat($("#txtIVAPORCENTAJE").val()) : 0;
+    var porcentajeiva1 = ($.isNumeric($("#txtIVAPORCENTAJE1").val())) ? parseFloat($("#txtIVAPORCENTAJE1").val()) : 0;
 
     var valorIVA = (subtotalIVA + valorICE - descIVA - descuentoiva) * (porcentajeiva / 100);
+    var valorIVA1 = (subtotalIVA1 + valorICE - descIVA1 - descuentoiva1) * (porcentajeiva1 / 100);
 
-    var valordeclarado = ($.isNumeric($("#txtVALORDECLARADO").val())) ? parseFloat($("#txtVALORDECLARADO").val()) : 0;
-    var porcentajeseguro = ($.isNumeric($("#txtPORCSEGURO").val())) ? parseFloat($("#txtPORCSEGURO").val()) : 0;
+    //var valordeclarado = ($.isNumeric($("#txtVALORDECLARADO").val())) ? parseFloat($("#txtVALORDECLARADO").val()) : 0;
+    //var porcentajeseguro = ($.isNumeric($("#txtPORCSEGURO").val())) ? parseFloat($("#txtPORCSEGURO").val()) : 0;
+        
 
-    
+    //var seguro = valordeclarado * (porcentajeseguro / 100);
+    //var transporte = ($.isNumeric($("#txtVDOMICILIO").val())) ? parseFloat($("#txtVDOMICILIO").val()) : 0;
 
-    var seguro = valordeclarado * (porcentajeseguro / 100);
-    var transporte = ($.isNumeric($("#txtVDOMICILIO").val())) ? parseFloat($("#txtVDOMICILIO").val()) : 0;
-
-    var total = (subtotal0 - desc0 - descuento0) + (subtotalIVA - descIVA - descuentoiva) + valorICE + valorIVA + seguro + transporte;
+    var total = (subtotal0  - descuento0) + (subtotalIVA1 - descuentoiva1)+(subtotalIVA -descuentoiva) + valorICE + valorIVA + valorIVA1;
 
     $("#txtSUBTOTAL0").val(CurrencyFormatted(subtotal0));
+    $("#txtSUBTOTALIVA1").val(CurrencyFormatted(subtotalIVA1));
     $("#txtSUBTOTALIVA").val(CurrencyFormatted(subtotalIVA));
     $("#txtDESC0").val(CurrencyFormatted(desc0));
     $("#txtDESCIVA").val(CurrencyFormatted(descIVA));
+    $("#txtDESCIVA1").val(CurrencyFormatted(descIVA1));
     $("#txtIVA").val(CurrencyFormatted(valorIVA));
+    $("#txtIVA1").val(CurrencyFormatted(valorIVA1));
     //$("#txtICE").val(CurrencyFormatted(valorICE));
-    $("#txtSEGURO").val(CurrencyFormatted(seguro));
-    $("#txtTRANSPORTE").val(CurrencyFormatted(transporte));
+    ///$("#txtSEGURO").val(CurrencyFormatted(seguro));
+    //$("#txtTRANSPORTE").val(CurrencyFormatted(transporte));
     $("#txtTOTALCOM").val(CurrencyFormatted(total));
 }
 
@@ -558,7 +575,7 @@ function AddEditRow() {
     newrow.append("<td class='right' >" + $("#txtVALOR").val() + "</td>");
     newrow.append("<td class='right' >" + $("#txtDESC").val() + "</td>");
     newrow.append("<td class='right' >" + $("#txtTOTAL").val() + "</td>");
-    newrow.append("<td class='center' >" + ($("#chkIVA").is(':checked') ? "SI" : "NO") + "</td>");
+    newrow.append("<td class='center' >" + $("#cmbIVA").val() + "</td>");
     newrow.append("<td class='center' ><div class='removablerow' onclick='RemoveRow(this)'><span class=\"icon-trash\" ></span></div></td>");
 
 
@@ -574,7 +591,7 @@ function AddEditRow() {
     $("#txtVALOR").val(0);
     $("#txtDESC").val(0);
     $("#txtTOTAL").val(0);
-    $("#chkIVA").prop("checked", false);
+    $("#cmbIVA").val(0);
     $("#txtIDCUE").select();
 }
 
@@ -598,7 +615,7 @@ function Edit(row) {
     var valor = $("#txtVALOR").val();
     var desc = $("#txtDESC").val();
     var total = $("#txtTOTAL").val();
-    var iva = ($("#chkIVA").is(':checked') ? "SI" : "NO");
+    var iva = $("#cmbIVA").val();
 
 
     $("#txtCODCUE").val($(row).data("codcue").toString());
@@ -610,7 +627,7 @@ function Edit(row) {
     $("#txtVALOR").val($(row.cells[4]).text()); $(row.cells[4]).text("");
     $("#txtDESC").val($(row.cells[5]).text()); $(row.cells[5]).text("");
     $("#txtTOTAL").val($(row.cells[6]).text()); $(row.cells[6]).text("");
-    $("#chkIVA").prop("checked", (($(row.cells[7]).text() == "SI") ? true : false));$(row.cells[7]).text("");
+    $("#cmbIVA").val($(row.cells[7]).text()); $(row.cells[7]).text("");   
     $("#txtIDPRO").focus();
 
     MoveTo($("#txtIDCUE"), $(row.cells[0]));
@@ -621,7 +638,7 @@ function Edit(row) {
     MoveTo($("#txtVALOR"), $(row.cells[4]));
     MoveTo($("#txtDESC"), $(row.cells[5]));
     MoveTo($("#txtTOTAL"), $(row.cells[6]));
-    MoveTo($("#chkIVA"), $(row.cells[7]));
+    MoveTo($("#cmbIVA"), $(row.cells[7]));
 
 
 
@@ -658,11 +675,16 @@ function GetTotalObj() {
 
 
     obj["tot_impuesto"] = $("#cmbIMPUESTO").val();
+    //obj["tot_codimpuesto"] = $("#txtCODIMPUESTO1").val();
+    obj["tot_codimpuesto1"] = $("#cmbIMPUESTO1").val();
     obj["tot_porc_desc"] = ($.isNumeric($("#txtPORCENTAJE").val())) ? parseFloat($("#txtPORCENTAJE").val()) : null;
     obj["tot_dias_plazo"] = ($.isNumeric($("#txtDIASPLAZO").val())) ? parseInt($("#txtDIASPLAZO").val()) : null;
     obj["tot_nro_pagos"] = ($.isNumeric($("#txtNROPAGOS").val())) ? parseInt($("#txtNROPAGOS").val()) : null;
     obj["tot_porc_impuesto"] = ($.isNumeric($("#txtIVAPORCENTAJE").val())) ? parseInt($("#txtIVAPORCENTAJE").val()) : null;
     obj["tot_subtotal"] = ($.isNumeric($("#txtSUBTOTALIVA").val())) ? parseFloat($("#txtSUBTOTALIVA").val()) : null;
+    obj["tot_porc_impuesto1"] = ($.isNumeric($("#txtIVAPORCENTAJE1").val())) ? parseInt($("#txtIVAPORCENTAJE1").val()) : null;
+    obj["tot_subtotal1"] = ($.isNumeric($("#txtSUBTOTALIVA1").val())) ? parseFloat($("#txtSUBTOTALIVA1").val()) : null;
+
     obj["tot_descuento1"] = ($.isNumeric($("#txtDESCIVA").val())) ? parseFloat($("#txtDESCIVA").val()) : null;
     obj["tot_descuento2"] = ($.isNumeric($("#txtDESCUENTOIVA").val())) ? parseFloat($("#txtDESCUENTOIVA").val()) : null;
     obj["tot_subtot_0"] = ($.isNumeric($("#txtSUBTOTAL0").val())) ? parseFloat($("#txtSUBTOTAL0").val()) : null;
@@ -670,6 +692,7 @@ function GetTotalObj() {
     obj["tot_desc2_0"] = ($.isNumeric($("#txtDESCUENTO0").val())) ? parseFloat($("#txtDESCUENTO0").val()) : null;
 
     obj["tot_timpuesto"] = ($.isNumeric($("#txtIVA").val())) ? parseFloat($("#txtIVA").val()) : null;
+    obj["tot_timpuesto1"] = ($.isNumeric($("#txtIVA1").val())) ? parseFloat($("#txtIVA1").val()) : null;
     obj["tot_ice"] = ($.isNumeric($("#txtICE").val())) ? parseFloat($("#txtICE").val()) : null;
     //obj["tot_tservicio"] =
     obj["tot_total"] = ($.isNumeric($("#txtTOTALCOM").val())) ? parseFloat($("#txtTOTALCOM").val()) : null;
@@ -702,7 +725,8 @@ function GetDcomdocObj(row) {
             obj["ddoc_precio"] = parseFloat($("#txtVALOR").val());
             obj["ddoc_dscitem"] = parseFloat($("#txtDESC").val());
             obj["ddoc_total"] = parseFloat($("#txtTOTAL").val());
-            obj["ddoc_grabaiva"] = $("#chkIVA").is(':checked') ? 1 : 0;
+            obj["ddoc_codiva"] = parseInt($("#cmbIVA").val());
+            //obj["ddoc_grabaiva"] = $("#chkIVA").is(':checked') ? 1 : 0;
         }
         else
             return null;
@@ -716,7 +740,8 @@ function GetDcomdocObj(row) {
             obj["ddoc_precio"] = parseFloat($(row.cells[4]).text());
             obj["ddoc_dscitem"] = parseFloat($(row.cells[5]).text());
             obj["ddoc_total"] = parseFloat($(row.cells[6]).text());
-            obj["ddoc_grabaiva"] = (($(row.cells[7]).text() == "SI") ? 1 : 0);
+            obj["ddoc_codiva"] = parseInt($(row.cells[7]).text());
+            //obj["ddoc_grabaiva"] = (($(row.cells[7]).text() == "SI") ? 1 : 0);
         }
         else
             return null;

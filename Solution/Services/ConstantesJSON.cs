@@ -266,6 +266,14 @@ namespace Services
 
     }
 
+    public class IvaCompras
+    {
+        public decimal porcentaje { get; set; }
+        public int codigo { get; set; }
+        public int cuenta { get; set; }
+    }
+
+
 
     class ConstantesJSON
     {

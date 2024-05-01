@@ -1,0 +1,228 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+	<meta charset="utf-8" />
+</head>
+<body>
+
+</body>
+</html>
+<body>
+    <input type="button" value="Subir Productos" onclick="UploadProducts();" /><br />
+    <input type="button" value="Subir Stock " onclick="UploadProductsStock();" /><br />
+    <input type="button" value="Subir Transfer" onclick="UploadProductsTrans();" /><br />
+    <input type="button" value="Subir Clientes" onclick="UploadClientes();" /><br />
+    <input type="button" value="Subir Proveedores" onclick="UploadProveedores();" /><br />
+    <input type="button" value="Actulizar Obl" onclick="UploadObl();" /><br />
+    <input type="button" value="Actulizar Fac" onclick="UploadFac();" /><br />
+    <input type="button" value="Subir Cuentas" onclick="UploadPlan();" /><br />
+    <input type="button" value="Subir Comprobantes" onclick="UploadComprobantes();" /><br />
+    <input type="button" value="Subir Guias" onclick="UploadGuias();" /><br />
+    <input type="button" value="Subir Hojas Rutas" onclick="UploadHR();" /><br />
+    <input type="button" value="Update Hojas Rutas" onclick="UpdateHR();" /><br />
+    <input type="button" value="Subir Retenciones SICE" onclick="UploadRET();" /><br />
+    <input type="button" value="Subir NC SICE" onclick="UploadNC();" /><br />
+    <input type="button" value="Update CCOMENV" onclick="UpdateCCOMENV();" /><br />
+    Cod:<input type="text" id="codcom" /><input type="button" value="Regulación CSV" onclick="RegulacionCSV();" /><br />
+
+
+    <input type="button" value="Read Obligacion XML" onclick="ReadObl();" /><br />
+
+    <input type="button" value="Anular RET Duplicadas" onclick="AnularRET();" /><br />
+
+    <input type="text" id="desde"  placeholder="desde"/>
+    <input type="text" id="hasta" placeholder="hasta" />
+
+    <input type="button" value="Eliminar Recibos" onclick="RemoveREC();" /><br />
+
+    <div id="resultados">
+
+    </div>
+
+
+    <script src="theme/assets/global/plugins/jquery.min.js" type="text/javascript"></script>
+    <script src="theme/assets/global/plugins/jquery-migrate.min.js" type="text/javascript"></script>
+    <!-- IMPORTANT! Load jquery-ui.min.js before bootstrap.min.js to fix bootstrap tooltip conflict with jquery ui tooltip -->
+    <script src="theme/assets/global/plugins/jquery-ui/jquery-ui.min.js" type="text/javascript"></script>
+    <script src="theme/assets/global/plugins/bootstrap/js/bootstrap.min.js" type="text/javascript"></script>
+    <script src="theme/assets/global/plugins/bootstrap-hover-dropdown/bootstrap-hover-dropdown.min.js" type="text/javascript"></script>
+    <script src="theme/assets/global/plugins/jquery-slimscroll/jquery.slimscroll.min.js" type="text/javascript"></script>
+    <script src="theme/assets/global/plugins/jquery.blockui.min.js" type="text/javascript"></script>
+    <script src="theme/assets/global/plugins/jquery.cokie.min.js" type="text/javascript"></script>
+    <script src="theme/assets/global/plugins/uniform/jquery.uniform.min.js" type="text/javascript"></script>
+    <script src="theme/assets/global/plugins/bootstrap-switch/js/bootstrap-switch.min.js" type="text/javascript"></script>
+    <script src="theme/assets/global/plugins/bootbox/bootbox.min.js" type="text/javascript"></script>
+    <!-- END CORE PLUGINS -->
+    <script src="theme/assets/global/scripts/metronic.js" type="text/javascript"></script>
+    <script src="theme/assets/admin/layout/scripts/layout.js" type="text/javascript"></script>
+    <script src="theme/assets/admin/layout/scripts/quick-sidebar.js" type="text/javascript"></script>
+    <script src="theme/assets/admin/layout/scripts/demo.js" type="text/javascript"></script>
+
+
+    <!-- BEGIN PAGE CUSTOMS SCRIPTS -->
+    <script src="scripts/functions.js" type="text/javascript"></script>
+    <script src="scripts/server.js" type="text/javascript"></script>
+    <script src="scripts/contract.js" type="text/javascript"></script>
+    <script src="scripts/bootbox.js" type="text/javascript"></script>
+
+    <!-- END PAGE CUSTOMS SCRIPTS -->
+    <!-- END PAGE CUSTOMS SCRIPTS -->
+    <script>
+        $(document).ready(function () {
+
+        });
+
+        function UploadProducts() {
+            var obj = JsonObj();
+            CallServerMethods(webservice + "UploadProductos", JsonObjString(obj), "Products");
+
+
+        }
+
+
+        function UploadProductsStock() {
+            var obj = JsonObj();
+            CallServerMethods(webservice + "UploadProductsStock", JsonObjString(obj), "Products");
+
+
+        }
+
+        function UploadProductsTrans() {
+            var obj = JsonObj();
+            CallServerMethods(webservice + "UploadProductsTrans", JsonObjString(obj), "Products");
+
+
+        }
+
+
+        function UploadClientes() {
+            var obj = JsonObj();
+            CallServerMethods(webservice + "UploadClientes", JsonObjString(obj), "Clientes");
+
+
+        }
+
+        function UploadProveedores() {
+            var obj = JsonObj();
+            CallServerMethods(webservice + "UploadProveedores", JsonObjString(obj), "Clientes");
+
+
+        }
+
+        function UploadObl() {
+            var obj = JsonObj();
+            CallServerMethods(webservice + "UploadObligaciones", JsonObjString(obj), "Clientes");
+
+
+        }
+
+        function UploadFac() {
+            var obj = JsonObj();
+            CallServerMethods(webservice + "UploadFacturas", JsonObjString(obj), "Clientes");
+
+
+        }
+        function UploadPlan() {
+            var obj = JsonObj();
+            CallServerMethods(webservice + "UploadPlanCuetas", JsonObjString(obj), "Clientes");
+
+
+        }
+
+
+        function UploadComprobantes() {
+            var obj = JsonObj();
+            CallServerMethods(webservice + "UploadComprobantes", JsonObjString(obj), "Clientes");
+
+
+        }
+
+
+
+        function UploadRET() {
+            var obj = JsonObj();
+            CallServerMethods(webservice + "UploadRet", JsonObjString(obj), "Clientes");
+
+
+        }
+
+
+        function UploadNC() {
+            var obj = JsonObj();
+            CallServerMethods(webservice + "UploadNC", JsonObjString(obj), "Clientes");
+
+
+        }
+
+
+        function ReadObl() {
+            var obj = JsonObj();
+            CallServerMethods(webservice + "ReadObl", JsonObjString(obj), "Clientes");
+
+
+        }
+
+
+        function RegulacionCSV() {
+            var obj = JsonObj();
+            obj["com_empresa"] = GetOnlineCompany();
+            obj["com_codigo"] = $("#codcom").val();
+            CallServerMethods(webservice + "RegulacionCSV", JsonObjString(obj), "Clientes");
+        }
+
+
+        function AnularRET() {
+            var obj = JsonObj();
+            obj["com_empresa"] = GetOnlineCompany();
+            CallServerMethods(webservice + "AnularRETDuplicadas", JsonObjString(obj), "Clientes");
+        }
+
+
+        function UploadGuias() {
+            var obj = JsonObj();
+            CallServerMethods(webservice + "UploadGuias", JsonObjString(obj), "Clientes");
+
+        }
+
+
+        function UploadHR() {
+            var obj = JsonObj();
+            CallServerMethods(webservice + "UploadHR", JsonObjString(obj), "Clientes");
+
+
+        }
+
+        function UpdateHR() {
+            var obj = JsonObj();
+            CallServerMethods(webservice + "UpdateHR", JsonObjString(obj), "Clientes");
+
+
+        }
+
+        function UpdateCCOMENV() {
+            var obj = JsonObj();
+            CallServerMethods(webservice + "UpdateCCOMENV", JsonObjString(obj), "Clientes");
+
+
+        }
+
+        function RemoveREC() {
+            var obj = JsonObj();
+            obj["desde"] = $("#desde").val();
+            obj["hasta"] = $("#hasta").val();
+            CallServerMethods(webservice + "RemoveREC", JsonObjString(obj), "Clientes");
+        }
+
+
+        function ServerResult(data, retorno) {
+            if (data != "") {
+                if (retorno == "Products" || retorno == "Clientes") {
+                    $("#resultados").html(data.d);
+
+                }
+            }
+        }
+
+    </script>
+</body>

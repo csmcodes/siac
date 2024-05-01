@@ -1,0 +1,44 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+	<meta charset="utf-8" />
+</head>
+<body>
+    <input type="button" value="Send" onclick="Send();" /><br />
+    <textarea id="txtxml" class="area"></textarea><textarea id="Textarea1" class="area"></textarea>
+
+
+    <script type="text/javascript" src="../js/prefixfree.min.js"></script>
+    <script type="text/javascript" src="../js/jquery.js"></script>
+    <script type="text/javascript" src="../js/jquery-ui.js"></script>        
+    <script type="text/javascript" src="../js/general.js"></script>
+    <script type="text/javascript" src="../js/popup.js"></script>
+    <script type="text/javascript" src="../js/functions.js"></script>
+    <script type="text/javascript" src="../js/methods.js"></script>
+
+    <!-- END PAGE CUSTOMS SCRIPTS -->
+    <script>
+        $(document).ready(function () {
+
+        });
+
+        function Send() {
+
+            var jsonText = JSON.stringify({ xml: $("#txtxml").val() });
+            CallServerMethods("../"+webservice + "SaveFacturaGuia", jsonText, 0);
+
+        }
+
+
+        function ServerResult(data, retorno) {
+            if (data != "") {
+                if (retorno == 0) {
+                    alert(data.d);
+                }
+            }
+        }
+
+    </script>
+</body>
+</html>

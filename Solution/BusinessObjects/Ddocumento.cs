@@ -66,6 +66,8 @@ namespace BusinessObjects
         public DateTime? ddo_comprobantefecha { get; set; }
         [Data(nosql = true, tablaref = "comprobante", camporef = "com_doctran", foreign = "ddo_empresa, ddo_comprobante", keyref = "com_empresa, com_codigo", join = "inner")]
         public string ddo_compdoctran { get; set; }
+        [Data(nosql = true, tablaref = "comprobante", camporef = "com_tipodoc", foreign = "ddo_empresa, ddo_comprobante", keyref = "com_empresa, com_codigo", join = "inner")]
+        public Int32? ddo_comprobantetipodoc { get; set; }
 
 
 
@@ -176,6 +178,7 @@ namespace BusinessObjects
 
             this.ddo_comprobantefecha = (reader["ddo_comprobantefecha"] != DBNull.Value) ? (DateTime?)reader["ddo_comprobantefecha"] : null;
             this.ddo_compdoctran = (reader["ddo_compdoctran"] != DBNull.Value) ? (String)reader["ddo_compdoctran"] : null;
+            this.ddo_comprobantetipodoc = (reader["ddo_comprobantetipodoc"] != DBNull.Value) ? (Int32?)reader["ddo_comprobantetipodoc"] : null;
 
             this.ddo_clienteid = (reader["ddo_clienteid"] != DBNull.Value) ? (String)reader["ddo_clienteid"] : null;
             this.ddo_clientenombres = (reader["ddo_clientenombres"] != DBNull.Value) ? (String)reader["ddo_clientenombres"] : null;

@@ -34,7 +34,11 @@ namespace BusinessObjects
         public Decimal? ddoc_traitem { get; set; }
         public Decimal? ddoc_ivaitem { get; set; }
         public Decimal? ddoc_iceitem { get; set; }
+
+        public Int32? ddoc_codiva { get; set; }//NUEVA PROPIEAD PARA MANEJO DE DIFERENTES TIPOS DE IVA
+
         public Int32? ddoc_grabaiva { get; set; }
+        
         public Decimal? ddoc_candev { get; set; }
         public Decimal? ddoc_cdigitada { get; set; }
         public Decimal? ddoc_pdigitado { get; set; }
@@ -181,7 +185,9 @@ namespace BusinessObjects
             this.ddoc_cuentaid = reader["ddoc_cuentaid"].ToString();
             this.ddoc_cuentanombre = reader["ddoc_cuentanombre"].ToString();
 
-
+            this.ddoc_codiva = (reader["ddoc_codiva"] != DBNull.Value) ? (Int32?)reader["ddoc_codiva"] : null;
+            if (!ddoc_codiva.HasValue)
+                this.ddoc_codiva = (this.ddoc_grabaiva ?? 0) == 1 ? 2 : 0; //2 = IVA 12
 
         }
 
@@ -222,7 +228,7 @@ namespace BusinessObjects
                 object crea_fecha = null;
                 object mod_usr = null;
                 object mod_fecha = null;
-
+                object ddoc_codiva = null;
                 object detallecalculo = null;
 
                 tmp.TryGetValue("ddoc_empresa", out ddoc_empresa);
@@ -251,6 +257,8 @@ namespace BusinessObjects
                 tmp.TryGetValue("ddoc_pdigitado", out ddoc_pdigitado);
                 tmp.TryGetValue("ddoc_peso", out ddoc_peso);
                 tmp.TryGetValue("ddoc_observaciones", out ddoc_observaciones);
+
+                tmp.TryGetValue("ddoc_codiva", out ddoc_codiva);
                 tmp.TryGetValue("crea_usr", out crea_usr);
                 tmp.TryGetValue("crea_fecha", out crea_fecha);
                 tmp.TryGetValue("mod_usr", out mod_usr);
@@ -284,7 +292,7 @@ namespace BusinessObjects
                 this.ddoc_pdigitado = (decimal?)Conversiones.GetValueByType(ddoc_pdigitado, typeof(decimal?));
                 this.ddoc_peso= (decimal?)Conversiones.GetValueByType(ddoc_peso, typeof(decimal?));
                 this.ddoc_observaciones = (string)Conversiones.GetValueByType(ddoc_observaciones, typeof(string));
-
+                this.ddoc_codiva = (int)Conversiones.GetValueByType(ddoc_codiva, typeof(int));
 
                 this.detallecalculo = GetDetalleCalculoObj(detallecalculo);
 

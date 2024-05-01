@@ -1,0 +1,4 @@
+﻿<ventaEst>
+	<codEstab  source="establecimiento.id"></codEstab>
+	<ventasEstab  source="establecimiento.total"></ventasEstab>
+</ventaEst>   

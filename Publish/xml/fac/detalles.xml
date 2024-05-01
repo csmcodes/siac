@@ -1,0 +1,15 @@
+﻿<detalle>
+  <codigoPrincipal source="electronicodet.eled_codigo"></codigoPrincipal>
+  <codigoAuxiliar source="electronicodet.eled_codigoaux"></codigoAuxiliar>
+  <descripcion source="electronicodet.eled_descripcion"></descripcion>
+  <cantidad source="electronicodet.eled_cantidad"></cantidad>
+  <precioUnitario source="electronicodet.eled_precio"></precioUnitario>
+  <descuento source="electronicodet.eled_descuento"></descuento>
+  <precioTotalSinImpuesto source="electronicodet.eled_totalsinimp"></precioTotalSinImpuesto>
+  <detallesAdicionales>
+    <detAdicional valor="electronicodet.eled_adicional1" nombre="detadicional1" empty="no"/>
+    <detAdicional valor="electronicodet.eled_adicional2" nombre="detadicional2" empty="no"/>
+    <detAdicional valor="electronicodet.eled_adicional3" nombre="detadicional3" empty="no"/>
+  </detallesAdicionales>
+  <impuestos></impuestos>
+</detalle>

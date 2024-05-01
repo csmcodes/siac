@@ -100,6 +100,7 @@
     <Compile Include="vEgresoBancoBLL.cs" />
     <Compile Include="vGuiasFacturasBLL.cs" />
     <Compile Include="vGuiaPlanillaBLL.cs" />
+    <Compile Include="vHojaRutaCabBLL.cs" />
     <Compile Include="vHojaRutaReporteBLL.cs" />
     <Compile Include="vObligacionBLL.cs" />
     <Compile Include="vPlanillaSocioTotBLL.cs" />

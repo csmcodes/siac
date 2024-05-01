@@ -1,0 +1,729 @@
+﻿
+
+body 
+{
+  
+}
+
+body h1
+{
+    font : normal bold 18px Verdana;
+    margin :0;
+    padding : 0;
+}
+
+.auditoria
+{    
+    border-collapse :collapse ;
+    font-size : 10px;
+        
+}
+
+.auditoria td
+{
+    width : 100px;
+    border : 1px solid Gray;
+}
+
+.asignacion
+{
+   
+}
+
+.asignacion table tbody
+{
+    
+    
+}
+
+
+
+.blink_me 
+{
+    color : Red;
+    animation-name: blinker;
+    animation-duration: 1s;
+    animation-timing-function: linear;
+    animation-iteration-count: infinite;
+
+    -webkit-animation-name: blinker;
+    -webkit-animation-duration: 1s;
+    -webkit-animation-timing-function: linear;
+    -webkit-animation-iteration-count: infinite;
+}
+
+@-moz-keyframes blinker {  
+    0% { opacity: 1.0; }
+    50% { opacity: 0.0; }
+    100% { opacity: 1.0; }
+}
+
+@-webkit-keyframes blinker {  
+    0% { opacity: 1.0; }
+    50% { opacity: 0.0; }
+    100% { opacity: 1.0; }
+}
+
+@keyframes blinker {  
+    0% { opacity: 1.0; }
+    50% { opacity: 0.0; }
+    100% { opacity: 1.0; }
+}
+
+.bgpopup
+{
+    position : absolute ;
+    top :0px;
+    left :0px;
+    width:100%;
+    height : 100%;
+    background-color : Gray ;
+    opacity: 0.5;
+    z-index :0;
+    
+}
+
+.calculo
+{
+    width:50px;
+}
+.conpopup
+{
+    background-color: White;
+    overflow: hidden;
+    position: absolute;
+    height: 540px;
+    width: 900px;
+    left: 50%;
+    top: 35%;
+    margin-top: -250px;
+    margin-left: -450px;
+    z-index :1;
+}
+
+.detpopup
+{    
+    height: 100%;
+}
+
+.conpopup td
+{    
+    padding  :2px;  
+}
+
+.conpopup input, .conpopup select, .conpopup textarea, .conpopup checkbox
+{    
+    margin :0;
+    padding : 0;        
+}
+
+.midpopup td
+{
+     padding  :2px;  
+ 
+}
+.midpopup input, .midpopup select, .midpopup textarea, .midpopup checkbox
+{    
+    margin :1px;
+    padding : 1px;        
+}
+
+
+.datecontrol { z-index:9999 !important; }
+
+.derecha
+{
+    text-align : right ;
+}
+.fila
+{    
+    border: solid 1px #dbddff;		
+	padding: 6px;
+	white-space: nowrap;
+	cursor :pointer; 
+}
+
+.fila:hover
+{
+	background-color: #f5f5f5;
+}
+
+.oculto
+{
+    display:none;
+}
+
+.negrita
+{
+	font-weight:bold;
+}
+.cantidades
+{
+    text-align :center !important;
+    width : 100% !important;
+}
+.amounts
+{
+    text-align :right !important;
+    width : 100% !important;
+}
+
+.obligatorio 
+{    
+    color :#ff0000 ;
+}
+
+.obligatorio input, .obligatorio select, obligatorio textarea 
+{    
+    border-color  :#ff0000 ;    
+}
+.rubros
+{
+	height:250px !important;
+	overflow: scroll;
+}
+.smallbtn
+{
+    display:inline-block;
+    cursor :pointer;                
+}
+
+
+.erroramounts
+{
+    background-color : Red  !important;
+    color : White !important;
+    text-align :right;    
+    width : 100% !important;
+}
+
+.totalamountssmall
+{
+    background-color : Yellow  !important;
+    text-align :right;
+    font-weight: bold !important;    
+}
+
+.totalamounts
+{
+    background-color : Yellow  !important;
+    text-align :right;
+    font : normal bold 18px Verdana !important;        
+    width : 100% !important;
+}
+
+.widthauto
+{
+    background-color :Red ;
+    width : 100% !important;
+}
+
+
+.rowoscura , .rowoscura td
+{
+    background-color: LightGray !important;
+}
+
+
+
+.scrolltable
+{
+    
+}
+
+
+
+
+
+.loginpanelGT { position: absolute; top: 50%; left: 50%; height: 300px; }
+
+#add
+{    
+ 
+    background-image :   url(../Imagenes/add_file-32.png);   
+    
+}
+
+#area
+{
+      
+    
+    width :100%;    
+    height :550px;
+}
+
+#barra
+{
+    display: inline-block;
+    margin: 5px;    
+    padding: 0;	
+    text-align :right;
+    width : 600px;
+}
+#barracomp
+{
+    display: inline-block;
+    margin: 0;    
+    padding: 0;	
+    text-align :right;
+    width : auto;
+}
+#barracomp ul
+{
+    padding :0;
+}
+
+
+
+
+#busqueda
+{
+    display: inline-block;        
+    margin : 0 0 2px 0;    
+    padding: 0;	        
+    width: 100%;
+}
+#busquedacontent
+{
+    margin: 0;    
+    padding: 0;	   
+    overflow :auto;
+}
+
+
+
+
+
+#busquedahead
+{  
+    display:block;                  
+        			
+}
+#busquedadetalle
+{  
+    display:block;      
+    height : 550px;     
+    overflow :auto ;
+    width :100%;
+        			
+}
+
+#busquedadetalle tr:hover
+{
+    background-color: #f7f7f7;
+    cursor:pointer;
+}
+
+#closedatos, #closebusqueda
+{    
+    background-image :   url(../Imagenes/close_window-26.png);   
+    background-repeat:no-repeat ;
+    background-position :right;
+    cursor :pointer ;
+    display:inline-block;
+    margin :0;
+    padding :0;        
+    width : 26px;
+    height: 26px;    
+    
+    
+}
+#closedatos:hover, #closebusqueda:hover
+{
+    background-color: ButtonHighlight ;
+}
+
+#controles, #controlesbusqueda
+{    
+    text-align : left;
+    width: 95%
+    
+}
+
+
+#datos 
+{         
+    height : 550px;
+    width : 49%;
+    			
+}
+#datos div
+{
+    margin: 0;    
+    padding: 0;	
+    
+}
+#datoscontent
+{    
+    margin: 0;    
+    padding: 0;	
+    height : 550px;
+    width :100%;
+    overflow :auto;            			
+}
+#delete
+{     
+    background-image :   url(../Imagenes/delete-32.png);            
+}
+
+#detalletabla tr:hover
+{
+    background-color: #f7f7f7;
+    cursor:pointer;
+}
+
+#divloading
+{  
+	position:fixed;
+    top: 50%;
+    left: 50%;
+    width:150px;
+    height:40px;
+    margin-top: -20px; /*set to a negative number 1/2 of your height*/
+    margin-left: -75px; /*set to a negative number 1/2 of your width*/
+    border: 1px solid #ccc;
+    background-color: #f3f3f3;
+    z-index: 10;
+}
+
+
+#comcabecera td
+{    
+    padding  :2px;  
+}
+
+#comcabecera input, #comcabecera select, #comcabecera textarea, #comcabecera checkbox
+{    
+    margin :0;
+    padding : 0;        
+}
+
+#comcabecera select
+{
+	height:auto !important;
+}
+
+
+#comcabeceracontent td
+{    
+    padding  :2px;  
+}
+
+#comcabeceracontent input, #comcabeceracontent select, #comcabeceracontent textarea, #comcabeceracontent checkbox
+{    
+    margin :0;
+    padding : 0;        
+}
+
+#comcabeceracontent div div
+{
+    padding :2px;    
+}
+#comcabeceracontent div ul 
+{        
+    margin :0;
+    padding :0;    
+    height :27px;
+    
+}
+#comcabeceracontent div ul li a
+{    
+    padding :2px;    
+}
+
+.detalleauto
+{
+	height  :auto !important;
+    width :100%;
+}
+
+
+#comdetalle, #comdetallediario
+{
+    height :500px;
+    width :100%;
+}
+#comdetalle2, #comdetallediario
+{
+    height :200px;
+    width :100%;
+}
+
+#comdetallecontent, #comdetallediariocontent
+{    
+    margin: 0;    
+    padding: 0;	
+    height : 500px;
+    width :100%;
+    overflow :auto;            			
+}
+#comdetallecontent2, #comdetallediariocontent
+{    
+    margin: 0;    
+    padding: 0;	
+    height : 200px;
+    width :100%;
+    overflow :auto;            			
+}
+
+
+#comdetallecontent td, #comdetallecontent th, #comdetallediariocontent td, #comdetallediariocontent th
+{    
+    padding  :2px;  
+}
+
+#comdetallecontent input, #comdetallecontent select, #comdetallecontent textarea, #comdetallecontent input[type='checkbox'], #comdetallediariocontent input, #comdetallediariocontent select, #comdetallediariocontent textarea, #comdetallediariocontent input[type='checkbox']
+{    
+    margin :0;
+    padding : 0;            
+}
+
+
+#compiecontent, #compiediariocontent
+{    
+    margin: 0;    
+    padding: 0;	    
+}
+
+#compiecontent td, #compiediariocontent td
+{    
+    padding  :2px;  
+}
+
+#compiecontent input, #compiecontent select, #compiecontent textarea,  #compiecontent span, #compiediariocontent input, #compiediariocontent select, #compiediariocontent textarea,  #compiediariocontent span
+{    
+    margin :0;
+    padding : 0;        
+    
+}
+
+#compiecontent select, #compiediariocontent select
+{
+    height: auto;
+}
+
+.popupcontiner td
+{    
+    padding  :2px;  
+}
+
+.popupcontiner input, .popupcontiner select, .popupcontiner textarea, .popupcontiner checkbox, .popupcontainer p, .popupcontainer button
+{    
+    margin :0;
+    padding : 0;        
+}
+
+.popupcontiner select
+{	
+	height:auto !important;
+}
+
+
+#listado
+{         
+    height : 550px;    
+    width : 50%;
+    			
+}
+
+#listado div
+{         
+   margin: 0;    
+    padding: 0;	
+    			
+}
+
+#listadocontent
+{         
+    margin: 0;    
+    padding: 0;	
+    height : 550px;
+    width :100%;
+    overflow :auto ;
+        			
+}
+
+#masterdetail
+{
+    
+    height : 550px;    
+    width : 100%;
+}
+
+
+#masterdetail div
+{
+ margin: 0;    
+    padding: 0;	
+    			
+
+}
+
+
+
+#masterdetailcontent
+{
+    margin: 0;    
+    padding: 0;	
+    height : 550px;
+    width :100%;
+    overflow :auto;
+}
+
+#menu
+{         
+    height : 550px;    
+    width : 50%;
+    			
+}
+
+#menu div
+{         
+   margin: 0;    
+    padding: 0;	
+    			
+}
+
+#menucontent
+{         
+    margin: 0;    
+    padding: 0;	
+    height : 550px;
+    width :100%;
+    overflow :auto ;
+        			
+}
+
+
+
+
+#principal
+{
+    display: inline-block;
+    margin: 0;    
+    padding: 0;	        
+    width : 100%;
+}
+
+#save
+{     
+    background-image :   url(../Imagenes/save-32.png);        
+}
+
+
+#search
+{    
+ 
+    background-image :   url(../Imagenes/search-32.png);
+    
+    
+}
+
+#sysmenu
+{
+    overflow:auto;
+    height: 800px;
+}
+
+#refresh
+{    
+    background-image :   url(../Imagenes/refresh-32.png);    
+    
+    
+}
+
+
+
+
+
+
+
+
+
+.ui-helper-hidden-accessible { display:none; }
+.ui-autocomplete {
+	position: absolute;
+	top: 0;
+	left: 0;
+	cursor: default;
+}
+
+
+.ui-menu {
+	list-style: none;
+	padding: 2px;
+	margin: 0;
+	display: block;
+	outline: none;
+}
+.ui-menu .ui-menu {
+	margin-top: -3px;
+	position: absolute;
+}
+.ui-menu .ui-menu-item {
+	margin: 0;
+	padding: 0;
+	width: 100%;
+	/* support: IE10, see #8844 */
+	list-style-image: url(data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7);
+}
+.ui-menu .ui-menu-divider {
+	margin: 5px -2px 5px -2px;
+	height: 0;
+	font-size: 0;
+	line-height: 0;
+	border-width: 1px 0 0 0;
+}
+.ui-menu .ui-menu-item a {
+	text-decoration: none;
+	display: block;
+	padding: 2px .4em;
+	line-height: 1.5;
+	min-height: 0; /* support: IE7 */
+	font-weight: normal;
+}
+.ui-menu .ui-menu-item a.ui-state-focus,
+.ui-menu .ui-menu-item a.ui-state-active {
+	font-weight: normal;
+	margin: -1px;
+}
+
+
+.fancyInput{ max-width:80%; min-width:50%; font-size:60px; color:#FFF; vertical-align:middle; line-height:1.3; overflow:hidden; text-align:left; box-shadow:0 1px 0 rgba(255,255,255,.15), 0 2px 4px rgba(0,0,0,.2) inset, 0 0 12px rgba(255,255,255,.1); padding:8px 20px; background:rgba(0,0,0,.1); border-radius:10px; }
+.fancyInput.textarea{ line-height:normal; font-size:40px; max-width:50%; min-height:160px; max-height:40%; }
+
+.fotomuro img
+{
+    width:auto !important;
+    height :auto !important;    
+}
+
+.comentarios
+{
+  list-style: none;
+  background-color: White;    
+}
+.comentarios ul { margin: 0 0 0 25px; padding: 0; }
+.comentarios li { display: block; padding: 2px; cursor: pointer; }
+.comentarios li:last-child { border-bottom: 0; }
+.comentarios li .uinfo { margin-left: 10px; }
+.comentarios li img { display:  block; width: 30px; }
+.comentarios li .uinfo h5 { font-size: 10px; color: #0866c6; margin-bottom: 2px; }
+.comentarios li .uinfo span { display:  block; font-size: 9px; line-height: 16px; color: #999; }
+.comentarios li .uinfo span.pos {color: #666; }
+.comentarios li .uinfo span input{width:90%; font-size : 10px; height : 16px; }
+.comentarios li .par { font-size: 10px; line-height: normal; margin-top: 4px; }
+
+
+.claveelec, .estadoelec{
+    font-size:9px;
+    margin: 0!important;
+    padding: 0!important;
+}
+
+
+#restultadoshtml td th {
+    
+    border: 1px solid;
+
+}

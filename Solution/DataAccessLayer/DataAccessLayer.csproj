@@ -99,6 +99,7 @@
     <Compile Include="vEgresoBancoDAL.cs" />
     <Compile Include="vGuiasFacturasDAL.cs" />
     <Compile Include="vGuiaPlanillaDAL.cs" />
+    <Compile Include="vHojaRutaCabDAL.cs" />
     <Compile Include="vHojaRutaReporteDAL.cs" />
     <Compile Include="vObligacionDAL.cs" />
     <Compile Include="vPlanillaSocioTotDAL.cs" />
