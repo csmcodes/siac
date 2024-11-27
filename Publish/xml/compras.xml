@@ -12,10 +12,10 @@
 	<autorizacion source="compras.autorizacionfac"></autorizacion>
 	<baseNoGraIva>0.00</baseNoGraIva>
 	<baseImponible source="compras.subtotal0"></baseImponible>
-	<baseImpGrav source="compras.subtotalice"></baseImpGrav>
+	<baseImpGrav source="compras.totalSubtotal"></baseImpGrav>
   <baseImpExe>0.00</baseImpExe>
 	<montoIce source="compras.ice"></montoIce>
-	<montoIva source="compras.impuesto"></montoIva>
+	<montoIva source="compras.totalImpuesto"></montoIva>
   <valRetBien10 source="compras.retiva10"></valRetBien10>
   <valRetServ20 source="compras.retiva20"></valRetServ20>
   <valorRetBienes source="compras.retiva30"></valorRetBienes>

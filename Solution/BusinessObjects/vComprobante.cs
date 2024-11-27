@@ -73,7 +73,11 @@ namespace BusinessObjects
         public Decimal? total { get; set; }
         public Decimal? subtotal { get; set; }
         public Decimal? subimpuesto { get; set; }
+        public Decimal? subimpuesto1 { get; set; }
+        public Decimal? subimpuesto2 { get; set; }
         public Decimal? impuesto { get; set; }
+        public Decimal? impuesto1 { get; set; }
+        public Decimal? impuesto2 { get; set; }
         public Decimal? tseguro { get; set; }
         public Decimal? seguro { get; set; }
         public Decimal? porc_seguro { get; set; }
@@ -180,7 +184,11 @@ namespace BusinessObjects
                 object total = null;
                 object subtotal = null;                
                 object subimpuesto = null;
+                object subimpuesto1 = null;
+                object subimpuesto2 = null;
                 object impuesto = null;
+                object impuesto1 = null;
+                object impuesto2 = null;
                 object tseguro = null;
                 object porc_seguro = null;
                 object valordeclarado = null;
@@ -325,11 +333,15 @@ namespace BusinessObjects
                 this.estadoenvio = (string)Conversiones.GetValueByType(estadoenvio, typeof(string));
                 this.subtotal = (Decimal?)Conversiones.GetValueByType(subtotal, typeof(Decimal?));
                 this.subimpuesto = (Decimal?)Conversiones.GetValueByType(subimpuesto, typeof(Decimal?));
+                this.subimpuesto1 = (Decimal?)Conversiones.GetValueByType(subimpuesto1, typeof(Decimal?));
+                this.subimpuesto2 = (Decimal?)Conversiones.GetValueByType(subimpuesto2, typeof(Decimal?));
                 this.seguro = (Decimal?)Conversiones.GetValueByType(seguro, typeof(Decimal?));
                 this.porc_seguro = (Decimal?)Conversiones.GetValueByType(porc_seguro, typeof(Decimal?));
                 this.valordeclarado = (Decimal?)Conversiones.GetValueByType(valordeclarado, typeof(Decimal?));
                 this.tseguro = (Decimal?)Conversiones.GetValueByType(tseguro, typeof(Decimal?));
                 this.impuesto = (Decimal?)Conversiones.GetValueByType(impuesto, typeof(Decimal?));
+                this.impuesto1 = (Decimal?)Conversiones.GetValueByType(impuesto1, typeof(Decimal?));
+                this.impuesto2 = (Decimal?)Conversiones.GetValueByType(impuesto2, typeof(Decimal?));
                 this.transporte = (Decimal?)Conversiones.GetValueByType(transporte, typeof(Decimal?));
                 this.desc = (Decimal?)Conversiones.GetValueByType(desc, typeof(Decimal?));
                 this.desc1 = (Decimal?)Conversiones.GetValueByType(desc1, typeof(Decimal?));
@@ -410,13 +422,17 @@ namespace BusinessObjects
             this.total = (reader["tot_total"] != DBNull.Value) ? (Decimal?)reader["tot_total"] : null;
             this.idpolitica = reader["pol_id"].ToString();
             this.politica = reader["pol_nombre"].ToString();
-           this.subtotal = (reader["tot_subtot_0"] != DBNull.Value) ? (Decimal?)reader["tot_subtot_0"] : null;
-           this.subimpuesto = (reader["tot_subtotal"] != DBNull.Value) ? (Decimal?)reader["tot_subtotal"] : null;
+            this.subtotal = (reader["tot_subtot_0"] != DBNull.Value) ? (Decimal?)reader["tot_subtot_0"] : null;
+            this.subimpuesto = (reader["tot_subtotal"] != DBNull.Value) ? (Decimal?)reader["tot_subtotal"] : null;
+            this.subimpuesto1 = (reader["tot_subtotal1"] != DBNull.Value) ? (Decimal?)reader["tot_subtotal1"] : null;
+            this.subimpuesto2 = (reader["tot_subtotal2"] != DBNull.Value) ? (Decimal?)reader["tot_subtotal2"] : null;
             this.tseguro = (reader["tot_tseguro"] != DBNull.Value) ? (Decimal?)reader["tot_tseguro"] : null;
             this.porc_seguro = (reader["tot_porc_seguro"] != DBNull.Value) ? (Decimal?)reader["tot_porc_seguro"] : null;
             this.valordeclarado= (reader["tot_vseguro"] != DBNull.Value) ? (Decimal?)reader["tot_vseguro"] : null;
             this.seguro = (reader["seguro"] != DBNull.Value) ? (Decimal?)reader["seguro"] : null;
             this.impuesto = (reader["tot_timpuesto"] != DBNull.Value) ? (Decimal?)reader["tot_timpuesto"] : null;
+            this.impuesto1 = (reader["tot_timpuesto1"] != DBNull.Value) ? (Decimal?)reader["tot_timpuesto1"] : null;
+            this.impuesto2 = (reader["tot_timpuesto2"] != DBNull.Value) ? (Decimal?)reader["tot_timpuesto2"] : null;
             this.transporte = (reader["tot_transporte"] != DBNull.Value) ? (Decimal?)reader["tot_transporte"] : null;
 
             this.desc = (reader["tot_desc1_0"] != DBNull.Value) ? (Decimal?)reader["tot_desc1_0"] : null;
@@ -505,11 +521,15 @@ namespace BusinessObjects
             this.total = (reader["tot_total"] != DBNull.Value) ? (Decimal?)reader["tot_total"] : null;
             this.subtotal = (reader["tot_subtot_0"] != DBNull.Value) ? (Decimal?)reader["tot_subtot_0"] : null;
             this.subimpuesto = (reader["tot_subtotal"] != DBNull.Value) ? (Decimal?)reader["tot_subtotal"] : null;
+            this.subimpuesto1 = (reader["tot_subtotal1"] != DBNull.Value) ? (Decimal?)reader["tot_subtotal1"] : null;
+            this.subimpuesto2 = (reader["tot_subtotal2"] != DBNull.Value) ? (Decimal?)reader["tot_subtotal2"] : null;
             this.tseguro = (reader["tot_tseguro"] != DBNull.Value) ? (Decimal?)reader["tot_tseguro"] : null;
             this.porc_seguro = (reader["tot_porc_seguro"] != DBNull.Value) ? (Decimal?)reader["tot_porc_seguro"] : null;
             this.valordeclarado = (reader["tot_vseguro"] != DBNull.Value) ? (Decimal?)reader["tot_vseguro"] : null;
             //this.seguro = (reader["seguro"] != DBNull.Value) ? (Decimal?)reader["seguro"] : null;
             this.impuesto = (reader["tot_timpuesto"] != DBNull.Value) ? (Decimal?)reader["tot_timpuesto"] : null;
+            this.impuesto1 = (reader["tot_timpuesto1"] != DBNull.Value) ? (Decimal?)reader["tot_timpuesto1"] : null;
+            this.impuesto2 = (reader["tot_timpuesto2"] != DBNull.Value) ? (Decimal?)reader["tot_timpuesto2"] : null;
             this.transporte = (reader["tot_transporte"] != DBNull.Value) ? (Decimal?)reader["tot_transporte"] : null;
 
             this.desc = (reader["tot_desc1_0"] != DBNull.Value) ? (Decimal?)reader["tot_desc1_0"] : null;
@@ -556,7 +576,7 @@ namespace BusinessObjects
                            "    t.cenv_destinatario ,t.cenv_ciruc_des, t.cenv_nombres_des, t.cenv_apellidos_des, " +
                            "   t.cenv_vehiculo, t.cenv_placa, t.cenv_disco, t.cdoc_aut_factura, t.cdoc_factura, t.numfactura,  " +
                            "    t.cenv_socio, t.socionombres, t.socionom, t.socioape, " +
-                           "    t.cenv_ruta, t.rut_nombre, t.cenv_despachado_ret,  t.tot_total,t.tot_subtotal,t.tot_subtot_0, t.tot_timpuesto,t.tot_tseguro,t.tot_porc_seguro,t.tot_vseguro,t.seguro,t.tot_transporte , t.pol_nombre, t.pol_id,t.tot_desc1_0,t.tot_desc2_0,t.tot_ice, " +
+                           "    t.cenv_ruta, t.rut_nombre, t.cenv_despachado_ret,  t.tot_total,t.tot_subtotal,t.tot_subtotal1,t.tot_subtotal2,t.tot_subtot_0, t.tot_timpuesto, t.tot_timpuesto1, t.tot_timpuesto2,t.tot_tseguro,t.tot_porc_seguro,t.tot_vseguro,t.seguro,t.tot_transporte , t.pol_nombre, t.pol_id,t.tot_desc1_0,t.tot_desc2_0,t.tot_ice, " +
                            "    t.cancelado, t.monto, t.cancela, t.dban_beneficiario, t.dban_valor_nac,t.hojaruta, t.debito,t.credito	 " +
                            "FROM (SELECT ROW_NUMBER() OVER(ORDER BY c.com_fecha DESC) RowNr,  " +
                            "    c.com_empresa,c.com_codigo, c.com_doctran,c.com_periodo, c.com_mes, c.com_fecha, c.com_concepto, c.com_estado, c.com_tipodoc, c.com_ctipocom, c.com_almacen, alm_id, alm_nombre, c.com_pventa, pve_id, pve_nombre, c.com_numero, " +
@@ -565,7 +585,7 @@ namespace BusinessObjects
                            "    e.cenv_destinatario ,e.cenv_ciruc_des, e.cenv_nombres_des, e.cenv_apellidos_des, " +
                            "    e.cenv_vehiculo, e.cenv_placa, e.cenv_disco, cdoc_aut_factura, cdoc_factura, fc.com_doctran numfactura, " +
                            "    e.cenv_socio, p1.per_apellidos || ' ' || p1.per_nombres socionombres, p1.per_apellidos socioape, p1.per_nombres socionom, " +
-                           "    e.cenv_ruta, rut_nombre, e.cenv_despachado_ret,	tot_total,tot_subtotal,tot_subtot_0,tot_timpuesto,tot_tseguro,tot_porc_seguro,tot_vseguro,tot_vseguro *(tot_porc_seguro/100) seguro, tot_transporte, pol_nombre, pol_id,tot_desc1_0,tot_desc2_0,tot_ice, dban_beneficiario, hr.com_doctran hojaruta," +
+                           "    e.cenv_ruta, rut_nombre, e.cenv_despachado_ret,	tot_total,tot_subtotal,tot_subtotal1,tot_subtotal2,tot_subtot_0,tot_timpuesto,tot_timpuesto1,tot_timpuesto2,tot_tseguro,tot_porc_seguro,tot_vseguro,tot_vseguro *(tot_porc_seguro/100) seguro, tot_transporte, pol_nombre, pol_id,tot_desc1_0,tot_desc2_0,tot_ice, dban_beneficiario, hr.com_doctran hojaruta," +
                            "    dban_valor_nac, SUM(ddo_cancelado) cancelado, SUM(ddo_monto) monto , SUM(ddo_cancela) cancela " +
                            "    ,sum(CASE WHEN dco_debcre =1 THEN dco_valor_nac ELSE  0 END) as debito, sum(CASE WHEN dco_debcre =2 THEN dco_valor_nac ELSE  0 END) as credito " +
                            "FROM comprobante c " +
@@ -595,7 +615,7 @@ namespace BusinessObjects
                            "  e.cenv_vehiculo, e.cenv_placa, e.cenv_disco, cdoc_aut_factura, cdoc_factura, fc.com_doctran, " +
                            "  e.cenv_socio, p1.per_apellidos, p1.per_nombres, cdoc_politica,  " +
                            //"  e.cenv_socio, p1.per_apellidos || ' ' || p1.per_nombres, " +
-                           "  e.cenv_ruta,rut_nombre, e.cenv_despachado_ret, tot_total, tot_subtotal,tot_subtot_0,tot_timpuesto,tot_tseguro,tot_porc_seguro, tot_vseguro, tot_transporte, pol_codigo, pol_nombre, pol_id,tot_desc1_0,tot_desc2_0,tot_ice, dban_beneficiario,dban_valor_nac, hr.com_doctran" +
+                           "  e.cenv_ruta,rut_nombre, e.cenv_despachado_ret, tot_total, tot_subtotal, tot_subtotal1, tot_subtotal2,tot_subtot_0,tot_timpuesto,tot_timpuesto1,tot_timpuesto2,tot_tseguro,tot_porc_seguro, tot_vseguro, tot_transporte, pol_codigo, pol_nombre, pol_id,tot_desc1_0,tot_desc2_0,tot_ice, dban_beneficiario,dban_valor_nac, hr.com_doctran" +
                            "    %whereclause%) t " +
                            "WHERE RowNr BETWEEN %desde% AND %hasta%  ORDER BY %orderby% ";
 
@@ -612,7 +632,7 @@ namespace BusinessObjects
                            "    e.cenv_destinatario ,e.cenv_ciruc_des, e.cenv_nombres_des, e.cenv_apellidos_des, " +
                            "    e.cenv_vehiculo, e.cenv_placa, e.cenv_disco, cdoc_aut_factura, cdoc_factura, fc.com_doctran numfactura, " +
                            "    e.cenv_socio, p1.per_apellidos || ' ' || p1.per_nombres socionombres, p1.per_apellidos socioape, p1.per_nombres socionom, " +
-                           "    e.cenv_ruta, rut_nombre, e.cenv_despachado_ret,	tot_total,tot_subtotal,tot_subtot_0,tot_timpuesto,tot_tseguro,tot_porc_seguro,tot_vseguro, tot_vseguro *(tot_porc_seguro/100) seguro, tot_transporte, pol_nombre, pol_id,tot_desc1_0,tot_desc2_0,tot_ice,dban_beneficiario,dban_valor_nac, hr.com_doctran hojaruta, " +
+                           "    e.cenv_ruta, rut_nombre, e.cenv_despachado_ret,	tot_total,tot_subtotal,tot_subtotal1,tot_subtotal2,tot_subtot_0,tot_timpuesto,tot_timpuesto1,tot_timpuesto2,tot_tseguro,tot_porc_seguro,tot_vseguro, tot_vseguro *(tot_porc_seguro/100) seguro, tot_transporte, pol_nombre, pol_id,tot_desc1_0,tot_desc2_0,tot_ice,dban_beneficiario,dban_valor_nac, hr.com_doctran hojaruta, " +
                            "    SUM(ddo_cancelado) cancelado, SUM(ddo_monto) monto , SUM(ddo_cancela) cancela " +
                            "    ,sum(CASE WHEN dco_debcre =1 THEN dco_valor_nac ELSE  0 END) as debito, sum(CASE WHEN dco_debcre =2 THEN dco_valor_nac ELSE  0 END) as credito " +
                            "FROM comprobante c " +
@@ -640,7 +660,7 @@ namespace BusinessObjects
                            "  e.cenv_destinatario ,e.cenv_ciruc_des, e.cenv_nombres_des, e.cenv_apellidos_des,  " +
                            "  e.cenv_vehiculo, e.cenv_placa, e.cenv_disco, cdoc_aut_factura, cdoc_factura, fc.com_doctran," +
                            "  e.cenv_socio, p1.per_apellidos, p1.per_nombres, cdoc_politica," +
-                           "  e.cenv_ruta,rut_nombre, e.cenv_despachado_ret, tot_total, tot_subtotal,tot_subtot_0,tot_timpuesto,tot_tseguro,tot_porc_seguro,tot_vseguro, tot_transporte,pol_codigo, pol_nombre, pol_id,tot_desc1_0,tot_desc2_0,tot_ice, dban_beneficiario,dban_valor_nac, hr.com_doctran " +
+                           "  e.cenv_ruta,rut_nombre, e.cenv_despachado_ret, tot_total, tot_subtotal, tot_subtotal1, tot_subtotal2,tot_subtot_0,tot_timpuesto,tot_timpuesto1,tot_timpuesto2,tot_tseguro,tot_porc_seguro,tot_vseguro, tot_transporte,pol_codigo, pol_nombre, pol_id,tot_desc1_0,tot_desc2_0,tot_ice, dban_beneficiario,dban_valor_nac, hr.com_doctran " +
                            "    %whereclause%  %orderby% ";
                 
                 

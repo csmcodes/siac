@@ -18,9 +18,13 @@ namespace BusinessObjects
         public Decimal? total { get; set; }
         public Decimal? subtotal0 { get; set; }
         public Decimal? subtotal { get; set; }
+        public Decimal? subtotal1 { get; set; }
+        public Decimal? subtotal2 { get; set; }
         public Decimal? ice { get; set; }
         public Decimal? subtotalice { get; set; }
         public Decimal? impuesto { get; set; }
+        public Decimal? impuesto1 { get; set; }
+        public Decimal? impuesto2 { get; set; }
         public Decimal? seguro { get; set; }
         public Decimal? transporte { get; set; }
         public string doctranret { get; set; }
@@ -66,6 +70,8 @@ namespace BusinessObjects
         public string numeromod{ get; set; }
         public string autorizacionmod{ get; set; }
 
+        public decimal? totalSubtotal { get; set; }
+        public decimal? totalImpuesto { get; set; }
 
 
 
@@ -86,7 +92,11 @@ namespace BusinessObjects
                 object total = null;
                 object subtotal0 = null;
                 object subtotal = null;
+                object subtotal1 = null;
+                object subtotal2 = null;
                 object impuesto = null;
+                object impuesto1 = null;
+                object impuesto2 = null;
                 object ice = null;
                 object seguro = null;
                 object transporte = null;
@@ -102,7 +112,11 @@ namespace BusinessObjects
                 tmp.TryGetValue("total", out total);
                 tmp.TryGetValue("subtotal0", out subtotal0);
                 tmp.TryGetValue("subtotal", out subtotal);
+                tmp.TryGetValue("subtotal1", out subtotal1);
+                tmp.TryGetValue("subtotal2", out subtotal2);
                 tmp.TryGetValue("impuesto", out impuesto);
+                tmp.TryGetValue("impuesto1", out impuesto1);
+                tmp.TryGetValue("impuesto2", out impuesto2);
                 tmp.TryGetValue("ice", out ice);
                 tmp.TryGetValue("seguro", out seguro);
                 tmp.TryGetValue("transporte", out transporte);
@@ -119,7 +133,11 @@ namespace BusinessObjects
                 this.total = (Decimal?)Conversiones.GetValueByType(total, typeof(Decimal?));
                 this.subtotal0 = (Decimal?)Conversiones.GetValueByType(subtotal0, typeof(Decimal?));
                 this.subtotal = (Decimal?)Conversiones.GetValueByType(subtotal, typeof(Decimal?));
+                this.subtotal1 = (Decimal?)Conversiones.GetValueByType(subtotal1, typeof(Decimal?));
+                this.subtotal2 = (Decimal?)Conversiones.GetValueByType(subtotal2, typeof(Decimal?));
                 this.impuesto = (Decimal?)Conversiones.GetValueByType(impuesto, typeof(Decimal?));
+                this.impuesto1 = (Decimal?)Conversiones.GetValueByType(impuesto1, typeof(Decimal?));
+                this.impuesto2 = (Decimal?)Conversiones.GetValueByType(impuesto2, typeof(Decimal?));
                 this.ice = (Decimal?)Conversiones.GetValueByType(ice, typeof(Decimal?));
                 this.seguro = (Decimal?)Conversiones.GetValueByType(seguro, typeof(Decimal?));
                 this.transporte = (Decimal?)Conversiones.GetValueByType(transporte, typeof(Decimal?));
@@ -145,8 +163,12 @@ namespace BusinessObjects
             this.total = (reader["tot_total"] != DBNull.Value) ? (Decimal?)reader["tot_total"] : null;
             this.subtotal0 = (reader["tot_subtot_0"] != DBNull.Value) ? (Decimal?)reader["tot_subtot_0"] : null;
             this.subtotal = (reader["tot_subtotal"] != DBNull.Value) ? (Decimal?)reader["tot_subtotal"] : null;
+            this.subtotal1 = (reader["tot_subtotal1"] != DBNull.Value) ? (Decimal?)reader["tot_subtotal1"] : null;
+            this.subtotal2 = (reader["tot_subtotal2"] != DBNull.Value) ? (Decimal?)reader["tot_subtotal2"] : null;
             this.seguro = (reader["tot_tseguro"] != DBNull.Value) ? (Decimal?)reader["tot_tseguro"] : null;
             this.impuesto = (reader["tot_timpuesto"] != DBNull.Value) ? (Decimal?)reader["tot_timpuesto"] : null;
+            this.impuesto1 = (reader["tot_timpuesto1"] != DBNull.Value) ? (Decimal?)reader["tot_timpuesto1"] : null;
+            this.impuesto2 = (reader["tot_timpuesto2"] != DBNull.Value) ? (Decimal?)reader["tot_timpuesto2"] : null;
             this.ice= (reader["tot_ice"] != DBNull.Value) ? (Decimal?)reader["tot_ice"] : null;
             this.transporte = (reader["tot_transporte"] != DBNull.Value) ? (Decimal?)reader["tot_transporte"] : null;
             this.nfactura = (reader["cdoc_aut_factura"] != DBNull.Value) ? (string)reader["cdoc_aut_factura"] : null;
@@ -160,7 +182,10 @@ namespace BusinessObjects
             }
 
 
-            this.subtotalice = (subtotal.HasValue ? subtotal.Value : 0) + (ice.HasValue ? ice.Value : 0);
+            this.subtotalice = (subtotal??0) + (ice??0) + (subtotal1 ?? 0);
+            //Nuevos campos para el ATS Oct 2024
+            this.totalSubtotal = (subtotal ?? 0) + (subtotal1 ?? 0) + (subtotal2 ?? 0);
+            this.totalImpuesto = (impuesto ?? 0) + (impuesto1 ?? 0) + (impuesto2 ?? 0);  
 
             this.autorizacionfac = (reader["cdoc_acl_nroautoriza"] != DBNull.Value) ? (string)reader["cdoc_acl_nroautoriza"] : null;
             this.observacionfac= (reader["cdoc_observeaciones"] != DBNull.Value) ? (string)reader["cdoc_observeaciones"] : null;
@@ -241,8 +266,8 @@ namespace BusinessObjects
             string sql = " SELECT  DISTINCT " +
 
                 "o.com_codigo, o.com_fecha, o.com_doctran, o.com_tipodoc, " +
-                " ot.tot_total, ot.tot_subtot_0, ot.tot_subtotal," +
-                "ot.tot_timpuesto, ot.tot_ice, ot.tot_tseguro, ot.tot_transporte, " +
+                " ot.tot_total, ot.tot_subtot_0, ot.tot_subtotal,ot.tot_subtotal1,ot.tot_subtotal2," +
+                "ot.tot_timpuesto,ot.tot_timpuesto1,ot.tot_timpuesto2, ot.tot_ice, ot.tot_tseguro, ot.tot_transporte, " +
                 "r.com_fecha as fecharet, r.com_doctran as doctranret, "+
                 "oc.cdoc_aut_factura, oc.cdoc_acl_nroautoriza, oc.cdoc_aut_fecha, oc.cdoc_observeaciones, oc.cdoc_formapago, rd.rtd_id," +
                 "per_razon,per_ciruc, per_tipoid, " +
@@ -264,7 +289,7 @@ namespace BusinessObjects
                 "LEFT join dretencion ON drt_empresa = r.com_empresa and drt_comprobante = r.com_codigo " +
                 "LEFT join impuesto ON drt_empresa = imp_empresa and drt_impuesto = imp_codigo " +
                 " GROUP BY " +
-                "o.com_codigo, o.com_fecha, o.com_periodo, o.com_mes, o.com_doctran, ot.tot_total, ot.tot_subtot_0, ot.tot_subtotal, ot.tot_timpuesto, ot.tot_ice, ot.tot_tseguro, ot.tot_transporte, r.com_fecha, r.com_doctran, o.com_estado, o.com_tipodoc, oc.cdoc_aut_factura, oc.cdoc_acl_nroautoriza, oc.cdoc_aut_fecha,oc.cdoc_observeaciones, oc.cdoc_formapago, rd.rtd_id,per_razon,per_ciruc,per_tipoid,drt_comprobante,o.com_almacen, o.com_pventa, r.com_estado,o.com_empresa  " +
+                "o.com_codigo, o.com_fecha, o.com_periodo, o.com_mes, o.com_doctran, ot.tot_total, ot.tot_subtot_0, ot.tot_subtotal, ot.tot_subtotal1, ot.tot_subtotal2, ot.tot_timpuesto, ot.tot_timpuesto1, ot.tot_timpuesto2, ot.tot_ice, ot.tot_tseguro, ot.tot_transporte, r.com_fecha, r.com_doctran, o.com_estado, o.com_tipodoc, oc.cdoc_aut_factura, oc.cdoc_acl_nroautoriza, oc.cdoc_aut_fecha,oc.cdoc_observeaciones, oc.cdoc_formapago, rd.rtd_id,per_razon,per_ciruc,per_tipoid,drt_comprobante,o.com_almacen, o.com_pventa, r.com_estado,o.com_empresa  " +
                  "    %whereclause%  %orderby%  ";
 
 

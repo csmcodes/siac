@@ -501,6 +501,9 @@ namespace Packages
             foreach (vVenta item in notascc)
             {
                 item.ruc = (Functions.Validaciones.valida_cedularuc(item.ruc)) ? item.ruc : "9999999999999";
+                //Valida Omite RUCS
+                if (rucsOmite.Contains(item.ruc))
+                    item.ruc = "9999999999999";
                 vVenta venta = notasccres.Find(delegate (vVenta v) { return v.ruc == item.ruc; });
                 if (venta == null)
                 {

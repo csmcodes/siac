@@ -2211,9 +2211,14 @@ namespace Packages
             parametros.where += ((parametros.where != "") ? " and " : "") + " comprobante.com_tipodoc = {" + contador + "} ";
             valores.Add(Constantes.cGuia.tpd_codigo);
             contador++;
-            parametros.where += ((parametros.where != "") ? " and " : "") + " comprobante.com_estado = {" + contador + "} ";
-            valores.Add(Constantes.cEstadoGrabado);
-            contador++;
+            //parametros.where += ((parametros.where != "") ? " and " : "") + " comprobante.com_estado = {" + contador + "} ";
+            //valores.Add(Constantes.cEstadoGrabado);
+            //contador++;
+
+            parametros.where += ((parametros.where != "") ? " and " : "") + " comprobante.com_estado IN (" + Constantes.cEstadoGrabado + "," + Constantes.cEstadoMayorizado + ")";
+            //valores.Add(Constantes.cEstadoGrabado);
+            //contador++;
+
             parametros.valores = valores.ToArray();
             List<vDetalle> lista = vDetalleBLL.GetAll(parametros, "");
             List<vDetalle> listadet = vDetalleBLL.GetAllDet(parametros, "");

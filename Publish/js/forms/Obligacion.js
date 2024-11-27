@@ -326,11 +326,14 @@ function GetAutorizacionDataResult(data) {
 }
 
 
-
+function ChangeIVA() {
+    CalculaLinea();
+    RowDown(); 
+}
 
 function SetFormDetalle() {
     SetAutocompleteById("txtIDCUE");
-    $("#chkIVA").on("change", CalculaLinea);
+    $("#cmbIVA").on("change", ChangeIVA);
 
     var codigocomp = $("#txtcodigocomp").val();
     if ($("#txtESTADO").val() == $("#txtCERRADO").val()) {

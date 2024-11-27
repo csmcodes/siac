@@ -468,8 +468,8 @@ namespace WebUI
             tdatos.rows[7].cells[0].valor = "IVA " + valoriva1 + "%: " + new Select { id = "cmbIMPUESTO1", diccionario = Dictionaries.GetImpuestoIVA(), clase = Css.medium, valor = comprobante.total.tot_codimpuesto1??1 }.ToString();
             tdatos.rows[7].cells[1].valor = new Input { id = "txtIVAPORCENTAJE1", visible = false, valor = valoriva1 }.ToString() + new Input { id = "txtIVA1", clase = Css.medium + Css.amount, habilitado = false, valor = Formatos.CurrencyFormat(comprobante.total.tot_timpuesto1) }.ToString();
 
-            tdatos.rows[8].cells[0].valor = "IVA " + valoriva + "%: " + new Select { id = "cmbIMPUESTO", diccionario = Dictionaries.GetImpuestoIVA(), clase = Css.medium, valor = comprobante.total.tot_impuesto }.ToString();
-            tdatos.rows[8].cells[1].valor = new Input { id = "txtIVAPORCENTAJE", visible = false, valor = valoriva }.ToString() + new Input { id = "txtIVA", clase = Css.medium + Css.amount, habilitado = false, valor = Formatos.CurrencyFormat(comprobante.total.tot_timpuesto) }.ToString();
+            tdatos.rows[8].cells[0].valor = "IVA " + Formatos.CurrencyFormat(valoriva) + "%: " + new Select { id = "cmbIMPUESTO", diccionario = Dictionaries.GetImpuestoIVA(), clase = Css.medium, valor = comprobante.total.tot_impuesto }.ToString();
+            tdatos.rows[8].cells[1].valor = new Input { id = "txtIVAPORCENTAJE", visible = false, valor = Formatos.CurrencyFormat(valoriva) }.ToString() + new Input { id = "txtIVA", clase = Css.medium + Css.amount, habilitado = false, valor = Formatos.CurrencyFormat(comprobante.total.tot_timpuesto) }.ToString();
 
 
             tdatos.rows[9].cells[0].valor = "TOTAL:";
