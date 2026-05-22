@@ -372,10 +372,12 @@ namespace Services
                 phrase.Add(new Chunk("Documento sin validez tributaria", _standardFont));
                 cdatosadi.AddElement(phrase);
 
-                //phrase = new Phrase();
-                //phrase.Add(new Chunk("Para descargar su documento ingresar en ", _standardFont));
-                //phrase.Add(new Chunk("www.tao.com.ec", _boldFont));
-                //cdatosadi.AddElement(phrase);
+                if ((fac.total.tot_vseguro ?? 0) == 0)
+                {
+                    phrase = new Phrase();
+                    phrase.Add(new Chunk("Cliente no acepta seguro, viaja sin responsabilidad", _standardFont));
+                    cdatosadi.AddElement(phrase);
+                }
 
                 phrase = new Phrase();
                 phrase.Add(new Chunk("Usuario:", _boldFont));

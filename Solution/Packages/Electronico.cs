@@ -268,7 +268,7 @@ namespace Packages
             string parelectronicpagos = Constantes.GetParameter("electronicpagos");
             string parelectronicret = Constantes.GetParameter("electronicret");
             string parelectronicporcret= Constantes.GetParameter("electronicporcret");
-
+           
 
 
             var serializer = new JavaScriptSerializer();
@@ -377,6 +377,11 @@ namespace Packages
                         electronic.ele_adicional6 = Functions.Formatos.CurrencyFormat(com.total.tot_vseguro);//ENVIO LA POLITICA DE VENTA
                         electronic.ele_nomadicional6 = "Valor declarado";
                     }
+                    else
+                    {
+                        electronic.ele_adicional6 = "Cliente no acepta seguro, viaja sin responsabilidad";
+                        electronic.ele_nomadicional6 = "Aviso";
+                    }
 
 
 
@@ -399,7 +404,7 @@ namespace Packages
                         det.eled_secuencia = secuencia;
                         det.eled_producto = item.ddoc_producto.Value;
                         det.eled_codigo =  GetString( item.ddoc_productoid,25);
-                        det.eled_codigoaux = GetString(item.ddoc_productoid,25); // NO SE ESTA USANDO CODIGO AUX
+                        det.eled_codigoaux = GetString(item.ddoc_productocodigoaux,25); // NO SE ESTA USANDO CODIGO AUX
                         det.eled_descripcion = GetString(item.ddoc_productonombre + " " + item.ddoc_observaciones, 300);
                         det.eled_cantidad = item.ddoc_cantidad;
                         det.eled_precio = item.ddoc_precio;

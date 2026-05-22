@@ -187,7 +187,8 @@ namespace BusinessObjects
             this.totalSubtotal = (subtotal ?? 0) + (subtotal1 ?? 0) + (subtotal2 ?? 0);
             this.totalImpuesto = (impuesto ?? 0) + (impuesto1 ?? 0) + (impuesto2 ?? 0);  
 
-            this.autorizacionfac = (reader["cdoc_acl_nroautoriza"] != DBNull.Value) ? (string)reader["cdoc_acl_nroautoriza"] : null;
+            string _authraw = (reader["cdoc_acl_nroautoriza"] != DBNull.Value) ? (string)reader["cdoc_acl_nroautoriza"] : null;
+            this.autorizacionfac = (_authraw != null && _authraw.Length > 49) ? _authraw.Substring(0, 49) : _authraw;
             this.observacionfac= (reader["cdoc_observeaciones"] != DBNull.Value) ? (string)reader["cdoc_observeaciones"] : null;
             this.formapagofac = (reader["cdoc_formapago"] != DBNull.Value) ? (string)reader["cdoc_formapago"] : null;
             this.retid = (reader["rtd_id"] != DBNull.Value) ? (string)reader["rtd_id"] : null;
