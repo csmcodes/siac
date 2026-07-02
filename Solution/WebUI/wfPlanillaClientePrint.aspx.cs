@@ -45,7 +45,7 @@ namespace WebUI
             planilla.total = TotalBLL.GetByPK(planilla.total);
 
 
-            List<vPlanillaCliente> planillas = vPlanillaClienteBLL.GetAll(new WhereParams("cabecera.com_codigo={0}", planilla.com_codigo), "");
+            List<vPlanillaCliente> planillas = vPlanillaClienteBLL.GetAll(new WhereParams("cabecera.com_codigo={0}", planilla.com_codigo), "detalle_apellidos, detalle_nombres, detalle_fecha");
           
 
             Empresa emp = EmpresaBLL.GetByPK(new Empresa { emp_codigo = planilla.com_empresa, emp_codigo_key = planilla.com_empresa });

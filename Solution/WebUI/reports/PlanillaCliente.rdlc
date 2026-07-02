@@ -911,6 +911,17 @@
             </TablixMember>
             <TablixMember>
               <Group Name="Details" />
+              <SortExpressions>
+                <SortExpression>
+                  <Value>=Fields!detalle_apellidos.Value</Value>
+                </SortExpression>
+                <SortExpression>
+                  <Value>=Fields!detalle_nombres.Value</Value>
+                </SortExpression>
+                <SortExpression>
+                  <Value>=Fields!detalle_fecha.Value</Value>
+                </SortExpression>
+              </SortExpressions>
             </TablixMember>
             <TablixMember>
               <KeepWithGroup>Before</KeepWithGroup>

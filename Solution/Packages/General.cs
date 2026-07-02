@@ -5305,7 +5305,7 @@ namespace Packages
             parametrosRUB.valores = valoresRUB.ToArray();
 
 
-            string OrderByClause = " com_doctran";
+            string OrderByClause = " per_razon, com_fecha, com_doctran";
 
             List<vPlanillaSocioTot> lst = vPlanillaSocioTotBLL.GetAll(parametros, OrderByClause);
             List<vPlanillaSocioTot> lstrub = vPlanillaSocioTotBLL.GetAllRub(parametrosRUB, OrderByClause);

@@ -1443,6 +1443,11 @@
                     </TablixMember>
                     <TablixMember>
                       <Group Name="Details" />
+                      <SortExpressions>
+                        <SortExpression>
+                          <Value>=Fields!com_fecha.Value</Value>
+                        </SortExpression>
+                      </SortExpressions>
                     </TablixMember>
                     <TablixMember>
                       <KeepWithGroup>Before</KeepWithGroup>
