@@ -99,6 +99,7 @@
     <Compile Include="Contabilidad.cs" />
     <Compile Include="CXCP.cs" />
     <Compile Include="Electronico.cs" />
+    <Compile Include="ElectronicoAsapp.cs" />
     <Compile Include="External.cs" />
     <Compile Include="FAC.cs" />
     <Compile Include="General.cs" />
@@ -296,10 +297,10 @@
     <WebReferences Include="Web References\" />
   </ItemGroup>
   <ItemGroup>
-    <WebReferenceUrl Include="http://216.120.250.222/SICE/ws/Metodos.asmx">
+    <WebReferenceUrl Include="http://sice.tao.com.ec/ws/Metodos.asmx">
       <UrlBehavior>Dynamic</UrlBehavior>
       <RelPath>Web References\SICE\</RelPath>
-      <UpdateFromURL>http://216.120.250.222/SICE/ws/Metodos.asmx</UpdateFromURL>
+      <UpdateFromURL>http://sice.tao.com.ec/ws/Metodos.asmx</UpdateFromURL>
       <ServiceLocationURL>
       </ServiceLocationURL>
       <CachedDynamicPropName>

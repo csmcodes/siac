@@ -19,22 +19,27 @@ namespace Packages
     public class Electronico
     {
 
-        public static XmlDocument xmldoc = new XmlDocument();
-        public static Comprobante comprobante = new Comprobante();
-        public static PropertyInfo[] comprobanteprop;
-        public static Ccomdoc ccomdoc = new Ccomdoc();
-        public static PropertyInfo[] ccomdocprop;
+        // Estado por-instancia (antes eran campos static compartidos por todo el AppDomain - causaba que dos
+        // comprobantes procesandose casi al mismo tiempo se pisaran los datos entre si sin ninguna excepcion).
+        // Cada llamada a GenerateElectronico crea su propia instancia de Electronico, asi que estos campos
+        // quedan aislados por request.
+        public XmlDocument xmldoc = new XmlDocument();
+        public Comprobante comprobante = new Comprobante();
+        public Ccomdoc ccomdoc = new Ccomdoc();
+        public List<Formapago> formas = new List<Formapago>();
+        public Electronic electronic = new Electronic();
+        public List<Electronicdet> electronicdet = new List<Electronicdet>();
+        public Empresa empresa = new Empresa();
+        public string path = "";
 
-        public static List<Formapago> formas = new List<Formapago>();
-        public static PropertyInfo[] formasprop;
-
-        public static Electronic electronic = new Electronic();
-        public static PropertyInfo[] electronicprop;
-        public static List<Electronicdet> electronicdet = new List<Electronicdet>();
-        public static PropertyInfo[] electronicdetprop;
-        public static Empresa empresa = new Empresa();
-        public static PropertyInfo[] empresaprop;
-        public static string path = "";
+        // Cachés de reflexión - estos SI pueden ser static de verdad: son metadata del TIPO (PropertyInfo[]),
+        // no de una instancia particular, y no cambian entre requests.
+        private static readonly PropertyInfo[] ComprobanteProps = typeof(Comprobante).GetProperties();
+        private static readonly PropertyInfo[] CcomdocProps = typeof(Ccomdoc).GetProperties();
+        private static readonly PropertyInfo[] FormapagoProps = typeof(Formapago).GetProperties();
+        private static readonly PropertyInfo[] ElectronicProps = typeof(Electronic).GetProperties();
+        private static readonly PropertyInfo[] ElectronicdetProps = typeof(Electronicdet).GetProperties();
+        private static readonly PropertyInfo[] EmpresaProps = typeof(Empresa).GetProperties();
 
 
         public static bool IsElectronicUser(string usuarios, Comprobante com)
@@ -100,6 +105,9 @@ namespace Packages
 
         public static string ElectronicRIDE(Comprobante com)
         {
+            if (ResolveProvider(com) == "ASAPP")
+                return ElectronicoAsapp.GetRideUrl(com);
+
             string parelectronicride = Constantes.GetParameter("electronicride");
             return parelectronicride + com.com_claveelec;
 
@@ -201,6 +209,17 @@ namespace Packages
             return Validator;
         }
 
+        // Tabla 33 (Anexo 25, ficha tecnica): sin espacios, y si el segmento numerico final tiene
+        // solo 3 digitos se le antepone un cero (ABC123 -> ABC0123).
+        private static string FormatPlacaSri(string placa)
+        {
+            if (string.IsNullOrWhiteSpace(placa))
+                return "";
+            string limpio = placa.Trim().ToUpper().Replace(" ", "").Replace("-", "");
+            var m = System.Text.RegularExpressions.Regex.Match(limpio, @"^([A-Z]+)(\d{3})$");
+            return m.Success ? m.Groups[1].Value + "0" + m.Groups[2].Value : limpio;
+        }
+
         public static string GetClave(Comprobante comp, string tipocomprobante, Empresa empresa, Electronic ele)
         {
             string clave = "";
@@ -225,7 +244,24 @@ namespace Packages
             string parelectronicos = Constantes.GetParameter("electronicos");
             var serializer = new JavaScriptSerializer();
             List<Electronicos> lst = serializer.Deserialize<List<Electronicos>>(parelectronicos);
-            return  lst.Find(delegate (Electronicos e) { return e.empresa == com.com_empresa && e.tipodoc == com.com_tipodoc; });            
+            return  lst.Find(delegate (Electronicos e) { return e.empresa == com.com_empresa && e.tipodoc == com.com_tipodoc; });
+        }
+
+        // Decide a que proveedor consultar/enviar. Prioridad:
+        // 1) com.com_provider == "ASAPP": este comprobante puntual ya se envio por Asapp, siempre se consulta ahi
+        //    (no depende de la config actual, por si se revierte el switch para documentos nuevos).
+        // 2) Config actual del switch (parametro "electronicos") para esta empresa+tipodoc: permite que comprobantes
+        //    historicos migrados a Asapp (enviados originalmente por SICE, sin com_provider) tambien se consulten
+        //    ahi una vez activado el switch - Asapp expone endpoints por clave de acceso (no por su id interno)
+        //    que funcionan para cualquier comprobante con com_claveelec, sea de SICE o de Asapp.
+        // 3) Default SICE.
+        private static string ResolveProvider(Comprobante com)
+        {
+            if (string.Equals(com.com_provider, "ASAPP", StringComparison.OrdinalIgnoreCase))
+                return "ASAPP";
+
+            Electronicos config = GetElectronicoConfig(com);
+            return (config != null && !string.IsNullOrEmpty(config.provider)) ? config.provider.Trim().ToUpper() : "SICE";
         }
 
 
@@ -259,7 +295,7 @@ namespace Packages
 
         }
 
-        public static Electronic LoadElectronico(Comprobante com, List<Drecibo> detallerecibo)
+        public Electronic LoadElectronico(Comprobante com, List<Drecibo> detallerecibo)
         {
 
             string parelectronicos = Constantes.GetParameter("electronicos");
@@ -330,6 +366,7 @@ namespace Packages
                     electronic.ele_especial = ele.especial;
                     electronic.ele_contabilidad = ele.contabilidad;
                     electronic.ele_tipoid = GetTipoId(persona.per_tipoid, persona.per_ciruc, lstids);
+                    electronic.ele_placa = FormatPlacaSri(com.com_placasri);
                     string nombres = persona.per_apellidos + " " + persona.per_nombres;
                     electronic.ele_razonsocial = nombres.Trim();
                     electronic.ele_idcomprador = persona.per_ciruc;
@@ -342,7 +379,7 @@ namespace Packages
 
                     //IMPUESTOS
 
-                    decimal porciva =  Constantes.GetValorIVA(comprobante.com_fecha);
+                    decimal porciva =  Constantes.GetValorIVA(com.com_fecha);
 
                     //IVA
                     electronic.ele_iva = com.total.tot_subtotal + (com.total.tot_tseguro??0);
@@ -564,6 +601,121 @@ namespace Packages
 
                     return electronic;
 
+                }
+
+                #endregion
+
+                #region LIQUIDACION DE COMPRA
+
+                // No hay pagina propia: wfObligacion.aspx maneja Liquidacion de Compra igual que otras obligaciones
+                // de CxP, diferenciada por com_tipodoc. El contraparte (persona/agricultor) sale de com_codclipro,
+                // igual que en FACTURA (persona/informante ya resueltos en el preambulo de este metodo). Items desde
+                // Dcomdoc (com.ccomdoc.detalle), igual que FACTURA. No se arman los "adicionales" de envio
+                // (Remitente/Destinatario/Ciudad/Seguro) ni las lineas extra de transporte/seguro: no aplican a una
+                // compra a un individuo (esto es distinto de FACTURA, que si es una venta con posible despacho).
+                if (ele.tipodoc == Constantes.cLiquidacionCompra.tpd_codigo)
+                {
+                    Electronic electronic = new Electronic();
+
+                    electronic.ele_empresa = com.com_empresa;
+                    electronic.ele_comprobante = com.com_codigo;
+                    electronic.ele_almacen = com.com_almacenid;
+                    electronic.ele_pventa = com.com_pventaid;
+                    electronic.ele_secuencia = com.com_numero.ToString("000000000");
+                    electronic.ele_ambiente = ele.ambiente; // 1=PRUEBAS 2=PRODUCCION
+                    electronic.ele_emision = 1;
+                    electronic.ele_tipo = com.com_tipodoc;
+                    electronic.ele_email = persona.per_mail;
+                    electronic.ele_dirmatriz = matriz.alm_direccion;
+                    electronic.ele_dirsucursal = sucursal.alm_direccion;
+                    electronic.ele_especial = ele.especial;
+                    electronic.ele_contabilidad = ele.contabilidad;
+                    electronic.ele_tipoid = GetTipoId(persona.per_tipoid, persona.per_ciruc, lstids);
+                    string nombresLc = persona.per_apellidos + " " + persona.per_nombres;
+                    electronic.ele_razonsocial = nombresLc.Trim();
+                    electronic.ele_idcomprador = persona.per_ciruc;
+                    electronic.ele_dircomprador = !string.IsNullOrEmpty(persona.per_direccion) ? persona.per_direccion : "S/D";
+                    electronic.ele_totaldesc = com.total.tot_desc1_0 + com.total.tot_desc2_0;
+                    electronic.ele_totalsinimp = com.total.tot_subtotal + com.total.tot_subtot_0 - (com.total.tot_desc1_0 + com.total.tot_desc2_0);
+                    electronic.ele_total = com.total.tot_total;
+
+                    //IMPUESTOS
+                    decimal porcivaLc = Constantes.GetValorIVA(com.com_fecha);
+
+                    //IVA
+                    electronic.ele_iva = com.total.tot_subtotal;
+                    electronic.ele_porciva = com.total.tot_porc_impuesto.HasValue ? com.total.tot_porc_impuesto.Value : porcivaLc;
+                    electronic.ele_codigoiva = GetCodigoImp(electronic.ele_porciva, lstimp);
+                    electronic.ele_valoriva = com.total.tot_timpuesto;
+
+                    //IVA 0
+                    electronic.ele_iva0 = com.total.tot_subtot_0 - (com.total.tot_desc1_0 + com.total.tot_desc2_0);
+                    electronic.ele_codigoiva0 = GetCodigoImp(0, lstimp);
+
+                    electronic.ele_ice = com.total.tot_ice;
+
+                    electronic.ele_formato = ele.formato;
+                    // Codigo SRI 03 = Liquidacion de Compra (ver GetClave, contempla 01/03/04/05/06/07)
+                    electronic.ele_clave = GetClave(com, "03", empresa, electronic);
+
+                    List<Electronicdet> detalle = new List<Electronicdet>();
+
+                    int secuenciaLc = 0;
+                    foreach (Dcomdoc item in com.ccomdoc.detalle)
+                    {
+                        secuenciaLc++;
+                        Electronicdet det = new Electronicdet();
+                        det.eled_empresa = com.com_empresa;
+                        det.eled_comprobante = com.com_codigo;
+                        det.eled_secuencia = secuenciaLc;
+                        det.eled_producto = item.ddoc_producto.Value;
+                        det.eled_codigo = GetString(item.ddoc_productoid, 25);
+                        det.eled_codigoaux = GetString(item.ddoc_productocodigoaux, 25);
+                        det.eled_descripcion = GetString(item.ddoc_productonombre + " " + item.ddoc_observaciones, 300);
+                        det.eled_cantidad = item.ddoc_cantidad;
+                        det.eled_precio = item.ddoc_precio;
+                        det.eled_descuento = (item.ddoc_dscitem ?? 0) > 0 ? ((item.ddoc_cantidad * item.ddoc_precio) - item.ddoc_total) : 0;
+                        det.eled_totalsinimp = item.ddoc_total;
+                        det.eled_adicional1 = item.ddoc_observaciones;
+
+                        //IMPUESTOS
+                        if (item.ddoc_grabaiva.Value == 1)
+                        {
+                            det.eled_porciva = com.total.tot_porc_impuesto;
+                            det.eled_codigoiva = GetCodigoImp(det.eled_porciva, lstimp);
+                            det.eled_iva = Math.Round((decimal)(det.eled_totalsinimp * (det.eled_porciva / 100)), 2);
+                        }
+                        else
+                        {
+                            det.eled_iva0 = item.ddoc_total;
+                            det.eled_codigoiva0 = GetCodigoImp(0, lstimp);
+                        }
+
+                        det.crea_usr = item.crea_usr;
+                        det.crea_fecha = DateTime.Now;
+                        detalle.Add(det);
+                    }
+
+                    electronic.detalle = detalle;
+
+                    //////FORMAS DE PAGO/////
+                    List<Formapago> lstformasLc = new List<Formapago>();
+                    Politica politicaLc = PoliticaBLL.GetByPK(new Politica() { pol_empresa = com.com_empresa, pol_empresa_key = com.com_empresa, pol_codigo = com.ccomdoc.cdoc_politica ?? 0, pol_codigo_key = com.ccomdoc.cdoc_politica ?? 0 });
+                    ElectronicPago epLc = lstpag.Find(delegate (ElectronicPago p) { return p.defecto == "si"; });
+                    if (epLc == null)
+                        epLc = lstpag[0];
+
+                    Formapago fpLc = new Formapago();
+                    fpLc.codigo = epLc.codigo;
+                    fpLc.forma = epLc.forma;
+                    fpLc.valor = electronic.ele_total;
+                    fpLc.plazo = politicaLc.pol_dias_plazo;
+                    fpLc.tiempo = "dias";
+                    lstformasLc.Add(fpLc);
+
+                    electronic.formas = lstformasLc;
+
+                    return electronic;
                 }
 
                 #endregion
@@ -824,6 +976,122 @@ namespace Packages
 
                 #endregion
 
+                #region NOTA DE DÉBITO
+
+                // Misma fuente de datos que Nota de Credito (tabla/BusinessObject Dnotacre, com.notascre), solo
+                // diferenciada por com_tipodoc - Nota de Debito nunca tuvo plantilla XML propia para SICE, asi que
+                // esta rama nunca se ejecuto antes de agregarla (2026-07-10, para habilitar el envio via Asapp).
+                if (ele.tipodoc == Constantes.cNotadeb.tpd_codigo)
+                {
+
+                    Comprobante factura = ComprobanteBLL.GetByPK(new Comprobante { com_empresa = com.com_empresa, com_empresa_key = com.com_empresa, com_codigo = com.ccomdoc.cdoc_factura.Value, com_codigo_key = com.ccomdoc.cdoc_factura.Value });
+
+                    Electronic electronic = new Electronic();
+
+
+                    electronic.ele_empresa = com.com_empresa;
+                    electronic.ele_comprobante = com.com_codigo;
+                    electronic.ele_almacen = com.com_almacenid;
+                    electronic.ele_pventa = com.com_pventaid;
+                    electronic.ele_secuencia = com.com_numero.ToString("000000000");
+                    electronic.ele_ambiente = ele.ambiente; // 1=PRUEBAS 2=PRODUCCION
+                    electronic.ele_emision = 1;
+                    electronic.ele_tipo = com.com_tipodoc;
+                    electronic.ele_email = persona.per_mail;
+                    electronic.ele_dirmatriz = matriz.alm_direccion;
+                    electronic.ele_dirsucursal = sucursal.alm_direccion;
+                    electronic.ele_especial = ele.especial;
+                    electronic.ele_contabilidad = ele.contabilidad;
+                    electronic.ele_tipoid = GetTipoId(persona.per_tipoid, persona.per_ciruc, lstids);
+
+                    electronic.ele_totalsinimp = com.total.tot_subtotal + com.total.tot_subtot_0 + com.total.tot_transporte + (com.total.tot_tseguro ?? 0);
+                    electronic.ele_total = com.total.tot_total;
+
+                    electronic.ele_coddocsustento = "01";
+                    electronic.ele_numdocsustento = string.Format("{0:000}-{1:000}-{2:000000000}", factura.com_almacenid, factura.com_pventaid, factura.com_numero);
+                    electronic.ele_fechadocsustento = factura.com_fecha.ToString("dd/MM/yyyy");
+
+                    //IMPUESTOS
+
+                    //IVA
+                    electronic.ele_iva = com.total.tot_subtotal + (com.total.tot_tseguro ?? 0);
+                    electronic.ele_porciva = com.total.tot_porc_impuesto;
+                    electronic.ele_codigoiva = GetCodigoImp(electronic.ele_porciva, lstimp);
+                    electronic.ele_valoriva = com.total.tot_timpuesto;
+
+                    //IVA 0
+                    electronic.ele_iva0 = com.total.tot_subtot_0 + com.total.tot_transporte;
+                    electronic.ele_codigoiva0 = GetCodigoImp(0, lstimp);
+
+                    //ICE
+                    electronic.ele_ice = com.total.tot_ice;
+
+                    electronic.ele_adicional1 = com.ccomdoc.cdoc_politicanombre;
+                    electronic.ele_nomadicional1 = "Fpago";
+                    electronic.ele_adicional2 = com.ccomenv.cenv_ciruc_rem + " " + com.ccomenv.cenv_apellidos_rem + " " + com.ccomenv.cenv_nombres_rem;
+                    electronic.ele_nomadicional2 = "Remitente";
+                    electronic.ele_adicional3 = com.ccomenv.cenv_ciruc_des + " " + com.ccomenv.cenv_apellidos_des + " " + com.ccomenv.cenv_nombres_des;
+                    electronic.ele_nomadicional3 = "Destinatario";
+                    electronic.ele_adicional4 = com.ccomenv.cenv_rutadestino;
+                    electronic.ele_nomadicional4 = "Ciudad";
+                    electronic.ele_adicional5 = com.ccomdoc.cdoc_telefono;
+                    electronic.ele_nomadicional5 = "Telefono";
+                    if ((com.total.tot_vseguro ?? 0) > 0)
+                    {
+                        electronic.ele_adicional6 = Functions.Formatos.CurrencyFormat(com.total.tot_vseguro);
+                        electronic.ele_nomadicional6 = "Valor declarado";
+                    }
+
+                    electronic.ele_formato = ele.formato;
+                    // Codigo SRI 05 = Nota de Debito (ver GetClave, contempla 01/04/05/06/07)
+                    electronic.ele_clave = GetClave(com, "05", empresa, electronic);
+
+                    List<Electronicdet> detalle = new List<Electronicdet>();
+
+                    int secuencia = 0;
+                    foreach (Dnotacre item in com.notascre)
+                    {
+                        secuencia++;
+                        Electronicdet det = new Electronicdet();
+                        det.eled_empresa = com.com_empresa;
+                        det.eled_comprobante = com.com_codigo;
+                        det.eled_secuencia = secuencia;
+                        det.eled_codigo = item.dnc_tiponc.ToString();
+                        det.eled_codigoaux = item.dnc_tiponcid;
+                        det.eled_descripcion = item.dnc_tiponcnombre;
+                        det.eled_cantidad = 1;
+                        det.eled_precio = item.dnc_valor;
+                        det.eled_descuento = 0;
+                        det.eled_totalsinimp = item.dnc_valor;
+
+                        //IMPUESTOS
+                        if (item.dnc_cheque.Value == 1)
+                        {
+                            //IVA
+                            det.eled_porciva = com.total.tot_porc_impuesto;
+                            det.eled_codigoiva = GetCodigoImp(det.eled_porciva, lstimp);
+                            det.eled_iva = Math.Round((decimal)(det.eled_totalsinimp * (det.eled_porciva / 100)), 2);
+                        }
+                        else
+                        {
+                            //IVA 0
+                            det.eled_iva0 = item.dnc_valor;
+                            det.eled_codigoiva0 = GetCodigoImp(0, lstimp);
+                        }
+
+                        det.crea_usr = item.crea_usr;
+                        det.crea_fecha = DateTime.Now;
+                        detalle.Add(det);
+                    }
+
+                    electronic.detalle = detalle;
+
+                    return electronic;
+
+                }
+
+                #endregion
+
 
             }
 
@@ -856,6 +1124,14 @@ namespace Packages
 
 
         public static Comprobante UpdateElectronicoData(Comprobante com)
+        {
+            if (ResolveProvider(com) == "ASAPP")
+                return ElectronicoAsapp.UpdateElectronicoData(com);
+            return UpdateElectronicoDataSICE(com);
+        }
+
+        // Integracion legacy SICE (SOAP) - logica intacta, solo renombrada.
+        public static Comprobante UpdateElectronicoDataSICE(Comprobante com)
         {
             string data = GetElectronicoData(com);
 
@@ -919,6 +1195,32 @@ namespace Packages
 
         public static bool GenerateElectronico(Comprobante com)
         {
+            if (!IsElectronic(com))
+                return false;
+
+            if (ResolveProvider(com) == "ASAPP")
+                return ElectronicoAsapp.GenerateElectronico(com);
+
+            // Nota de Debito y Liquidacion de Compra ahora tienen rama en LoadElectronico (agregadas 2026-07-10,
+            // solo para habilitar Asapp), pero SICE nunca tuvo plantilla XML para ninguna de las tres (ni tampoco
+            // para Guia de Remision) - GenerateElectronicoSICE no tiene GenerarND()/GenerarLC()/GenerarGR(). Sin
+            // este guard, configurar alguno de estos tres sin "provider":"ASAPP" haria que GenerateElectronicoSICE
+            // mande un XML vacio a la produccion real de SICE. Los tres SOLO se soportan via Asapp.
+            if (com.com_tipodoc == Constantes.cNotadeb.tpd_codigo || com.com_tipodoc == Constantes.cLiquidacionCompra.tpd_codigo || com.com_tipodoc == Constantes.cGuiaRemision.tpd_codigo)
+            {
+                ExceptionHandling.Log.AddExepcion(new Exception("Comprobante " + com.com_codigo + " (tipodoc=" + com.com_tipodoc + ") solo esta soportado via Asapp - configurar \"provider\":\"ASAPP\" en el parametro 'electronicos' para este tipodoc."));
+                return false;
+            }
+
+            return new Electronico().GenerateElectronicoSICE(com);
+        }
+
+        // Integracion legacy SICE (SOAP) - logica intacta, solo renombrada. No modificar sin coordinar rollback del switch "provider".
+        // Ya no es static: cada llamada crea su propia instancia de Electronico (ver GenerateElectronico arriba),
+        // asi que los campos de instancia de abajo (empresa/comprobante/ccomdoc/electronic/etc.) quedan aislados
+        // por request y no se pisan entre dos comprobantes procesandose al mismo tiempo.
+        public bool GenerateElectronicoSICE(Comprobante com)
+        {
 
 
             if (IsElectronic(com))
@@ -939,9 +1241,6 @@ namespace Packages
                         empresa.emp_regimenmicro = Constantes.GetParameter("regimenmicroxml");
                         empresa.emp_regimenrimpe = Constantes.GetParameter("regimenrimpe");
 
-                        empresaprop = empresa.GetProperties();
-
-
                         comprobante.com_empresa = com.com_empresa;
                         comprobante.com_empresa_key = com.com_empresa;
                         comprobante.com_codigo = com.com_codigo;
@@ -950,8 +1249,6 @@ namespace Packages
                         comprobante = ComprobanteBLL.GetByPK(comprobante);
                         comprobante.com_empresa_key = com.com_empresa;
                         comprobante.com_codigo_key = com.com_codigo;
-
-                        comprobanteprop = comprobante.GetProperties();
 
                         comprobante.ccomdoc = new Ccomdoc();
                         comprobante.ccomdoc.cdoc_empresa = comprobante.com_empresa;
@@ -988,7 +1285,6 @@ namespace Packages
                         List<Drecibo> detalle = DreciboBLL.GetAll(new WhereParams("dfp_empresa={0} and dfp_ref_comprobante={1} and com_estado=2", comprobante.com_empresa, comprobante.com_codigo), "dfp_secuencia");
 
                         ccomdoc = comprobante.ccomdoc;
-                        ccomdocprop = ccomdoc.GetProperties();
 
                         electronic = LoadElectronico(comprobante, detalle);
 
@@ -999,18 +1295,9 @@ namespace Packages
                             comprobante.com_claveelec = electronic.ele_clave;
                             ComprobanteBLL.Update(comprobante);
 
-
-
-                            electronicprop = electronic.GetProperties();
-
                             electronicdet = electronic.detalle;
-                            Electronicdet eled = new Electronicdet();
-                            electronicdetprop = eled.GetProperties();
-
 
                             formas = electronic.formas;
-                            Formapago fp = new Formapago();
-                            formasprop = fp.GetProperties();
 
 
 
@@ -1077,7 +1364,7 @@ namespace Packages
         }
 
 
-        public static XmlDocument GenerarFAC()
+        public XmlDocument GenerarFAC()
         {
 
             xmldoc = new XmlDocument();
@@ -1101,7 +1388,7 @@ namespace Packages
 
         }
 
-        public static XmlDocument GenerarRET()
+        public XmlDocument GenerarRET()
         {
 
             xmldoc = new XmlDocument();
@@ -1126,7 +1413,7 @@ namespace Packages
         }
 
 
-        public static XmlDocument GenerarNC()
+        public XmlDocument GenerarNC()
         {
 
             xmldoc = new XmlDocument();
@@ -1150,7 +1437,7 @@ namespace Packages
 
         }
 
-        public static void CreateXmlNode(XmlNode parent, XmlNode nodtemp, Int64? codigo, object datasource)
+        public void CreateXmlNode(XmlNode parent, XmlNode nodtemp, Int64? codigo, object datasource)
         {
 
 
@@ -1204,7 +1491,10 @@ namespace Packages
                     if (source != "")
                     {
                         xmlnode.InnerText = GetSourceValue(source, function, filter, datasource);
-                        if (empty == "no" && string.IsNullOrEmpty(xmlnode.InnerText))
+                        // IsNullOrWhiteSpace (no IsNullOrEmpty): concatenaciones tipo "a + ' ' + b + ' ' + c" con
+                        // todas las partes vacias/null dan " " (no ""), lo cual el SRI rechaza igual por no cumplir
+                        // minLength=1 real - hay que tratarlas como vacias para que "empty=no" las omita.
+                        if (empty == "no" && string.IsNullOrWhiteSpace(xmlnode.InnerText))
                             add = false;
                     }
                     if (nombre!="")
@@ -1213,7 +1503,7 @@ namespace Packages
                         XmlAttribute attr = xmldoc.CreateAttribute("nombre");
                         attr.Value = strvalor;
                         xmlnode.Attributes.Append(attr);
-                        if (empty == "no" && string.IsNullOrEmpty(strvalor))
+                        if (empty == "no" && string.IsNullOrWhiteSpace(strvalor))
                             add = false;
                     }
 
@@ -1224,7 +1514,7 @@ namespace Packages
                         XmlAttribute attr = xmldoc.CreateAttribute("valor");
                         attr.Value = strvalor;
                         xmlnode.Attributes.Append(attr);
-                        if (empty == "no" && string.IsNullOrEmpty(strvalor))
+                        if (empty == "no" && string.IsNullOrWhiteSpace(strvalor))
                             add = false;
                     }
 
@@ -1288,7 +1578,7 @@ namespace Packages
 
         }
 
-        public static string GetSourceValue(string source, string function, string filter, object datasource)
+        public string GetSourceValue(string source, string function, string filter, object datasource)
         {
             string valor = "";
             string[] arraysource = source.Split('.');
@@ -1328,13 +1618,13 @@ namespace Packages
 
         }
 
-        public static string GetData(string table, string field, string function, string filter, object datasource)
+        public string GetData(string table, string field, string function, string filter, object datasource)
         {
 
             switch (table.ToUpper())
             {
                 case "ELECTRONICO":
-                    foreach (PropertyInfo property in electronicprop)
+                    foreach (PropertyInfo property in ElectronicProps)
                     {
                         if (property.Name == field)
                         {
@@ -1345,7 +1635,7 @@ namespace Packages
 
                     break;
                 case "EMPRESA":
-                    foreach (PropertyInfo property in empresaprop)
+                    foreach (PropertyInfo property in EmpresaProps)
                     {
                         if (property.Name == field)
                         {
@@ -1356,7 +1646,7 @@ namespace Packages
 
                     break;
                 case "COMPROBANTE":
-                    foreach (PropertyInfo property in comprobanteprop)
+                    foreach (PropertyInfo property in ComprobanteProps)
                     {
                         if (property.Name == field)
                         {
@@ -1367,7 +1657,7 @@ namespace Packages
 
                     break;
                 case "CCOMDOC":
-                    foreach (PropertyInfo property in ccomdocprop)
+                    foreach (PropertyInfo property in CcomdocProps)
                     {
                         if (property.Name == field)
                         {
@@ -1378,7 +1668,7 @@ namespace Packages
 
                     break;
                 case "ELECTRONICODET":
-                    foreach (PropertyInfo property in electronicdetprop)
+                    foreach (PropertyInfo property in ElectronicdetProps)
                     {
                         if (property.Name == field)
                         {
@@ -1389,7 +1679,7 @@ namespace Packages
 
                     break;
                 case "PAGO":
-                    foreach (PropertyInfo property in formasprop)
+                    foreach (PropertyInfo property in FormapagoProps)
                     {
                         if (property.Name == field)
                         {
@@ -1491,7 +1781,7 @@ namespace Packages
         }
 
 
-        public static void GetTotal(XmlNode nodototal)
+        public void GetTotal(XmlNode nodototal)
         {
 
 
@@ -1546,7 +1836,7 @@ namespace Packages
 
         }
 
-        public static void GetDetalles(XmlNode nododetalles)
+        public void GetDetalles(XmlNode nododetalles)
         {
 
             XmlDocument xmldetalles = new XmlDocument();
@@ -1561,7 +1851,7 @@ namespace Packages
             }
         }
 
-        public static void GetDetallesNC(XmlNode nododetalles)
+        public void GetDetallesNC(XmlNode nododetalles)
         {
 
             XmlDocument xmldetalles = new XmlDocument();
@@ -1577,7 +1867,7 @@ namespace Packages
         }
 
 
-        public static void GetImpuestos(XmlNode nododetalle, object datasource)
+        public void GetImpuestos(XmlNode nododetalle, object datasource)
         {
 
             if (datasource.GetType() == typeof(Electronic))
@@ -1650,7 +1940,7 @@ namespace Packages
 
         }
 
-        public static void GetPagos(XmlNode nodopagos)
+        public void GetPagos(XmlNode nodopagos)
         {
 
             XmlDocument xmldetalles = new XmlDocument();

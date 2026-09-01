@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<wsdl:definitions xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:tm="http://microsoft.com/wsdl/mime/textMatching/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:tns="http://tempuri.org/" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:s="http://www.w3.org/2001/XMLSchema" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" targetNamespace="http://tempuri.org/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+<wsdl:definitions xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" xmlns:s="http://www.w3.org/2001/XMLSchema" xmlns:tm="http://microsoft.com/wsdl/mime/textMatching/" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:tns="http://tempuri.org/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" targetNamespace="http://tempuri.org/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
   <wsdl:types>
     <s:schema elementFormDefault="qualified" targetNamespace="http://tempuri.org/">
       <s:element name="GetMenu">
@@ -41,6 +41,20 @@
         <s:complexType>
           <s:sequence>
             <s:element minOccurs="0" maxOccurs="1" name="SignUpResult" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="Olvido">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="objeto" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="OlvidoResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="OlvidoResult" type="s:string" />
           </s:sequence>
         </s:complexType>
       </s:element>
@@ -522,6 +536,48 @@
           </s:sequence>
         </s:complexType>
       </s:element>
+      <s:element name="GestionComprobantesAll">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="objeto" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GestionComprobantesAllResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GestionComprobantesAllResult" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="ImpresionMasiva">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="objeto" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="ImpresionMasivaResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="ImpresionMasivaResult" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="SendPrueba">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="objeto" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="SendPruebaResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="SendPruebaResult" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
     </s:schema>
   </wsdl:types>
   <wsdl:message name="GetMenuSoapIn">
@@ -541,6 +597,12 @@
   </wsdl:message>
   <wsdl:message name="SignUpSoapOut">
     <wsdl:part name="parameters" element="tns:SignUpResponse" />
+  </wsdl:message>
+  <wsdl:message name="OlvidoSoapIn">
+    <wsdl:part name="parameters" element="tns:Olvido" />
+  </wsdl:message>
+  <wsdl:message name="OlvidoSoapOut">
+    <wsdl:part name="parameters" element="tns:OlvidoResponse" />
   </wsdl:message>
   <wsdl:message name="CreaUsuariosSoapIn">
     <wsdl:part name="parameters" element="tns:CreaUsuarios" />
@@ -746,6 +808,24 @@
   <wsdl:message name="GetAllCliSoapOut">
     <wsdl:part name="parameters" element="tns:GetAllCliResponse" />
   </wsdl:message>
+  <wsdl:message name="GestionComprobantesAllSoapIn">
+    <wsdl:part name="parameters" element="tns:GestionComprobantesAll" />
+  </wsdl:message>
+  <wsdl:message name="GestionComprobantesAllSoapOut">
+    <wsdl:part name="parameters" element="tns:GestionComprobantesAllResponse" />
+  </wsdl:message>
+  <wsdl:message name="ImpresionMasivaSoapIn">
+    <wsdl:part name="parameters" element="tns:ImpresionMasiva" />
+  </wsdl:message>
+  <wsdl:message name="ImpresionMasivaSoapOut">
+    <wsdl:part name="parameters" element="tns:ImpresionMasivaResponse" />
+  </wsdl:message>
+  <wsdl:message name="SendPruebaSoapIn">
+    <wsdl:part name="parameters" element="tns:SendPrueba" />
+  </wsdl:message>
+  <wsdl:message name="SendPruebaSoapOut">
+    <wsdl:part name="parameters" element="tns:SendPruebaResponse" />
+  </wsdl:message>
   <wsdl:portType name="MetodosSoap">
     <wsdl:operation name="GetMenu">
       <wsdl:input message="tns:GetMenuSoapIn" />
@@ -758,6 +838,10 @@
     <wsdl:operation name="SignUp">
       <wsdl:input message="tns:SignUpSoapIn" />
       <wsdl:output message="tns:SignUpSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="Olvido">
+      <wsdl:input message="tns:OlvidoSoapIn" />
+      <wsdl:output message="tns:OlvidoSoapOut" />
     </wsdl:operation>
     <wsdl:operation name="CreaUsuarios">
       <wsdl:input message="tns:CreaUsuariosSoapIn" />
@@ -895,6 +979,18 @@
       <wsdl:input message="tns:GetAllCliSoapIn" />
       <wsdl:output message="tns:GetAllCliSoapOut" />
     </wsdl:operation>
+    <wsdl:operation name="GestionComprobantesAll">
+      <wsdl:input message="tns:GestionComprobantesAllSoapIn" />
+      <wsdl:output message="tns:GestionComprobantesAllSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="ImpresionMasiva">
+      <wsdl:input message="tns:ImpresionMasivaSoapIn" />
+      <wsdl:output message="tns:ImpresionMasivaSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="SendPrueba">
+      <wsdl:input message="tns:SendPruebaSoapIn" />
+      <wsdl:output message="tns:SendPruebaSoapOut" />
+    </wsdl:operation>
   </wsdl:portType>
   <wsdl:binding name="MetodosSoap" type="tns:MetodosSoap">
     <soap:binding transport="http://schemas.xmlsoap.org/soap/http" />
@@ -918,6 +1014,15 @@
     </wsdl:operation>
     <wsdl:operation name="SignUp">
       <soap:operation soapAction="http://tempuri.org/SignUp" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="Olvido">
+      <soap:operation soapAction="http://tempuri.org/Olvido" style="document" />
       <wsdl:input>
         <soap:body use="literal" />
       </wsdl:input>
@@ -1231,6 +1336,33 @@
         <soap:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
+    <wsdl:operation name="GestionComprobantesAll">
+      <soap:operation soapAction="http://tempuri.org/GestionComprobantesAll" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ImpresionMasiva">
+      <soap:operation soapAction="http://tempuri.org/ImpresionMasiva" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SendPrueba">
+      <soap:operation soapAction="http://tempuri.org/SendPrueba" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
   </wsdl:binding>
   <wsdl:binding name="MetodosSoap12" type="tns:MetodosSoap">
     <soap12:binding transport="http://schemas.xmlsoap.org/soap/http" />
@@ -1254,6 +1386,15 @@
     </wsdl:operation>
     <wsdl:operation name="SignUp">
       <soap12:operation soapAction="http://tempuri.org/SignUp" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="Olvido">
+      <soap12:operation soapAction="http://tempuri.org/Olvido" style="document" />
       <wsdl:input>
         <soap12:body use="literal" />
       </wsdl:input>
@@ -1567,13 +1708,40 @@
         <soap12:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
+    <wsdl:operation name="GestionComprobantesAll">
+      <soap12:operation soapAction="http://tempuri.org/GestionComprobantesAll" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ImpresionMasiva">
+      <soap12:operation soapAction="http://tempuri.org/ImpresionMasiva" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SendPrueba">
+      <soap12:operation soapAction="http://tempuri.org/SendPrueba" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
   </wsdl:binding>
   <wsdl:service name="Metodos">
     <wsdl:port name="MetodosSoap" binding="tns:MetodosSoap">
-      <soap:address location="http://216.120.250.222/SICE/ws/Metodos.asmx" />
+      <soap:address location="http://sice.tao.com.ec/ws/Metodos.asmx" />
     </wsdl:port>
     <wsdl:port name="MetodosSoap12" binding="tns:MetodosSoap12">
-      <soap12:address location="http://216.120.250.222/SICE/ws/Metodos.asmx" />
+      <soap12:address location="http://sice.tao.com.ec/ws/Metodos.asmx" />
     </wsdl:port>
   </wsdl:service>
 </wsdl:definitions>

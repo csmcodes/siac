@@ -74,6 +74,7 @@
     <Compile Include="DestinoDAL.cs" />
     <Compile Include="DmovinvDAL.cs" />
     <Compile Include="ExcepcionDAL.cs" />
+    <Compile Include="LogAsappDAL.cs" />
     <Compile Include="FormatoDAL.cs" />
     <Compile Include="ImpresionDAL.cs" />
     <Compile Include="RubroDAL.cs" />

@@ -43,6 +43,8 @@ function ServerResult(data, retorno) {
         GeneraRetencionResult(data);
     if (retorno == "ELEC")
         GenerarElectronicoResult(data);
+    if (retorno == "VERIFICARELEC")
+        VerificarElectronicoResult(data);
 
 }
 
@@ -547,5 +549,27 @@ function GenerarElectronicoResult(data) {
                 jQuery.alerts.dialogClass = null; // reset to default
             });
         }
+    }
+}
+
+// Consulta el estado de autorizacion (SICE o Asapp segun el proveedor con el que se envio el comprobante -
+// la decision la toma el servidor en Electronico.UpdateElectronicoData, aca no hace falta distinguir).
+function UpdateElectronico(cod) {
+    var obj = {};
+    obj["com_empresa"] = parseInt(empresasigned["emp_codigo"]);
+    obj["com_codigo"] = cod;
+    var jsonText = JSON.stringify({ objeto: obj });
+    CallServerMethods("ws/Metodos.asmx/GetElectronicoData", jsonText, "VERIFICARELEC");
+}
+
+function VerificarElectronicoResult(data) {
+    if (data != "") {
+        var obj = $.parseJSON(data.d);
+        var estado = obj[0];
+        var mensaje = obj[1];
+        jQuery.alerts.dialogClass = 'alert-info';
+        jAlert('Estado: ' + (estado || 'Sin información') + (mensaje ? ('<br/>' + mensaje) : ''), 'Verificar Autorización', function () {
+            jQuery.alerts.dialogClass = null; // reset to default
+        });
     }
 }

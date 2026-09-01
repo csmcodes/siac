@@ -46,6 +46,8 @@ namespace Services
         public DateTime? desde { get; set; }
         public DateTime? hasta { get; set; }
         public string usuarios { get; set; }
+        /// <summary>"SICE" (default si viene vacío) o "ASAPP". Decide a qué proveedor se envía el comprobante electrónico.</summary>
+        public string provider { get; set; }
     }
 
     public class ElectronicIds

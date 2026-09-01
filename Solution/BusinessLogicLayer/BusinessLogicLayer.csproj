@@ -75,6 +75,7 @@
     <Compile Include="DestinoBLL.cs" />
     <Compile Include="DmovinvBLL.cs" />
     <Compile Include="ExcepcionBLL.cs" />
+    <Compile Include="LogAsappBLL.cs" />
     <Compile Include="FormatoBLL.cs" />
     <Compile Include="ImpresionBLL.cs" />
     <Compile Include="RubroBLL.cs" />
