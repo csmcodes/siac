@@ -147,9 +147,13 @@ namespace Services
             get
             {
                 string parametro = GetParameter("ivacompras");
-                var serializer = new JavaScriptSerializer();
-                List<IvaCompras> lstimp = serializer.Deserialize<List<IvaCompras>>(parametro);                
-                return lstimp;
+                if (!string.IsNullOrEmpty(parametro))
+                {
+                    var serializer = new JavaScriptSerializer();
+                    List<IvaCompras> lstimp = serializer.Deserialize<List<IvaCompras>>(parametro);
+                    return lstimp;
+                }
+                return new List<IvaCompras>();
             }
         }
 
@@ -697,6 +701,16 @@ namespace Services
             get
             {
                 return GetTipoDocumento("LIQCOM");
+            }
+        }
+
+        // Guia de Remision (SRI 06, tabla ccomrem/dcomrem, wfGuiaRemision.aspx). Distinta de cGuia (GUICLI =
+        // "Guia Cliente", el comprobante operativo de transporte, sin relacion con este tipo SRI).
+        public static Tipodoc cGuiaRemision
+        {
+            get
+            {
+                return GetTipoDocumento("GREM");
             }
         }
 

@@ -336,7 +336,8 @@ namespace Packages
             SetTablaNotasCC();
             comprasret = vComprasBLL.GetAll(new WhereParams("o.com_periodo ={0} and o.com_mes={1} and (o.com_tipodoc={2} or o.com_tipodoc={3}) and o.com_estado={4} and r.com_estado={4} and drt_comprobante  is not null", periodo, mes, tipoobl, tipoliq, Constantes.cEstadoMayorizado), "");
             comprasnoret = vComprasBLL.GetAll(new WhereParams("o.com_periodo ={0} and o.com_mes={1} and (o.com_tipodoc={2} or o.com_tipodoc={3}) and o.com_estado={4} and drt_comprobante  is null", periodo, mes, tipoobl, tipoliq, Constantes.cEstadoMayorizado), "");
-            notascp= vComprasBLL.GetAll(new WhereParams("o.com_periodo ={0} and o.com_mes={1} and (o.com_tipodoc={2}) and o.com_estado={3}", periodo, mes, tiponcp, Constantes.cEstadoMayorizado), "");
+            DateTime ultimoDiaPeriodo = new DateTime(periodo, mes, 1).AddMonths(1).AddDays(-1);
+            notascp= vComprasBLL.GetAll(new WhereParams("o.com_periodo ={0} and o.com_mes={1} and (o.com_tipodoc={2}) and o.com_estado={3} and (oc.cdoc_aut_fecha is null or oc.cdoc_aut_fecha <= {4})", periodo, mes, tiponcp, Constantes.cEstadoMayorizado, ultimoDiaPeriodo), "");
             vCompras c = new vCompras();
             comprasprop = c.GetProperties();
 
@@ -805,7 +806,7 @@ namespace Packages
             if (datasource.GetType() == typeof(vCompras))
             {
                 vCompras compra = (vCompras)datasource;
-                if ((compra.subtotal0.Value + compra.subtotal.Value + compra.impuesto) >= 1000)
+                if ((compra.subtotal0.Value + compra.subtotal.Value + compra.impuesto) >= 500)
                 {
                     foreach (XmlNode nod in xmlventas.ChildNodes)
                     {
