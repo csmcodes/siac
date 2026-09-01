@@ -560,6 +560,12 @@ namespace WebUI
         public static string InsertComprobante(Comprobante obj)
         {
             DateTime fecha = DateTime.Now;
+            // Corrige com_fecha antes de cualquier uso - ver General.ResolveFechaComprobante
+            obj.com_fecha = General.ResolveFechaComprobante(obj.com_fecha, obj.com_fecha_manual);
+            obj.com_periodo = obj.com_fecha.Year;
+            obj.com_mes = obj.com_fecha.Month;
+            obj.com_dia = obj.com_fecha.Day;
+            obj.com_anio = obj.com_fecha.Year;
             #region Actualiza el numero de comprobante en 1
             Dtipocom dti = new Dtipocom();
             dti.dti_empresa = obj.com_empresa;
@@ -642,8 +648,11 @@ namespace WebUI
 
             Persona per = PersonaBLL.GetByPK(new Persona { per_empresa = obj.com_empresa, per_empresa_key = obj.com_empresa, per_codigo = obj.com_codclipro.Value, per_codigo_key = obj.com_codclipro.Value });
 
-            objU.com_fecha = obj.com_fecha;
-            objU.com_periodo = obj.com_fecha.Year;
+            // NO se toca com_fecha/periodo/mes/dia/anio aca: esta pantalla (Planilla Cliente) no tiene ningun campo
+            // de fecha propio en su UI - "obj.com_fecha" que llega del cliente en este guardado (tipicamente el
+            // boton "Guardar"/"Mayorizar") es basura (lee un campo de otro widget, ver bug real 2026-08-28: la
+            // fecha terminaba siendo el momento de mayorizar, no el de creacion). objU ya trae la fecha correcta
+            // de BD via GetByPK() mas arriba - se deja intacta.
             objU.com_codclipro = obj.com_codclipro;
             objU.com_agente = obj.com_agente;
             objU.mod_usr = obj.mod_usr;

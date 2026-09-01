@@ -188,6 +188,7 @@ function LoadCabeceraComprobante(objcomp) {
         var currentDate = objcomp["fecha"];
         obj["com_periodo"] = currentDate.getFullYear();
         obj["com_fecha"] = currentDate;
+        obj["com_fecha_manual"] = objcomp["manual"] === true;
     }
 
     obj["com_tipodoc"] = objcomp["tipodoc"]; 

@@ -1398,6 +1398,12 @@ namespace Packages
         {
             Comprobante hr = new Comprobante();
             //DateTime fecha = DateTime.Now;
+            // Corrige com_fecha antes de cualquier uso (numeracion, periodo) - ver General.ResolveFechaComprobante
+            comp.com_fecha = General.ResolveFechaComprobante(comp.com_fecha, comp.com_fecha_manual);
+            comp.com_periodo = comp.com_fecha.Year;
+            comp.com_mes = comp.com_fecha.Month;
+            comp.com_dia = comp.com_fecha.Day;
+            comp.com_anio = comp.com_fecha.Year;
 
             #region Actualiza el numero de comprobante en 1
 
@@ -1602,10 +1608,10 @@ namespace Packages
             objU.com_codigo_key = objU.com_codigo;
             objU.com_empresa_key = objU.com_empresa;
             objU.com_codigo_key = objU.com_codigo;
-            objU.com_fecha = comp.com_fecha;
-            objU.com_periodo = comp.com_fecha.Year;
-            objU.com_mes = comp.com_fecha.Month;
-            objU.com_dia = comp.com_fecha.Day;
+            // NO se toca com_fecha/periodo/mes/dia/anio aca: wfRetencion.aspx (la pantalla que llama este metodo)
+            // no tiene ningun campo de fecha propio en su UI - "comp.com_fecha" que llega del cliente es basura
+            // (lee un campo de otro widget, ver bug real 2026-08-28). objU ya trae la fecha correcta de BD via
+            // GetByPK() mas arriba.
             objU.com_codclipro = comp.com_codclipro;
             objU.com_agente = comp.com_agente;
             objU.com_estado = Constantes.cEstadoGrabado;
@@ -2006,6 +2012,12 @@ namespace Packages
         public static Comprobante save_pagosocio(Comprobante comp)
         {
             //DateTime fecha = DateTime.Now;
+            // Corrige com_fecha antes de cualquier uso (numeracion, periodo) - ver General.ResolveFechaComprobante
+            comp.com_fecha = General.ResolveFechaComprobante(comp.com_fecha, comp.com_fecha_manual);
+            comp.com_periodo = comp.com_fecha.Year;
+            comp.com_mes = comp.com_fecha.Month;
+            comp.com_dia = comp.com_fecha.Day;
+            comp.com_anio = comp.com_fecha.Year;
             int ctipocom = Constantes.cComRecibo.cti_codigo; // SE DEBE OBTENER DE ALGUN LADO ?????
 
             Dtipocom dti = new Dtipocom();
@@ -2095,7 +2107,10 @@ namespace Packages
             Comprobante objU = ComprobanteBLL.GetByPK(comp);
             objU.com_empresa_key = objU.com_empresa;
             objU.com_codigo_key = objU.com_codigo;
-            objU.com_fecha = comp.com_fecha;
+            // NO se toca com_fecha/periodo/mes/dia/anio aca: wfPagoSocio.aspx (la pantalla que llama este metodo)
+            // no tiene ningun campo de fecha propio en su UI - "comp.com_fecha" que llega del cliente es basura
+            // (lee un campo de otro widget, ver bug real 2026-08-28). objU ya trae la fecha correcta de BD via
+            // GetByPK() mas arriba.
             objU.com_codclipro = comp.com_codclipro;
             objU.com_agente = comp.com_agente;
             objU.com_estado = Constantes.cEstadoGrabado;

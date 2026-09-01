@@ -539,6 +539,12 @@ namespace WebUI
         public static string InsertComprobante(Comprobante obj)
         {
             DateTime fecha = DateTime.Now;
+            // Corrige com_fecha antes de cualquier uso - ver General.ResolveFechaComprobante
+            obj.com_fecha = General.ResolveFechaComprobante(obj.com_fecha, obj.com_fecha_manual);
+            obj.com_periodo = obj.com_fecha.Year;
+            obj.com_mes = obj.com_fecha.Month;
+            obj.com_dia = obj.com_fecha.Day;
+            obj.com_anio = obj.com_fecha.Year;
             #region Actualiza el numero de comprobante en 1
             Dtipocom dti = new Dtipocom();
             dti.dti_empresa = obj.com_empresa;
@@ -627,6 +633,12 @@ namespace WebUI
         {
 
             DateTime fecha = DateTime.Now;
+            // El dia siempre viene de BD/campo deshabilitado en edicion, se confia y solo se corrige la hora - ver General.ResolveFechaComprobante
+            obj.com_fecha = General.ResolveFechaComprobante(obj.com_fecha, true);
+            obj.com_periodo = obj.com_fecha.Year;
+            obj.com_mes = obj.com_fecha.Month;
+            obj.com_dia = obj.com_fecha.Day;
+            obj.com_anio = obj.com_fecha.Year;
             BLL transaction = new BLL();
             transaction.CreateTransaction();
             try

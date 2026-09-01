@@ -633,6 +633,7 @@ function GetComprobanteObj() {
     //obj["com_fecha"] = currentDate;
     obj["com_numero"] = $("#txtNUMERO").val();
     obj["com_fecha"] = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate(), now.getHours(), now.getMinutes(), now.getSeconds(), now.getMilliseconds());
+    obj["com_fecha_manual"] = $("#txtFECHACOMP_MANUAL").val() === "true";
     obj["com_doctran"] = $("#numerocomp").html();
     obj["com_concepto"] = $("#txtCONCEPTO").val();
 

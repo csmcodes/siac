@@ -220,8 +220,14 @@ function LoadPieResult(data) {
     if (data != "") {
         $('#compiecontent').html(data.d);
     }
-
-
+    $("#cmbIMPUESTO").on("change", function () {
+        var map = JSON.parse($("#txtIMPUESTOMAP").val());
+        var porcentaje = map[$(this).val()];
+        if (porcentaje !== undefined) {
+            $("#txtIVAPORCENTAJE").val(porcentaje);
+            CalculaTotales();
+        }
+    });
 }
 
 function EditableRow(idtabla) {
@@ -756,7 +762,8 @@ function GetComprobanteObj() {
     //obj["com_fecha"] = currentDate;
     obj["com_numero"] = $("#txtNUMERO").val();
     obj["com_fecha"] = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate(), now.getHours(), now.getMinutes(), now.getSeconds(), now.getMilliseconds());
-    obj["com_doctran"] = $("#numerocomp").html();    
+    obj["com_fecha_manual"] = $("#txtFECHACOMP_MANUAL").val() === "true";
+    obj["com_doctran"] = $("#numerocomp").html();
     obj["com_nocontable"] = parseInt($("#txtnocontable").val());
     obj["com_periodo"] = currentDate.getFullYear();
     obj["com_almacen"] = almacen;

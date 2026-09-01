@@ -283,6 +283,7 @@ function GetComprobanteObj() {
     obj["com_tipodoc"] = parseInt($("#txttipodoc").val());
     obj["com_ctipocom"] = parseInt($("#cmbSIGLA_P").val());  //2 FACT
     obj["com_fecha"] = currentDate;
+    obj["com_fecha_manual"] = $("#txtFECHACOMP_MANUAL").val() === "true";
     obj["com_doctran"] = $("#numerocomp").html();
     obj["com_nocontable"] = parseInt($("#txtnocontable").val());
     obj["com_periodo"] = currentDate.getFullYear();

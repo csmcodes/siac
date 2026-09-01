@@ -352,6 +352,12 @@ namespace WebUI
         public static string InsertComprobante(Comprobante obj, Ccomrem ccomrem, List<Dcomrem> dcomrem)
         {
             DateTime fecha = DateTime.Now;
+            // Corrige com_fecha antes de cualquier uso - ver General.ResolveFechaComprobante
+            obj.com_fecha = General.ResolveFechaComprobante(obj.com_fecha, obj.com_fecha_manual);
+            obj.com_periodo = obj.com_fecha.Year;
+            obj.com_mes = obj.com_fecha.Month;
+            obj.com_dia = obj.com_fecha.Day;
+            obj.com_anio = obj.com_fecha.Year;
             #region Actualiza el numero de comprobante en 1
             Dtipocom dti = new Dtipocom();
             dti.dti_empresa = obj.com_empresa;
@@ -420,13 +426,14 @@ namespace WebUI
             objU.com_empresa_key = objU.com_empresa;
             objU.com_codigo_key = objU.com_codigo;
 
-            objU.com_fecha = obj.com_fecha;
-            objU.com_periodo = obj.com_fecha.Year;
+            // NO se toca com_fecha/periodo/mes/dia/anio aca: esta pantalla no tiene ningun campo de fecha propio
+            // en su UI - "obj.com_fecha" que llega del cliente en este guardado es basura (lee un campo de otro
+            // widget, ver bug real 2026-08-28). objU ya trae la fecha correcta de BD via GetByPK() mas arriba.
             objU.com_codclipro = obj.com_codclipro;
             objU.com_agente = obj.com_agente;
             objU.mod_usr = obj.mod_usr;
             objU.mod_fecha = obj.mod_fecha;
-            objU.com_concepto = !string.IsNullOrEmpty(obj.com_concepto) ? obj.com_concepto : "GUIA DE REMISIÓN " + obj.com_fecha.ToShortDateString(); 
+            objU.com_concepto = !string.IsNullOrEmpty(obj.com_concepto) ? obj.com_concepto : "GUIA DE REMISIÓN " + obj.com_fecha.ToShortDateString();
             objU.com_estado = obj.com_estado;//ACTUALIZA EL ESTADO DEL COMPROBANTE
          
 

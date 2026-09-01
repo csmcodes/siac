@@ -453,6 +453,57 @@ namespace Packages
             return alm.alm_subfijo + string.Format("{0:0000}", max);
         }
 
+        #region Resolucion centralizada de fecha de comprobante
+
+        // Corrige com_fecha para que nunca dependa del reloj del cliente:
+        // - confiarFecha=true: se respeta el dia/mes/anio recibido (viene de BD o de una eleccion manual valida del usuario),
+        //   pero la hora siempre se toma del servidor.
+        // - confiarFecha=false: se usa la fecha y hora completas del servidor (caso: comprobante nuevo cuya fecha nunca fue
+        //   tocada manualmente por el usuario, evita que un formulario dejado abierto de un dia para otro guarde con fecha vieja).
+        // confiarHora=true es para casos donde la hora es un dato de negocio real ingresado a proposito por el
+        // usuario (ej. "Hora Salida" en RutaxFactura), no un artefacto del reloj del cliente - ahi se respeta tal cual.
+        public static DateTime ResolveFechaComprobante(DateTime fechaRecibida, bool confiarFecha, bool confiarHora = false,
+            [System.Runtime.CompilerServices.CallerMemberName] string metodoOrigen = null)
+        {
+            DateTime dia = confiarFecha ? fechaRecibida.Date : DateTime.Now.Date;
+            TimeSpan hora = confiarHora ? fechaRecibida.TimeOfDay : DateTime.Now.TimeOfDay;
+            DateTime resultado = dia.Add(hora);
+
+            if (!confiarFecha && fechaRecibida.Date != DateTime.Now.Date)
+                LogCorreccionFecha(fechaRecibida, resultado, metodoOrigen);
+
+            return resultado;
+        }
+
+        private static readonly object fechaLogLock = new object();
+
+        // Log liviano en archivo (sin tabla nueva) para poder investigar rapido si este bug reaparece:
+        // registra unicamente los casos donde SI se corrigio una fecha desactualizada, nunca en el camino feliz.
+        // Nunca debe interrumpir el guardado real - cualquier fallo de logging se ignora.
+        private static void LogCorreccionFecha(DateTime fechaRecibida, DateTime fechaCorregida, string metodoOrigen)
+        {
+            try
+            {
+                string raiz = System.Web.Hosting.HostingEnvironment.IsHosted
+                    ? System.Web.Hosting.HostingEnvironment.MapPath("~/App_Data/Logs")
+                    : System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "App_Data", "Logs");
+                System.IO.Directory.CreateDirectory(raiz);
+                string archivo = System.IO.Path.Combine(raiz, "fecha_comprobante.log");
+                string linea = string.Format("{0:yyyy-MM-dd HH:mm:ss} | {1} | recibida={2:yyyy-MM-dd HH:mm:ss} | corregida={3:yyyy-MM-dd HH:mm:ss}" + Environment.NewLine,
+                    DateTime.Now, metodoOrigen ?? "desconocido", fechaRecibida, fechaCorregida);
+                lock (fechaLogLock)
+                {
+                    System.IO.File.AppendAllText(archivo, linea);
+                }
+            }
+            catch
+            {
+                // El log es solo diagnostico - nunca debe romper el guardado del comprobante.
+            }
+        }
+
+        #endregion
+
         #region Modificacion Comprobante
 
         public static Comprobante ModificaDatosComprobante(Comprobante comp)
@@ -474,10 +525,14 @@ namespace Packages
             string newdoctran = doctran.Replace(comp.com_numero.ToString(), numero.ToString());
             comp.com_doctran = newdoctran;
             comp.com_numero = numero;
+            // El dia siempre viene de BD/campo cargado (txtFECHAMOD), nunca de un default que pueda envejecer -
+            // se confia en el dia recibido y se completa la hora con la del servidor. Ver General.ResolveFechaComprobante.
+            fecha = ResolveFechaComprobante(fecha, true);
             comp.com_fecha = fecha;
             comp.com_periodo = fecha.Year;
             comp.com_mes = fecha.Month;
             comp.com_dia = fecha.Day;
+            comp.com_anio = fecha.Year;
             comp.mod_usr = modusr;
             comp.mod_fecha = modfecha;
 

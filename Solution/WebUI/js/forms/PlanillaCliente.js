@@ -908,7 +908,7 @@ function GetCcomenvObj() {
 
 function GetComprobanteObj() {
     var currentDate = $.datepicker.parseDate("dd/mm/yy", $("#txtFECHACOMP").val()); // $("#txtFECHA_P").datepicker("getDate");
-   
+    var now = new Date();
     var almacen = parseInt($("#txtCODALMACEN").val());
     var pventa = parseInt($("#txtCODPVENTA").val());
     var obj = {};
@@ -918,6 +918,7 @@ function GetComprobanteObj() {
     obj["com_ctipocom"] = parseInt($("#txtCTIPOCOM").val());  //3 REC
     obj["com_numero"] = $("#txtNUMERO").val();
     obj["com_fecha"] = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate(), now.getHours(), now.getMinutes(), now.getSeconds(), now.getMilliseconds());
+    obj["com_fecha_manual"] = $("#txtFECHACOMP_MANUAL").val() === "true";
     obj["com_doctran"] = $("#numerocomp").html();
     obj["com_periodo"] = currentDate.getFullYear();
     obj["com_almacen"] = almacen;

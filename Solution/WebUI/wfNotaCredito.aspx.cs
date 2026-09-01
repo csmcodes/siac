@@ -365,9 +365,21 @@ namespace WebUI
             if (comprobante.total.tot_porc_impuesto.HasValue)
                 valoriva = comprobante.total.tot_porc_impuesto.Value;
 
+            List<Impuesto> impuestosAll = ImpuestoBLL.GetAll("imp_iva=1 and imp_estado=1 and imp_empresa=" + Dictionaries.cod_empresa, "imp_codigo");
+            int defaultImpCodigo;
+            if (comprobante.total.tot_impuesto.HasValue && comprobante.total.tot_impuesto.Value > 0)
+                defaultImpCodigo = comprobante.total.tot_impuesto.Value;
+            else
+            {
+                Impuesto match = impuestosAll.FirstOrDefault(p => p.imp_porcentaje == valoriva && p.imp_id != null && p.imp_id.StartsWith("IVA_COM_"));
+                defaultImpCodigo = (match != null) ? match.imp_codigo : 1;
+            }
+            Dictionary<string, string> impuestoMap = impuestosAll.ToDictionary(p => p.imp_codigo.ToString(), p => p.imp_porcentaje.HasValue ? p.imp_porcentaje.Value.ToString().Replace(",", ".") : "0");
+            string impuestoMapJson = new JavaScriptSerializer().Serialize(impuestoMap);
+
             //tdatos1.rows[0].cells[0].valor = "IVA " + valoriva + "%:" + new Select {id = "cmbIMPUESTO", diccionario=Dictionaries.GetImpuesto(), clase= Css.small }.ToString();
-            tdatos1.rows[0].cells[0].valor = new Select { id = "cmbIMPUESTO", diccionario = Dictionaries.GetImpuestoIVA(), clase = Css.medium, valor = 1 }.ToString();
-            tdatos1.rows[0].cells[1].valor = new Input { id = "txtIVAPORCENTAJE", visible = false, valor = valoriva.ToString().Replace(",", ".") }.ToString() + new Input { id = "txtIVA", clase = Css.medium + Css.amount, habilitado = false, valor = Formatos.CurrencyFormat(comprobante.total.tot_timpuesto) }.ToString();
+            tdatos1.rows[0].cells[0].valor = new Select { id = "cmbIMPUESTO", diccionario = Dictionaries.GetImpuestoIVA(), clase = Css.medium, valor = defaultImpCodigo }.ToString();
+            tdatos1.rows[0].cells[1].valor = new Input { id = "txtIVAPORCENTAJE", visible = false, valor = valoriva.ToString().Replace(",", ".") }.ToString() + new Input { id = "txtIMPUESTOMAP", visible = false, valor = impuestoMapJson }.ToString() + new Input { id = "txtIVA", clase = Css.medium + Css.amount, habilitado = false, valor = Formatos.CurrencyFormat(comprobante.total.tot_timpuesto) }.ToString();
             tdatos1.rows[1].cells[0].valor = "SEGURO:";
             tdatos1.rows[1].cells[1].valor = new Input { id = "txtSEGURO", clase = Css.medium + Css.amount, habilitado = false, valor = Formatos.CurrencyFormat(comprobante.total.tot_tseguro) }.ToString();
             tdatos1.rows[2].cells[0].valor = "TRANSPORTE:";

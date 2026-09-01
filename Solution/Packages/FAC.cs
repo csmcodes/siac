@@ -132,18 +132,28 @@ namespace Packages
 
             objU.com_empresa_key = objU.com_empresa;
             objU.com_codigo_key = objU.com_codigo;
-            objU.com_fecha = comp.com_fecha;
-            objU.com_periodo = comp.com_fecha.Year;
+            objU.com_fecha = General.ResolveFechaComprobante(comp.com_fecha, true);
+            objU.com_periodo = objU.com_fecha.Year;
+            objU.com_mes = objU.com_fecha.Month;
+            objU.com_dia = objU.com_fecha.Day;
+            objU.com_anio = objU.com_fecha.Year;
             objU.com_codclipro = comp.com_codclipro;
             objU.com_agente = comp.com_agente;
             objU.mod_usr = comp.mod_usr;
             objU.mod_fecha = comp.mod_fecha;
 
+            // Placa informativa para el XML electronico (Anexo 25, Resolucion NAC-DGERCGC26-00000024) - ver el
+            // mismo comentario en save_factura. Faltaba aca: update_factura es el camino real de guardado para
+            // Factura/GUI cuando ya existe com_codigo (ej. flujo CONTADO/FLETE PAGADO, que crea el Recibo antes
+            // del guardado final) - bug real detectado 2026-08-31, la placa se perdia siempre en ese camino.
+            if (!string.IsNullOrWhiteSpace(comp.com_placasri))
+                objU.com_placasri = comp.com_placasri.Trim().ToUpper();
+
             Dtipocom dti = new Dtipocom();
             if (string.IsNullOrEmpty(objU.com_doctran))
             {
 
-                
+
                 objU.com_estado = Constantes.cEstadoGrabado;
                 objU.com_concepto = !string.IsNullOrEmpty(comp.com_concepto) ? comp.com_concepto : objU.com_concepto;
                 objU.com_modulo = General.GetModulo(comp.com_tipodoc); ;
@@ -330,9 +340,9 @@ namespace Packages
 
         public static Comprobante save_factura(Comprobante comp)
         {
-            
+
             //DateTime fecha = DateTime.Now;
-           
+
             if (comp.com_nocontable == 1)
             {
                 comp.com_concepto = (string.IsNullOrEmpty(comp.com_concepto) ? "GUIA DE VENTA " + comp.ccomdoc.cdoc_nombre + " " + comp.com_concepto : comp.com_concepto);
@@ -439,7 +449,21 @@ namespace Packages
         }
 
         public static Comprobante save_factura(Comprobante comp, Rutaxfactura rfac)
-        {            
+        {
+            // Corrige com_fecha antes de cualquier uso (numeracion, periodo) - ver General.ResolveFechaComprobante
+            comp.com_fecha = General.ResolveFechaComprobante(comp.com_fecha, comp.com_fecha_manual);
+            comp.com_periodo = comp.com_fecha.Year;
+            comp.com_mes = comp.com_fecha.Month;
+            comp.com_dia = comp.com_fecha.Day;
+            comp.com_anio = comp.com_fecha.Year;
+
+            // Placa informativa para el XML electronico (Anexo 25, Resolucion NAC-DGERCGC26-00000024). Este metodo
+            // es compartido por wfComprobante/wfComprobanteCOMY/wfComprobanteStd/wfComprobanteTC - solo las dos
+            // primeras tienen hoy el campo en pantalla, por eso aca solo se normaliza (nunca se exige) para no
+            // romper el guardado de las otras dos ni de integraciones externas que no envian este campo.
+            if (!string.IsNullOrWhiteSpace(comp.com_placasri))
+                comp.com_placasri = comp.com_placasri.Trim().ToUpper();
+
             Comprobante hr = new Comprobante();
             if (rfac.rfac_comprobanteruta > 0)
             {
@@ -984,6 +1008,11 @@ namespace Packages
         public static Comprobante save_cancelacion(Comprobante comp, bool permitecero)
         {
             DateTime fecha = DateTime.Now;
+            comp.com_fecha = General.ResolveFechaComprobante(comp.com_fecha, comp.com_fecha_manual);
+            comp.com_periodo = comp.com_fecha.Year;
+            comp.com_mes = comp.com_fecha.Month;
+            comp.com_dia = comp.com_fecha.Day;
+            comp.com_anio = comp.com_fecha.Year;
             int ctipocom = Constantes.cComRecibo.cti_codigo; // SE DEBE OBTENER DE ALGUN LADO ?????
 
             Dtipocom dti = General.GetDtipocom(comp.com_empresa, comp.com_fecha.Year, comp.com_ctipocom, comp.com_almacen.Value, comp.com_pventa.Value);
@@ -1121,7 +1150,11 @@ namespace Packages
             Comprobante objU = ComprobanteBLL.GetByPK(comp);
             objU.com_empresa_key = objU.com_empresa;
             objU.com_codigo_key = objU.com_codigo;
-            objU.com_fecha = comp.com_fecha;
+            objU.com_fecha = General.ResolveFechaComprobante(comp.com_fecha, true);
+            objU.com_periodo = objU.com_fecha.Year;
+            objU.com_mes = objU.com_fecha.Month;
+            objU.com_dia = objU.com_fecha.Day;
+            objU.com_anio = objU.com_fecha.Year;
             objU.com_codclipro = comp.com_codclipro;
             objU.com_agente = comp.com_agente;
             objU.com_estado = Constantes.cEstadoGrabado;
@@ -1751,10 +1784,14 @@ namespace Packages
             Comprobante objU = ComprobanteBLL.GetByPK(comp);
             objU.com_empresa_key = objU.com_empresa;
             objU.com_codigo_key = objU.com_codigo;
-            objU.com_fecha = comp.com_fecha;
+            objU.com_fecha = General.ResolveFechaComprobante(comp.com_fecha, true);
+            objU.com_periodo = objU.com_fecha.Year;
+            objU.com_mes = objU.com_fecha.Month;
+            objU.com_dia = objU.com_fecha.Day;
+            objU.com_anio = objU.com_fecha.Year;
             objU.com_codclipro = comp.com_codclipro;
             objU.com_agente = comp.com_agente;
-            objU.com_estado = Constantes.cEstadoGrabado;            
+            objU.com_estado = Constantes.cEstadoGrabado;
             objU.com_concepto = !string.IsNullOrEmpty(comp.com_concepto) ? comp.com_concepto : tipo.tpd_nombre + " " + comp.ccomdoc.cdoc_nombre + " FACTURA:" + comp.ccomdoc.cdoc_aut_factura;
             objU.com_tclipro = Constantes.cProveedor;
             objU.com_centro = Constantes.GetSinCentro().cen_codigo;
@@ -1925,6 +1962,11 @@ namespace Packages
 
 
             //DateTime fecha = DateTime.Now;
+            comp.com_fecha = General.ResolveFechaComprobante(comp.com_fecha, comp.com_fecha_manual);
+            comp.com_periodo = comp.com_fecha.Year;
+            comp.com_mes = comp.com_fecha.Month;
+            comp.com_dia = comp.com_fecha.Day;
+            comp.com_anio = comp.com_fecha.Year;
 
             Dtipocom dti = General.GetDtipocom(comp.com_empresa, comp.com_fecha.Year, comp.com_ctipocom, comp.com_almacen.Value, comp.com_pventa.Value);
             dti.dti_numero = dti.dti_numero.Value + 1;
@@ -2410,10 +2452,13 @@ namespace Packages
             Comprobante objU = ComprobanteBLL.GetByPK(comp);
             objU.com_empresa_key = objU.com_empresa;
             objU.com_codigo_key = objU.com_codigo;
-            objU.com_fecha = comp.com_fecha;
+            // NO se toca com_fecha/periodo/mes/dia/anio aca: wfNotaCredito.aspx (la pantalla que llama este metodo)
+            // no tiene ningun campo de fecha propio en su UI - "comp.com_fecha" que llega del cliente es basura
+            // (lee un campo de otro widget, ver bug real 2026-08-28). objU ya trae la fecha correcta de BD via
+            // GetByPK() mas arriba.
             objU.com_codclipro = comp.com_codclipro;
             objU.com_agente = comp.com_agente;
-            objU.com_estado = Constantes.cEstadoGrabado;            
+            objU.com_estado = Constantes.cEstadoGrabado;
             objU.com_concepto = !string.IsNullOrEmpty(comp.com_concepto) ? comp.com_concepto : tipo.tpd_nombre + " " + comp.ccomdoc.cdoc_nombre;
             objU.com_tclipro = Constantes.cProveedor;
             objU.com_centro = Constantes.GetSinCentro().cen_codigo;
@@ -2565,6 +2610,12 @@ namespace Packages
 
 
             //DateTime fecha = DateTime.Now;
+            // Corrige com_fecha antes de cualquier uso (numeracion, periodo) - ver General.ResolveFechaComprobante
+            comp.com_fecha = General.ResolveFechaComprobante(comp.com_fecha, comp.com_fecha_manual);
+            comp.com_periodo = comp.com_fecha.Year;
+            comp.com_mes = comp.com_fecha.Month;
+            comp.com_dia = comp.com_fecha.Day;
+            comp.com_anio = comp.com_fecha.Year;
 
             Dtipocom dti = General.GetDtipocom(comp.com_empresa, comp.com_fecha.Year, comp.com_ctipocom, comp.com_almacen.Value, comp.com_pventa.Value);
             dti.dti_numero = dti.dti_numero.Value + 1;            

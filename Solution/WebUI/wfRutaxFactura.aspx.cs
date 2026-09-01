@@ -643,6 +643,13 @@ namespace WebUI
         public static string InsertComprobante(Comprobante obj)
         {
             DateTime fecha = DateTime.Now;
+            // Corrige com_fecha antes de cualquier uso - ver General.ResolveFechaComprobante.
+            // confiarHora=true: "Hora Salida" es un campo de negocio real, no el reloj del cliente - se respeta.
+            obj.com_fecha = General.ResolveFechaComprobante(obj.com_fecha, obj.com_fecha_manual, confiarHora: true);
+            obj.com_periodo = obj.com_fecha.Year;
+            obj.com_mes = obj.com_fecha.Month;
+            obj.com_dia = obj.com_fecha.Day;
+            obj.com_anio = obj.com_fecha.Year;
             #region Actualiza el numero de comprobante en 1
             Dtipocom dti = new Dtipocom();
             dti.dti_empresa = obj.com_empresa;
@@ -752,8 +759,12 @@ namespace WebUI
 
             Persona per = PersonaBLL.GetByPK(new Persona { per_empresa = obj.com_empresa, per_empresa_key = obj.com_empresa, per_codigo = obj.com_codclipro.Value, per_codigo_key = obj.com_codclipro.Value });
 
-            objU.com_fecha = obj.com_fecha;
-            objU.com_periodo = obj.com_fecha.Year;
+            // Dia siempre confiable (BD/campo deshabilitado). "Hora Salida" es un campo de negocio real - se respeta tal cual.
+            objU.com_fecha = General.ResolveFechaComprobante(obj.com_fecha, true, confiarHora: true);
+            objU.com_periodo = objU.com_fecha.Year;
+            objU.com_mes = objU.com_fecha.Month;
+            objU.com_dia = objU.com_fecha.Day;
+            objU.com_anio = objU.com_fecha.Year;
             objU.com_codclipro = obj.com_codclipro;
             objU.com_agente = obj.com_agente;
             objU.mod_usr = obj.mod_usr;

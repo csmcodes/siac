@@ -386,7 +386,10 @@ function SelectEmpresa() {
 
 //POPUP CALL COMPROBANTE
 
+var fechaComprobanteManual = false; //true solo si el usuario elige explicitamente una fecha en el datepicker de CrearComprobante
+
 function CallComprobante(empresa, usuario, tipodoc) {
+    fechaComprobanteManual = false; //se resetea en cada apertura del popup de comprobante nuevo
     var obj = {};
     obj["empresa"] = empresa;
     obj["usuario"] = usuario;
@@ -404,8 +407,13 @@ function CallComprobanteResult(data) {
 
 function SetFormComprbante() {
     $(".fecha").datepicker({
-        dateFormat: "dd/mm/yy"
-    }); //Setea campos de tipo fecha    
+        dateFormat: "dd/mm/yy",
+        onSelect: function () {
+            if (this.id === "txtFECHA_P") {
+                fechaComprobanteManual = true; //el usuario eligio la fecha a proposito, no es el default
+            }
+        }
+    }); //Setea campos de tipo fecha
     $("#cmbALMACEN_P").on("change", LoadPuntoVenta);  //Opción "Cerrar" del combo de opciones de la sección de edición    
     LoadPuntoVenta();
         //$("#cmbALMACEN_P").trigger("change");    
@@ -521,6 +529,7 @@ function CallComprobanteOK(valida) {
             var obj = {};
             //obj["fecha"] = $("#txtFECHA_P").datepicker("getDate") ;        
             obj["fecha"] = new Date(currentDate.getFullYear() + "/" + (currentDate.getMonth() + 1) + "/" + currentDate.getDate() + " " + $("#txtHORA_P").val());
+            obj["manual"] = fechaComprobanteManual;
             //obj["fecha"] = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, currentDate.getDate()+  );
             obj["almacen"] = $("#cmbALMACEN_P").val();
             obj["almacennombre"] = $("#cmbALMACEN_P option:selected").text();
