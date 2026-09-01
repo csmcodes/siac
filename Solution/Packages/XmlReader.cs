@@ -745,6 +745,17 @@ namespace Packages
                         Comprobante fac = lstfac[0];
                         fac.total = new Total();
                         fac.total = TotalBLL.GetByPK(new Total { tot_empresa = fac.com_empresa, tot_empresa_key = fac.com_empresa, tot_comprobante = fac.com_codigo, tot_comprobante_key = fac.com_codigo });
+                        // Si la retencion esta configurada como SUBTOTALIVA pero la factura no tiene base IVA
+                        // y si tiene base 0% (transporte), redirigir automaticamente a SUBTOTAL0
+                        if ((porcentajesubtotaliva ?? 0) > 0
+                            && (fac.total.tot_subtotal + (fac.total.tot_tseguro ?? 0)) == 0
+                            && ((fac.total.tot_subtot_0 + fac.total.tot_transporte) > 0))
+                        {
+                            porcentajesubtotal0 = porcentajesubtotaliva;
+                            retsubtotal0 = retsubtotaliva;
+                            porcentajesubtotaliva = 0;
+                            retsubtotaliva = 0;
+                        }
                         //Valida si las formas de pago corresponden
                         //Validacion RENTA
                         if ((porcentajesubtotal0 ?? 0) > 0 && (fac.total.tot_subtot_0 + fac.total.tot_transporte) == 0)//Retenciones 1%
@@ -1171,6 +1182,17 @@ namespace Packages
                         Comprobante fac = lstfac[0];
                         fac.total = new Total();
                         fac.total = TotalBLL.GetByPK(new Total { tot_empresa = fac.com_empresa, tot_empresa_key = fac.com_empresa, tot_comprobante = fac.com_codigo, tot_comprobante_key = fac.com_codigo });
+                        // Si la retencion esta configurada como SUBTOTALIVA pero la factura no tiene base IVA
+                        // y si tiene base 0% (transporte), redirigir automaticamente a SUBTOTAL0
+                        if ((porcentajesubtotaliva ?? 0) > 0
+                            && (fac.total.tot_subtotal + (fac.total.tot_tseguro ?? 0)) == 0
+                            && ((fac.total.tot_subtot_0 + fac.total.tot_transporte) > 0))
+                        {
+                            porcentajesubtotal0 = porcentajesubtotaliva;
+                            retsubtotal0 = retsubtotaliva;
+                            porcentajesubtotaliva = 0;
+                            retsubtotaliva = 0;
+                        }
                         //Valida si las formas de pago corresponden
                         //Validacion RENTA
                         if ((porcentajesubtotal0 ?? 0) > 0 && (fac.total.tot_subtot_0 + fac.total.tot_transporte) == 0)//Retenciones 1%
