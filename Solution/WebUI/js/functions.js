@@ -1114,3 +1114,58 @@ function ElectronicRideResult(data)
         window.open(data.d, "Ride", opciones);
     }
 }
+
+// Chequeo de version de cliente (JS/CSS desactualizado en el navegador tras un deploy). Bug real 2026-08-31:
+// facturas de Carlogistica guardaban placa vacia porque el navegador seguia usando ComprobanteCOMY.js de antes
+// del deploy - el header Cache-Control:no-cache (ver web.config en js/ y css/) solo evita esto para pestañas
+// NUEVAS, no para una ya abierta. Esto cierra ese hueco: la propia pestaña pregunta cada cierto tiempo si sigue
+// vigente, sin depender de que el navegador decida pedir el archivo de nuevo.
+(function () {
+    var CHEQUEO_INTERVALO_MS = 10 * 60 * 1000; // 10 minutos
+    var INACTIVIDAD_PARA_AUTORECARGAR_MS = 5 * 60 * 1000; // 5 minutos sin clicks/teclas
+    var versionConocida = null;
+    var ultimaActividad = Date.now();
+
+    document.addEventListener('click', function () { ultimaActividad = Date.now(); }, true);
+    document.addEventListener('keydown', function () { ultimaActividad = Date.now(); }, true);
+
+    function mostrarAvisoNuevaVersion() {
+        if (document.getElementById('avisoNuevaVersionSiac')) return;
+        var div = document.createElement('div');
+        div.id = 'avisoNuevaVersionSiac';
+        div.style.cssText = 'position:fixed;top:0;left:0;right:0;background:#f0ad4e;color:#fff;padding:10px 15px;text-align:center;z-index:99999;font-size:14px;font-family:Arial,sans-serif;box-shadow:0 2px 6px rgba(0,0,0,0.3);';
+        div.innerHTML = 'Hay una actualizacion del sistema disponible. Los cambios recientes no se veran hasta recargar. '
+            + '<button id="btnRecargarVersionSiac" style="margin-left:10px;padding:4px 14px;cursor:pointer;border:0;border-radius:3px;background:#fff;color:#f0ad4e;font-weight:bold;">Recargar ahora</button>';
+        document.body.appendChild(div);
+        document.getElementById('btnRecargarVersionSiac').onclick = function () {
+            location.reload(true);
+        };
+    }
+
+    function chequearVersion() {
+        $.ajax({
+            url: 'js/buildversion.txt?_=' + new Date().getTime(),
+            type: 'GET',
+            cache: false,
+            success: function (data) {
+                var version = $.trim(data);
+                if (version === '') return;
+                if (versionConocida === null) {
+                    versionConocida = version;
+                    return;
+                }
+                if (version !== versionConocida) {
+                    var inactivo = (Date.now() - ultimaActividad) > INACTIVIDAD_PARA_AUTORECARGAR_MS;
+                    if (inactivo)
+                        location.reload(true);
+                    else
+                        mostrarAvisoNuevaVersion();
+                }
+            }
+            // Si falla la consulta (ej. red caida un instante), no hace nada - se reintenta en el proximo intervalo.
+        });
+    }
+
+    setInterval(chequearVersion, CHEQUEO_INTERVALO_MS);
+    $(document).ready(chequearVersion);
+})();
