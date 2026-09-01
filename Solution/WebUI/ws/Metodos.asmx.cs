@@ -36,13 +36,10 @@ namespace WebUI.ws
         protected string WhereClause = "";
         int empresa = 0;
         [WebMethod]
-
         public string HelloWorld()
         {
             return "Hello World";
         }
-
-
 
         public static string GetMenuOptions(List<BusinessObjects.Menu> lst, int? padre, bool addstruc)
         {
@@ -460,7 +457,7 @@ namespace WebUI.ws
                 tdcom.CreteEmptyTable(3, 2);
                 tdcom.rows[0].cells[0].valor = "Fecha/Estado:";
                 //tdcom.rows[0].cells[1].valor = new Input { id = "txtFECHACOMP", valor = comp.com_fecha.ToShortDateString(), clase = Css.medium, habilitado = false }.ToString();
-                tdcom.rows[0].cells[1].valor = new Input { id = "txtFECHACOMP", valor = comp.com_fecha.ToString("dd/MM/yyyy HH:mm"), clase = Css.medium, habilitado = false }.ToString() + " " + new Input { id = "txtESTADOCOMP", valor = Constantes.GetEstadoName(comp.com_estado), clase = Css.small, habilitado = false }.ToString();
+                tdcom.rows[0].cells[1].valor = new Input { id = "txtFECHACOMP", valor = comp.com_fecha.ToString("dd/MM/yyyy HH:mm"), clase = Css.medium, habilitado = false }.ToString() + " " + new Input { id = "txtESTADOCOMP", valor = Constantes.GetEstadoName(comp.com_estado), clase = Css.small, habilitado = false }.ToString() + new Input { id = "txtFECHACOMP_MANUAL", visible = false, valor = comp.com_fecha_manual ? "true" : "false" }.ToString();
                 tdcom.rows[1].cells[0].valor = "Almacen:";
                 tdcom.rows[1].cells[1].valor = new Input { id = "txtIDALMACEN", clase = Css.mini, habilitado = false, valor = comp.com_almacenid }.ToString() + " " + new Input { id = "txtALMACEN", clase = Css.medium, habilitado = false, valor = comp.com_almacennombre }.ToString() + " " + new Input { id = "txtCODALMACEN", visible = false, valor = comp.com_almacen }.ToString();
                 if (comp.com_pventa.HasValue)
@@ -6386,6 +6383,15 @@ namespace WebUI.ws
             com = ComprobanteBLL.GetByPK(com);
             return Packages.Electronico.ElectronicRIDE(com);
 
+        }
+
+        // Purga el log de integracion Asapp (retencion acordada: 12 meses). No hay job/cron propio en este proyecto -
+        // pensado para dispararse desde un scheduler externo (Windows Task Scheduler / cron pegandole a esta URL).
+        [WebMethod]
+        public string PurgarLogAsapp()
+        {
+            int filas = BusinessLogicLayer.LogAsappBLL.Purgar(12);
+            return filas.ToString();
         }
 
         #endregion
