@@ -152,6 +152,14 @@ publish/
 **/packages/*
 # except build/, which is used as an MSBuild target.
 !**/packages/build/
+# On Windows (core.ignorecase=true) the rule above also matches the "Packages" PROJECT folder
+# (this .gitignore lives in Solution/, so this path is relative to that) - un-ignore it
+# explicitly so its source files are always tracked. Re-ignore its own build output right after,
+# since the blanket "!/Packages/**" negation would otherwise also un-ignore those.
+!/Packages/
+!/Packages/**
+/Packages/bin/
+/Packages/obj/
 # Uncomment if necessary however generally it will be regenerated when needed
 #!**/packages/repositories.config
 # NuGet v3's project.json files produces more ignoreable files
