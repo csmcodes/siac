@@ -160,6 +160,9 @@ publish/
 !/Packages/**
 /Packages/bin/
 /Packages/obj/
+# This project's own packages.config restores NuGet packages directly inside Packages/ (custom
+# repositoryPath) - re-ignore those (PackageId.X.Y.Z/ folders), they are not our source.
+/Packages/*.[0-9]*.[0-9]*/
 # Uncomment if necessary however generally it will be regenerated when needed
 #!**/packages/repositories.config
 # NuGet v3's project.json files produces more ignoreable files
