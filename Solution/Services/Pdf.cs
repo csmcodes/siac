@@ -230,6 +230,17 @@ namespace Services
                 phrase.Add(new Chunk(hojaruta, _standardFont));
                 cdatos.AddElement(phrase);
 
+                // Placa SRI (Anexo 25, Resolucion NAC-DGERCGC26-00000024) - prefiere la placa real ya asignada por
+                // Hoja de Ruta (cenv_placa) si existe; si no, la ingresada al facturar (com_placasri).
+                string placaticket = !string.IsNullOrWhiteSpace(fac.ccomenv.cenv_placa) ? fac.ccomenv.cenv_placa : fac.com_placasri;
+                if (!string.IsNullOrWhiteSpace(placaticket))
+                {
+                    phrase = new Phrase();
+                    phrase.Add(new Chunk("PLACA:", _boldFont));
+                    phrase.Add(new Chunk(placaticket, _standardFont));
+                    cdatos.AddElement(phrase);
+                }
+
                 phrase = new Phrase();
                 phrase.Add(new Chunk("SOCIO:", _boldFont));
                 phrase.Add(new Chunk(fac.ccomenv.cenv_nombres_soc, _standardFont));
@@ -1164,6 +1175,16 @@ namespace Services
                     phrase.Add(new Chunk(hojasrutas[h], _standardFont));
                     cdatos.AddElement(phrase);
 
+                    // Placa SRI (Anexo 25, Resolucion NAC-DGERCGC26-00000024) - prefiere la placa real ya asignada
+                    // por Hoja de Ruta (cenv_placa) si existe; si no, la ingresada al facturar (com_placasri).
+                    string placaticket = !string.IsNullOrWhiteSpace(fac.ccomenv.cenv_placa) ? fac.ccomenv.cenv_placa : fac.com_placasri;
+                    if (!string.IsNullOrWhiteSpace(placaticket))
+                    {
+                        phrase = new Phrase();
+                        phrase.Add(new Chunk("PLACA:", _boldFont));
+                        phrase.Add(new Chunk(placaticket, _standardFont));
+                        cdatos.AddElement(phrase);
+                    }
 
                     phrase = new Phrase();
                     phrase.Add(new Chunk("SOCIO:", _boldFont));

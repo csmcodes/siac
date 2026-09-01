@@ -336,6 +336,7 @@ function SetForm() {
     SetAutocompleteById("txtIDLIS");
     SetAutocompleteById("txtIDPOL");
     SetAutocompleteById("txtCODVEN");
+    SetAutocompleteById("txtPLACASRI");
 
     if ($("#txtCODDES").val() != "") {
         var objdes = {};
@@ -554,6 +555,13 @@ function SetAutoCompleteObj(idobj, item) {
         return {
             label: item.veh_nombre,
             value: item.veh_id,
+            info: item
+        }
+    }
+    if (idobj == "txtPLACASRI") {
+        return {
+            label: "Placa: " + item.veh_placa + " / Disco: " + item.veh_disco + " - " + item.veh_nombre,
+            value: (item.veh_placa || "").replace(/[\s-]/g, "").toUpperCase(),
             info: item
         }
     }
@@ -1665,6 +1673,7 @@ function GetComprobanteObj() {
     obj["com_ctipocom"] = parseInt($("#txtCTIPOCOM").val());  //3 REC
     obj["com_numero"] = $("#txtNUMERO").val();
     obj["com_fecha"] = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate(), now.getHours(), now.getMinutes(), now.getSeconds(), now.getMilliseconds());
+    obj["com_fecha_manual"] = $("#txtFECHACOMP_MANUAL").val() === "true";
     obj["com_doctran"] = $("#numerocomp").html();
     obj["com_nocontable"] = parseInt($("#txtnocontable").val());
     obj["com_periodo"] = currentDate.getFullYear();
@@ -1674,6 +1683,7 @@ function GetComprobanteObj() {
     obj["com_codclipro"] = parseInt($("#txtCODPER").val());
     obj["com_agente"] = parseInt($("#txtCODVEN").val());
     obj["com_token"] = $("#txtTOKEN").val();//NUEVO CONTROL
+    obj["com_placasri"] = $("#txtPLACASRI").val();
     obj["ccomdoc"] = GetCcomdocObj();
     obj["ccomenv"] = GetCcomenvObj();
     obj["total"] = GetTotalObj();
@@ -1728,6 +1738,19 @@ function ValidateForm() {
     if (detalle.length == 0) {
         retorno = false;
         mensajehtml += "Es necesario ingresar al menos un detalle al comprobante<br>";
+    }
+
+    // Placa SRI (Anexo 25, Resolucion NAC-DGERCGC26-00000024) - formato: 2 a 3 letras seguidas de 3 a 4 numeros,
+    // sin espacios ni guiones (ver Tabla 33 de la ficha tecnica de comprobantes electronicos).
+    $($("#txtPLACASRI")[0].parentNode).removeClass('obligatorio');
+    $($("#txtPLACASRI")[0].parentNode).children(".obligatorio").remove();
+    var placasri = $("#txtPLACASRI").val().trim().toUpperCase().replace(/[\s-]/g, "");
+    if (placasri != "" && !/^[A-Z]{2,3}\d{3,4}$/.test(placasri)) {
+        retorno = false;
+        var padreplaca = $($("#txtPLACASRI")[0].parentNode);
+        padreplaca.append("<span class='obligatorio'>! Formato inválido</span>");
+        padreplaca.addClass('obligatorio');
+        mensajehtml += "La <b>Placa (SRI)</b> no tiene un formato válido (ej: ABC1234)<br>";
     }
 
     /*var htmltable = $("#tdinvoice")[0];

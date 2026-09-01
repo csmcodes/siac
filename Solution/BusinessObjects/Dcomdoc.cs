@@ -74,6 +74,9 @@ namespace BusinessObjects
         [Data(nosql = true, tablaref = "producto", camporef = "pro_inventario", foreign = "ddoc_empresa, ddoc_producto", keyref = "pro_empresa, pro_codigo", join = "left")]
         public int? ddoc_productoinv { get; set; }
 
+        [Data(nosql = true, tablaref = "producto", camporef = "pro_codigoaux", foreign = "ddoc_empresa, ddoc_producto", keyref = "pro_empresa, pro_codigo", join = "left")]
+        public string ddoc_productocodigoaux { get; set; }
+
         [Data(nosql = true, tablaref = "umedida", camporef = "umd_nombre", foreign = "ddoc_empresa, ddco_udigitada", keyref = "umd_empresa, umd_codigo", join = "left")]
         public string ddoc_productounidad { get; set; }
 
@@ -178,7 +181,7 @@ namespace BusinessObjects
             this.ddoc_productocalcula = (reader["ddoc_productocalcula"] != DBNull.Value) ? (Int32?)reader["ddoc_productocalcula"] : null;
             this.ddoc_productototal = (reader["ddoc_productototal"] != DBNull.Value) ? (Int32?)reader["ddoc_productototal"] : null;
             this.ddoc_productoinv = (reader["ddoc_productoinv"] != DBNull.Value) ? (Int32?)reader["ddoc_productoinv"] : null;
-
+            this.ddoc_productocodigoaux = reader["ddoc_productocodigoaux"].ToString();
 
             this.ddoc_productogrupo = (reader["ddoc_productogrupo"] != DBNull.Value) ? (Int32?)reader["ddoc_productogrupo"] : null;
 

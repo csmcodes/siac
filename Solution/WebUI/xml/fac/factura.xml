@@ -32,6 +32,7 @@
     <propina source="electronico.ele_propina">0.00</propina>
     <importeTotal source="electronico.ele_total"></importeTotal>
     <moneda>DOLAR</moneda>
+    <placa source="electronico.ele_placa" empty="no"></placa>
     <pagos empty="no"></pagos>
   </infoFactura>
   <detalles></detalles>

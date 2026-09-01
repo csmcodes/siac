@@ -278,7 +278,7 @@ namespace WebUI
             html.AppendLine(" </div><!--span6-->");
             html.AppendLine("<div class=\"span6\">");
             HtmlTable tdatos1 = new HtmlTable();
-            tdatos1.CreteEmptyTable(3, 2);
+            tdatos1.CreteEmptyTable(4, 2);
             tdatos1.rows[0].cells[0].valor = "Lista Precio:";
             tdatos1.rows[0].cells[1].valor = new Input { id = "txtIDLIS", autocomplete = "GetListaObj", clase = Css.small, valor = lista.lpr_id, habilitado = false  }.ToString() + " " + new Input { id = "txtLISTA", clase = Css.large, habilitado = false, valor = lista.lpr_nombre}.ToString() + " " + new Input { id = "txtCODLIS", visible = false, valor = lista.lpr_codigo}.ToString();
             //tdatos1.rows[0].cells[1].valor = new Select { id = "cmbLISTAPRECIO", diccionario = Dictionaries.GetListaprecio(), clase = Css.medium}.ToString();
@@ -288,6 +288,11 @@ namespace WebUI
             
             tdatos1.rows[2].cells[0].valor = "Vendedor:";
             tdatos1.rows[2].cells[1].valor =  new Input { id = "txtCODVEN", autocomplete = "GetPersonaObj", clase = Css.small, habilitado = false }.ToString() + " " + new Input { id = "txtVENDEDOR", clase = Css.large, habilitado = false }.ToString();
+
+            // Placa informativa para el XML electronico (Anexo 25, Resolucion NAC-DGERCGC26-00000024) - independiente
+            // del vehiculo real de la Hoja de Ruta, que normalmente se asigna recien al final del dia.
+            tdatos1.rows[3].cells[0].valor = "PLACA (SRI):";
+            tdatos1.rows[3].cells[1].valor = new Input { id = "txtPLACASRI", clase = Css.small, largo = 10, autocomplete = "GetVehiculoObj", obligatorio = true, placeholder = "Placa", valor = obj.com_placasri, habilitado = habilitado }.ToString() + " <span class='iconsweets-alert' style='cursor:help;' title='Obligatorio. Puede buscar un vehículo existente o escribir cualquier placa. Formato: letras y números, sin espacios ni guiones. Ej: ABC1234.'></span>";
 
             //tdatos1.rows[2].cells[0].valor = "Bodega:";
             //tdatos1.rows[2].cells[1].valor = new Input { id = "txtCODBOD", autocomplete = "GetBodegaObj", clase = Css.small }.ToString() + " " + new Input { id = "txtBODEGA", clase = Css.large, habilitado = false }.ToString();
@@ -443,7 +448,7 @@ namespace WebUI
             tdtra.rows[1].cells[1].valor = new Input { id = "txtNOMBRERUTA", clase = Css.large, habilitado = false, valor = (hojas.Count > 0) ? hojas[0].nombreruta: "" }.ToString();  
             tdtra.rows[2].cells[0].valor = "Vehiculo:";
             tdtra.rows[2].cells[1].valor = new Input { id = "txtVEHICULORUTA", clase = Css.large, habilitado = false, valor = (hojas.Count > 0 && hojas[0].placavehiculo != null) ? "Placa: " + hojas[0].placavehiculo + " / Disco: " + hojas[0].discovehiculo : "" }.ToString() + new Input { id = "txtCODVEH", clase = Css.medium, valor = (hojas.Count > 0 && hojas[0].codigovehiculo != null) ? hojas[0].codigovehiculo.Value.ToString() : "", visible = false }.ToString() + new Input { id = "txtPLACAVEH", valor = (hojas.Count > 0 && hojas[0].placavehiculo != null) ? hojas[0].placavehiculo.ToString() : "", visible = false }.ToString() + new Input { id = "txtDISCOVEH", valor = (hojas.Count > 0 && hojas[0].discovehiculo != null) ? hojas[0].discovehiculo.ToString() : "", visible = false }.ToString();
-            
+
             //if (hojas.Count > 0)
             //{
 
@@ -680,7 +685,7 @@ namespace WebUI
             html.AppendLine(" </div><!--span6-->");
             html.AppendLine("<div class=\"span6\">");
             HtmlTable tdatos1 = new HtmlTable();
-            tdatos1.CreteEmptyTable(3, 2);
+            tdatos1.CreteEmptyTable(4, 2);
             tdatos1.rows[0].cells[0].valor = "Lista Precio:";
             tdatos1.rows[0].cells[1].valor = new Input { id = "txtIDLIS", autocomplete = "GetListaObj", clase = Css.small, valor = persona.per_listaid, habilitado = false }.ToString() + " " + new Input { id = "txtLISTA", clase = Css.large, habilitado = false, valor = persona.per_listanombre }.ToString() + " " + new Input { id = "txtCODLIS", visible = false, valor = persona.per_listaprecio}.ToString();
             //tdatos1.rows[0].cells[1].valor = new Select { id = "cmbLISTAPRECIO", diccionario = Dictionaries.GetListaprecio(), clase = Css.medium}.ToString();
@@ -691,6 +696,11 @@ namespace WebUI
 
             tdatos1.rows[2].cells[0].valor = "Vendedor:";
             tdatos1.rows[2].cells[1].valor = new Input { id = "txtCODVEN", autocomplete = "GetPersonaObj", clase = Css.small, habilitado = false }.ToString() + " " + new Input { id = "txtVENDEDOR", clase = Css.large, habilitado = false }.ToString();
+
+            // Placa informativa para el XML electronico (Anexo 25, Resolucion NAC-DGERCGC26-00000024) - independiente
+            // del vehiculo real de la Hoja de Ruta, que normalmente se asigna recien al final del dia.
+            tdatos1.rows[3].cells[0].valor = "PLACA (SRI):";
+            tdatos1.rows[3].cells[1].valor = new Input { id = "txtPLACASRI", clase = Css.small, largo = 10, autocomplete = "GetVehiculoObj", obligatorio = true, placeholder = "Placa", valor = comprobante.com_placasri, habilitado = habilitado }.ToString() + " <span class='iconsweets-alert' style='cursor:help;' title='Obligatorio. Puede buscar un vehículo existente o escribir cualquier placa. Formato: letras y números, sin espacios ni guiones. Ej: ABC1234.'></span>";
 
             //tdatos1.rows[2].cells[0].valor = "Bodega:";
             //tdatos1.rows[2].cells[1].valor = new Input { id = "txtCODBOD", autocomplete = "GetBodegaObj", clase = Css.small }.ToString() + " " + new Input { id = "txtBODEGA", clase = Css.large, habilitado = false }.ToString();

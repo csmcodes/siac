@@ -284,7 +284,7 @@ namespace WebUI
             html.AppendLine(" </div><!--span6-->");
             html.AppendLine("<div class=\"span6\">");
             HtmlTable tdatos1 = new HtmlTable();
-            tdatos1.CreteEmptyTable(3, 2);
+            tdatos1.CreteEmptyTable(4, 2);
             tdatos1.rows[0].cells[0].valor = "Lista Precio:";
             tdatos1.rows[0].cells[1].valor = new Input { id = "txtIDLIS", autocomplete = "GetListaObj", clase = Css.small, valor = lista.lpr_id, habilitado = false }.ToString() + " " + new Input { id = "txtLISTA", clase = Css.large, habilitado = false, valor = lista.lpr_nombre }.ToString() + " " + new Input { id = "txtCODLIS", visible = false, valor = lista.lpr_codigo }.ToString();
             //tdatos1.rows[0].cells[1].valor = new Select { id = "cmbLISTAPRECIO", diccionario = Dictionaries.GetListaprecio(), clase = Css.medium}.ToString();
@@ -294,6 +294,11 @@ namespace WebUI
 
             tdatos1.rows[2].cells[0].valor = "Vendedor:";
             tdatos1.rows[2].cells[1].valor = new Input { id = "txtCODVEN", valor= agente.per_codigo, autocomplete = "GetPersonaObj", clase = Css.small, habilitado = habilitado}.ToString() + " " + new Input { id = "txtVENDEDOR", clase = Css.large, habilitado = false, valor= agente.per_apellidos + " " + agente.per_nombres }.ToString();
+
+            // Placa informativa para el XML electronico (Anexo 25, Resolucion NAC-DGERCGC26-00000024) - independiente
+            // del vehiculo real de la Hoja de Ruta, que normalmente se asigna recien al final del dia.
+            tdatos1.rows[3].cells[0].valor = "PLACA (SRI):";
+            tdatos1.rows[3].cells[1].valor = new Input { id = "txtPLACASRI", clase = Css.small, largo = 10, autocomplete = "GetVehiculoObj", obligatorio = true, placeholder = "Placa", valor = obj.com_placasri, habilitado = habilitado }.ToString() + " <span class='iconsweets-alert' style='cursor:help;' title='Obligatorio. Puede buscar un vehículo existente o escribir cualquier placa. Formato: letras y números, sin espacios ni guiones. Ej: ABC1234.'></span>";
 
             //tdatos1.rows[2].cells[0].valor = "Bodega:";
             //tdatos1.rows[2].cells[1].valor = new Input { id = "txtCODBOD", autocomplete = "GetBodegaObj", clase = Css.small }.ToString() + " " + new Input { id = "txtBODEGA", clase = Css.large, habilitado = false }.ToString();
@@ -716,7 +721,7 @@ namespace WebUI
             html.AppendLine(" </div><!--span6-->");
             html.AppendLine("<div class=\"span6\">");
             HtmlTable tdatos1 = new HtmlTable();
-            tdatos1.CreteEmptyTable(3, 2);
+            tdatos1.CreteEmptyTable(4, 2);
             tdatos1.rows[0].cells[0].valor = "Lista Precio:";
             tdatos1.rows[0].cells[1].valor = new Input { id = "txtIDLIS", autocomplete = "GetListaObj", clase = Css.small, valor = persona.per_listaid, habilitado = false }.ToString() + " " + new Input { id = "txtLISTA", clase = Css.large, habilitado = false, valor = persona.per_listanombre }.ToString() + " " + new Input { id = "txtCODLIS", visible = false, valor = persona.per_listaprecio }.ToString();
             //tdatos1.rows[0].cells[1].valor = new Select { id = "cmbLISTAPRECIO", diccionario = Dictionaries.GetListaprecio(), clase = Css.medium}.ToString();
@@ -727,6 +732,11 @@ namespace WebUI
 
             tdatos1.rows[2].cells[0].valor = "Vendedor:";
             tdatos1.rows[2].cells[1].valor = new Input { id = "txtCODVEN", valor = "", autocomplete = "GetPersonaObj", clase = Css.small, habilitado = habilitado }.ToString() + " " + new Input { id = "txtVENDEDOR", clase = Css.large, habilitado = false, valor = "" }.ToString();
+
+            // Placa informativa para el XML electronico (Anexo 25, Resolucion NAC-DGERCGC26-00000024) - independiente
+            // del vehiculo real de la Hoja de Ruta, que normalmente se asigna recien al final del dia.
+            tdatos1.rows[3].cells[0].valor = "PLACA (SRI):";
+            tdatos1.rows[3].cells[1].valor = new Input { id = "txtPLACASRI", clase = Css.small, largo = 10, autocomplete = "GetVehiculoObj", obligatorio = true, placeholder = "Placa", valor = comprobante.com_placasri, habilitado = habilitado }.ToString() + " <span class='iconsweets-alert' style='cursor:help;' title='Obligatorio. Puede buscar un vehículo existente o escribir cualquier placa. Formato: letras y números, sin espacios ni guiones. Ej: ABC1234.'></span>";
 
             //tdatos1.rows[2].cells[0].valor = "Vendedor:";
             //tdatos1.rows[2].cells[1].valor = new Input { id = "txtCODVEN", autocomplete = "GetPersonaObj", clase = Css.small, habilitado = false }.ToString() + " " + new Input { id = "txtVENDEDOR", clase = Css.large, habilitado = false }.ToString();
@@ -841,7 +851,7 @@ namespace WebUI
             tdatos.AddColumn("U.Medida", "width10", "", new Select() { id = "cmbUMEDIDA", placeholder = "Medida", diccionario = Dictionaries.GetUmedida(), clase = Css.blocklevel }.ToString() + new Input() { id = "txtFACTOR", visible = false });
             tdatos.AddColumn("Cant.", "width5", Css.center, new Input() { id = "txtCANTIDAD", placeholder = "CANT", clase = Css.blocklevel + Css.cantidades, numeric = true }.ToString());
             tdatos.AddColumn("Precio", "width10", Css.right, new Input() { id = "txtPRECIO", placeholder = "PRECIO", clase = Css.blocklevel + Css.amount, numeric = true }.ToString());
-            tdatos.AddColumn("Desc.%", "width5", Css.right, new Input() { id = "txtDESC", placeholder = "DESC", clase = Css.blocklevel + Css.amount, habilitado = true }.ToString());
+            tdatos.AddColumn("Desc.%", "width5", Css.right, new Input() { id = "txtDESC", placeholder = "DESC", clase = Css.blocklevel + Css.amount, habilitado = false }.ToString());
             tdatos.AddColumn("TOTAL", "width10", Css.right, new Input() { id = "txtTOTAL", placeholder = "TOTAL", clase = Css.blocklevel + Css.amount, habilitado = false }.ToString());
             tdatos.AddColumn("IVA", "width5", Css.center, new Check() { id = "chkIVA", clase = Css.blocklevel + Css.cantidades, habilitado = false, valor = 0 }.ToString());
             if (habilitado)

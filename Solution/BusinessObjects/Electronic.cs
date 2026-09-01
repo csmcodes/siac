@@ -36,6 +36,7 @@ namespace BusinessObjects
         public String ele_contabilidad { get; set; }
         public String ele_tipoid { get; set; }
         public String ele_guiaremision { get; set; }
+        public String ele_placa { get; set; }
 
         public String ele_razonsocial{ get; set; }
         public String ele_idcomprador { get; set; }

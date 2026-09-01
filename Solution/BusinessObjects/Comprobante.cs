@@ -69,6 +69,9 @@ namespace BusinessObjects
         public string com_mensajeelec { get; set; }
         public string com_emision { get; set; }
         public string com_ambiente { get; set; }
+        public string com_provider { get; set; }
+        public string com_asappid { get; set; }
+        public string com_placasri { get; set; }
 
 
         [Data(nosql = true, tablaref = "ctipocom", camporef = "cti_id", foreign = "com_empresa, com_ctipocom", keyref = "cti_empresa, cti_codigo", join = "inner")]
@@ -195,6 +198,8 @@ namespace BusinessObjects
         public string crea_fechastr { get; set; }
         [Data(noprop = true)]
         public string mod_fechastr { get; set; }
+        [Data(noprop = true)]
+        public bool com_fecha_manual { get; set; }
 
 
         #endregion
@@ -302,6 +307,9 @@ namespace BusinessObjects
             this.com_mensajeelec = (reader["com_mensajeelec"] != DBNull.Value) ? reader["com_mensajeelec"].ToString() : null;
             this.com_emision = (reader["com_emision"] != DBNull.Value) ? reader["com_emision"].ToString() : null;
             this.com_ambiente= (reader["com_ambiente"] != DBNull.Value) ? reader["com_ambiente"].ToString() : null;
+            this.com_provider = (HasColumn(reader, "com_provider") && reader["com_provider"] != DBNull.Value) ? reader["com_provider"].ToString() : null;
+            this.com_asappid = (HasColumn(reader, "com_asappid") && reader["com_asappid"] != DBNull.Value) ? reader["com_asappid"].ToString() : null;
+            this.com_placasri = (HasColumn(reader, "com_placasri") && reader["com_placasri"] != DBNull.Value) ? reader["com_placasri"].ToString() : null;
 
             this.com_total= (reader["com_total"] != DBNull.Value) ? (Decimal?)reader["com_total"] : null;
 
@@ -330,6 +338,14 @@ namespace BusinessObjects
             this.crea_fechastr = crea_fecha.HasValue ? crea_fecha.ToString() : "";
             this.mod_fechastr = mod_fecha.HasValue ? mod_fecha.ToString() : "";
 
+        }
+
+        private static bool HasColumn(IDataReader reader, string columnName)
+        {
+            for (int i = 0; i < reader.FieldCount; i++)
+                if (string.Equals(reader.GetName(i), columnName, StringComparison.OrdinalIgnoreCase))
+                    return true;
+            return false;
         }
 
         public Comprobante(object objeto)
@@ -376,12 +392,14 @@ namespace BusinessObjects
                 object com_ruta = null;
                 object com_vehiculo = null;
                 object com_token= null;
+                object com_fecha_manual = null;
 
                 object com_claveelec = null;
                 object com_estadoelec = null;
                 object com_mensajeelec = null;
                 object com_emision = null;
                 object com_ambiente = null;
+                object com_placasri = null;
 
                 object crea_usr = null;
                 object crea_fecha = null;
@@ -442,12 +460,14 @@ namespace BusinessObjects
                 tmp.TryGetValue("com_ruta", out com_ruta);
                 tmp.TryGetValue("com_vehiculo", out com_vehiculo);
                 tmp.TryGetValue("com_token", out com_token);
+                tmp.TryGetValue("com_fecha_manual", out com_fecha_manual);
 
                 tmp.TryGetValue("com_claveelec", out com_claveelec);
                 tmp.TryGetValue("com_estadoelec", out com_estadoelec);
                 tmp.TryGetValue("com_mensajeelec", out com_mensajeelec);
                 tmp.TryGetValue("com_emision", out com_emision);
                 tmp.TryGetValue("com_ambiente", out com_ambiente);
+                tmp.TryGetValue("com_placasri", out com_placasri);
 
                 tmp.TryGetValue("crea_usr", out crea_usr);
                 tmp.TryGetValue("crea_fecha", out crea_fecha);
@@ -518,12 +538,14 @@ namespace BusinessObjects
                 this.com_ruta = (Int32?)Conversiones.GetValueByType(com_ruta, typeof(Int32?));
                 this.com_vehiculo = (Int32?)Conversiones.GetValueByType(com_vehiculo, typeof(Int32?));
                 this.com_token= (Int64?)Conversiones.GetValueByType(com_token, typeof(Int64?));
+                this.com_fecha_manual = (bool)Conversiones.GetValueByType(com_fecha_manual, typeof(bool));
 
                 this.com_claveelec= (String)Conversiones.GetValueByType(com_claveelec, typeof(String));
                 this.com_estadoelec= (String)Conversiones.GetValueByType(com_estadoelec, typeof(String));
                 this.com_mensajeelec = (String)Conversiones.GetValueByType(com_mensajeelec, typeof(String));
                 this.com_emision= (String)Conversiones.GetValueByType(com_emision, typeof(String));
                 this.com_ambiente= (String)Conversiones.GetValueByType(com_ambiente, typeof(String));
+                this.com_placasri = (String)Conversiones.GetValueByType(com_placasri, typeof(String));
 
                 this.crea_usr = (String)Conversiones.GetValueByType(crea_usr, typeof(String));
                 this.crea_fecha = (DateTime?)Conversiones.GetValueByType(crea_fecha, typeof(DateTime?));
