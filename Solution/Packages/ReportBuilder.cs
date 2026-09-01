@@ -1225,7 +1225,7 @@ namespace Packages
                     else
                         rep.ReportPath = reportfolder + "BalanceSaldos.rdlc";
 
-                    rep.DataSources.Add(new ReportDataSource("DataSet1", cuentas));
+                    rep.DataSources.Add(new ReportDataSource("DataSet1", allB?cuentas: cuentas.Where(w=> Math.Round(w.final,2)!=0)));
 
                     if (reportcode == "PLANCTA")
                     {
