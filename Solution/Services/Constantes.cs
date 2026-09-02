@@ -126,6 +126,17 @@ namespace Services
 
         }
 
+        // Placa SRI (Anexo 25, Resolucion NAC-DGERCGC26-00000024) obligatoria en Factura/GUI - default
+        // obligatorio (true) si el parametro "placasriobligatoria" no existe en la BD del cliente; solo se
+        // desactiva creando el parametro con valor "false" (ej. TORTIZ, pidio no exigirlo - 2026-09-02).
+        public static bool cPlacaSriObligatoria
+        {
+            get
+            {
+                return !string.Equals(GetParameter("placasriobligatoria"), "false", StringComparison.OrdinalIgnoreCase);
+            }
+        }
+
 
         public static List<PoliticaTipoPago> cPoliticaTipoPago {
             get

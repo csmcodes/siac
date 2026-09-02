@@ -298,7 +298,7 @@ namespace WebUI
             // Placa informativa para el XML electronico (Anexo 25, Resolucion NAC-DGERCGC26-00000024) - independiente
             // del vehiculo real de la Hoja de Ruta, que normalmente se asigna recien al final del dia.
             tdatos1.rows[3].cells[0].valor = "PLACA (SRI):";
-            tdatos1.rows[3].cells[1].valor = new Input { id = "txtPLACASRI", clase = Css.small, largo = 10, autocomplete = "GetVehiculoObj", obligatorio = true, placeholder = "Placa", valor = obj.com_placasri, habilitado = habilitado }.ToString() + " <span class='iconsweets-alert' style='cursor:help;' title='Obligatorio. Puede buscar un vehículo existente o escribir cualquier placa. Formato: letras y números, sin espacios ni guiones. Ej: ABC1234.'></span>";
+            tdatos1.rows[3].cells[1].valor = new Input { id = "txtPLACASRI", clase = Css.small, largo = 10, autocomplete = "GetVehiculoObj", obligatorio = Constantes.cPlacaSriObligatoria, placeholder = "Placa", valor = obj.com_placasri, habilitado = habilitado }.ToString() + " <span class='iconsweets-alert' style='cursor:help;' title='" + (Constantes.cPlacaSriObligatoria ? "Obligatorio. " : "Opcional. ") + "Puede buscar un vehículo existente o escribir cualquier placa. Formato: letras y números, sin espacios ni guiones. Ej: ABC1234.'></span>";
 
             //tdatos1.rows[2].cells[0].valor = "Bodega:";
             //tdatos1.rows[2].cells[1].valor = new Input { id = "txtCODBOD", autocomplete = "GetBodegaObj", clase = Css.small }.ToString() + " " + new Input { id = "txtBODEGA", clase = Css.large, habilitado = false }.ToString();
@@ -736,7 +736,7 @@ namespace WebUI
             // Placa informativa para el XML electronico (Anexo 25, Resolucion NAC-DGERCGC26-00000024) - independiente
             // del vehiculo real de la Hoja de Ruta, que normalmente se asigna recien al final del dia.
             tdatos1.rows[3].cells[0].valor = "PLACA (SRI):";
-            tdatos1.rows[3].cells[1].valor = new Input { id = "txtPLACASRI", clase = Css.small, largo = 10, autocomplete = "GetVehiculoObj", obligatorio = true, placeholder = "Placa", valor = comprobante.com_placasri, habilitado = habilitado }.ToString() + " <span class='iconsweets-alert' style='cursor:help;' title='Obligatorio. Puede buscar un vehículo existente o escribir cualquier placa. Formato: letras y números, sin espacios ni guiones. Ej: ABC1234.'></span>";
+            tdatos1.rows[3].cells[1].valor = new Input { id = "txtPLACASRI", clase = Css.small, largo = 10, autocomplete = "GetVehiculoObj", obligatorio = Constantes.cPlacaSriObligatoria, placeholder = "Placa", valor = comprobante.com_placasri, habilitado = habilitado }.ToString() + " <span class='iconsweets-alert' style='cursor:help;' title='" + (Constantes.cPlacaSriObligatoria ? "Obligatorio. " : "Opcional. ") + "Puede buscar un vehículo existente o escribir cualquier placa. Formato: letras y números, sin espacios ni guiones. Ej: ABC1234.'></span>";
 
             //tdatos1.rows[2].cells[0].valor = "Vendedor:";
             //tdatos1.rows[2].cells[1].valor = new Input { id = "txtCODVEN", autocomplete = "GetPersonaObj", clase = Css.small, habilitado = false }.ToString() + " " + new Input { id = "txtVENDEDOR", clase = Css.large, habilitado = false }.ToString();
