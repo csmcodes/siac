@@ -954,10 +954,14 @@ namespace WebUI
 
             DateTime fecha = DateTime.Now;
 
-            // Corrige com_fecha antes de cualquier uso - ver General.ResolveFechaComprobante. Este archivo nunca
-            // habia recibido este fix (bug real 2026-09-02: REC-001-003-0062590 se creo con la fecha de hoy en
-            // vez de la fecha real que el usuario intentaba usar).
-            obj.com_fecha = General.ResolveFechaComprobante(obj.com_fecha, obj.com_fecha_manual);
+            // NO usar General.ResolveFechaComprobante aqui - a diferencia de otras pantallas, esta (Recibos de
+            // Clientes) nunca renderiza el hidden field txtFECHACOMP_MANUAL (ese campo solo existe en
+            // Factura/Guias, ver Metodos.asmx.cs:460), asi que Cancelacion.js:769 siempre manda
+            // com_fecha_manual=false. Forzar ResolveFechaComprobante aca causaba que TODO recibo se guarde con
+            // la fecha de hoy sin importar lo que el usuario elija (regresion real 2026-09-02, detectada por
+            // REC-001-003-0062592: se revirtio el mismo dia). obj.com_fecha en este flujo ya viene calculado
+            // correctamente desde el campo real que el usuario controla en pantalla (Cancelacion.js:768) - hay
+            // que confiar en el directo, igual que antes de este intento de fix.
             obj.com_periodo = obj.com_fecha.Year;
             obj.com_mes = obj.com_fecha.Month;
             obj.com_dia = obj.com_fecha.Day;
