@@ -954,6 +954,15 @@ namespace WebUI
 
             DateTime fecha = DateTime.Now;
 
+            // Corrige com_fecha antes de cualquier uso - ver General.ResolveFechaComprobante. Este archivo nunca
+            // habia recibido este fix (bug real 2026-09-02: REC-001-003-0062590 se creo con la fecha de hoy en
+            // vez de la fecha real que el usuario intentaba usar).
+            obj.com_fecha = General.ResolveFechaComprobante(obj.com_fecha, obj.com_fecha_manual);
+            obj.com_periodo = obj.com_fecha.Year;
+            obj.com_mes = obj.com_fecha.Month;
+            obj.com_dia = obj.com_fecha.Day;
+            obj.com_anio = obj.com_fecha.Year;
+
             #region Actualiza el numero de comprobante en 1
 
             Dtipocom dti = new Dtipocom();
@@ -1102,10 +1111,21 @@ namespace WebUI
             //obj.com_tipodoc = 4;
             //obj.com_ctipocom = 2; //FACT
 
-           
+
             //obj.com_anulado =
             //obj.com_fecha = fecha;
 
+            // Esta pantalla (Recibos de Clientes) no tiene ningun campo de fecha propio en su UI - "obj.com_fecha"
+            // que llega del cliente en este re-guardado es basura (mismo bug real de 2026-08-27/31 en otros 13+
+            // modulos, ver General.ResolveFechaComprobante). A diferencia de esos modulos, este metodo usa "obj"
+            // directo en el Update (no arma un "objU" aparte) - se carga la fecha real de BD antes del Update y
+            // se la reasigna a obj, dejando el resto de obj intacto.
+            Comprobante actual = ComprobanteBLL.GetByPK(new Comprobante { com_empresa = obj.com_empresa, com_empresa_key = obj.com_empresa, com_codigo = obj.com_codigo, com_codigo_key = obj.com_codigo });
+            obj.com_fecha = actual.com_fecha;
+            obj.com_periodo = actual.com_fecha.Year;
+            obj.com_mes = actual.com_fecha.Month;
+            obj.com_dia = actual.com_fecha.Day;
+            obj.com_anio = actual.com_fecha.Year;
 
             BLL transaction = new BLL();
             transaction.CreateTransaction();
