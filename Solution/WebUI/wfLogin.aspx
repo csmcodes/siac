@@ -16,7 +16,7 @@
     <script type="text/javascript" src="js/jquery.alerts.js"></script>
     <script type="text/javascript" src="js/jquery.cookie.js"></script>             
     <script type="text/javascript" src="js/general.js"></script>
-    <script type="text/javascript" src="js/popup.js"></script>
+    <script type="text/javascript" src="js/popup.js?v=20260902"></script>
     <script type="text/javascript" src="js/forms/login.js"></script>
 
 </head>

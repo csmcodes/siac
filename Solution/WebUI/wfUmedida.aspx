@@ -26,7 +26,7 @@
     <script type="text/javascript" src="js/flot/jquery.flot.resize.min.js"></script>
     <script type="text/javascript" src="js/responsive-tables.js"></script>
     <script type="text/javascript" src="js/chosen.jquery.min.js"></script>
-     <script type="text/javascript" src="js/functions.js"></script>
+     <script type="text/javascript" src="js/functions.js?v=20260902"></script>
     <script type="text/javascript" src="js/general.js"></script>    
     <script type="text/javascript" src="js/forms/Umedida.js"></script>
     <script type="text/javascript" src="js/common.js"></script>

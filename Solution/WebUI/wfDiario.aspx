@@ -23,8 +23,8 @@
     <script type="text/javascript" src="js/responsive-tables.js"></script>
     <script type="text/javascript" src="js/chosen.jquery.min.js"></script>
     <script type="text/javascript" src="js/general.js"></script>    
-    <script type="text/javascript" src="js/popup.js"></script>
-    <script type="text/javascript" src="js/functions.js"></script>    
+    <script type="text/javascript" src="js/popup.js?v=20260902"></script>
+    <script type="text/javascript" src="js/functions.js?v=20260902"></script>    
 
     <script type="text/javascript" src="js/forms/autocomplete.js"></script>        
    
