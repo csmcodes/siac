@@ -1727,6 +1727,7 @@ function ValidateForm() {
         mensajehtml += "Es necesario ingresar al menos un detalle al comprobante<br>";
     }
 
+
     /*var htmltable = $("#tdinvoice")[0];
     if (htmltable.rows.length < 3) {
      
@@ -1770,6 +1771,10 @@ function SetRecibo(obj) {
 
 function SaveObj() {
     if (!saving) {
+        // Auto-commit: si queda un producto tipeado sin "Agregar", lo agregamos solo antes de validar/guardar.
+        if ($.trim($("#txtCODPRO").val()) != "") {
+            AddEditRow();
+        }
         if (ValidateForm()) {
             if (!recibocreated) {
                 Recibo();

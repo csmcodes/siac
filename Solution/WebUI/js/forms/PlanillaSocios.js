@@ -778,7 +778,6 @@ function ValidateForm() {
 
 
 
-
     if (!retorno) {
         jQuery.alerts.dialogClass = 'alert-danger';
         jAlert(mensajehtml, 'Error', function () {
@@ -928,6 +927,10 @@ function GetComprobanteObj() {
 
 function SaveObj() {
     if (!saving) {
+        // Auto-commit: si queda un producto tipeado sin "Agregar", lo agregamos solo antes de validar/guardar.
+        if ($.trim($("#txtCODPRO").val()) != "") {
+            AddEditRow();
+        }
         if (ValidateForm()) {
             asig = 2;
             $("#txtESTADO").val(asig);

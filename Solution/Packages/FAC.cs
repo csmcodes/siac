@@ -2361,15 +2361,29 @@ namespace Packages
             if (comp.com_estado != Constantes.cEstadoMayorizado)
             {
                 //Verifica si esta en hoja de ruta mayorizada
-                //List<vHojadeRuta> lst = vHojadeRutaBLL.GetAll(new WhereParams("detalle.com_codigo={0} and detalle.com_empresa={1} and cabecera.com_estado=2", comp.com_codigo, comp.com_empresa), "");                
+                //List<vHojadeRuta> lst = vHojadeRutaBLL.GetAll(new WhereParams("detalle.com_codigo={0} and detalle.com_empresa={1} and cabecera.com_estado=2", comp.com_codigo, comp.com_empresa), "");
                 List<vHojadeRuta> lst = vHojadeRutaBLL.GetAll(new WhereParams("detalle.com_codigo={0} and detalle.com_empresa={1} ", comp.com_codigo, comp.com_empresa), "");
                 if (lst.Count > 0)
                 {
-                    comp.com_estado = Constantes.cEstadoMayorizado;
-                    comp.com_empresa_key = comp.com_empresa;
-                    comp.com_codigo_key = comp.com_codigo;
-                    ComprobanteBLL.Update(comp);
-                    General.save_historial(comp);
+                    // Antes de mayorizar a la fuerza: si el comprobante quedo en GRABADO por un
+                    // descuadre real al crearse (dcontable desbalanceado), recontabilizar primero
+                    // en vez de mayorizar con la contabilidad vieja/incorrecta (ver [[project_cuadre_ventas_tortiz]]
+                    // causa raiz #3 - antes esto "escondia" el descuadre mayorizando igual, sin corregirlo).
+                    if (!CNT.comprobante_cuadrado(comp.com_empresa, comp.com_codigo))
+                    {
+                        comp = reaccount_factura(comp);
+                    }
+
+                    if (CNT.comprobante_cuadrado(comp.com_empresa, comp.com_codigo))
+                    {
+                        comp.com_estado = Constantes.cEstadoMayorizado;
+                        comp.com_empresa_key = comp.com_empresa;
+                        comp.com_codigo_key = comp.com_codigo;
+                        ComprobanteBLL.Update(comp);
+                        General.save_historial(comp);
+                    }
+                    // Si sigue sin cuadrar tras recontabilizar, se deja en su estado actual (GRABADO)
+                    // en vez de mayorizar a la fuerza - visibiliza el problema en vez de esconderlo.
                 }
             }
             return comp;

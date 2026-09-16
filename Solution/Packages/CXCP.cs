@@ -569,7 +569,11 @@ namespace Packages
                         }
                     }
 
-                    if (descuento0 > 0)
+                    // Reconciliacion final contra tot_total: antes solo corria si habia descuento (descuento0>0),
+                    // dejando sin corregir el drift de redondeo entre guias en planillas SIN descuento (causa real
+                    // de comprobantes con CxC desbalanceado, ver [[project_cuadre_ventas_tortiz]] causa raiz #2).
+                    // Debe correr siempre que se use el camino de planilla (lista con al menos 1 documento).
+                    if (lista.Count > 0)
                     {
                         decimal dif = (comp.total.tot_total) - lista.Sum(s => s.ddo_monto ?? 0);
                         if (dif!=0)
@@ -589,12 +593,12 @@ namespace Packages
                                     dif = dif + resta;
                                 }
                                 i++;
-                                if (i > lista.Count)
-                                    i = 0;                                
+                                if (i >= lista.Count)
+                                    i = 0;
                             } while (dif != 0);
                         }
                     }
-                    
+
 
                     pasa = false;
                 }

@@ -26,7 +26,7 @@
     <script type="text/javascript" src="js/functions.js?v=20260902"></script>    
     <script type="text/javascript" src="js/reports.js"></script>    
     <script type="text/javascript" src="js/forms/autocomplete.js"></script>        
-    <script type="text/javascript" src="js/forms/ComprobanteStd.js?v=20260902"></script>
+    <script type="text/javascript" src="js/forms/ComprobanteStd.js?v=20260916"></script>
     
     <!--[if lte IE 8]><script language="javascript" type="text/javascript" src="js/excanvas.min.js"></script><![endif]-->    
 </head>

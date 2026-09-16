@@ -1198,6 +1198,26 @@ namespace Packages
             if (!IsElectronic(com))
                 return false;
 
+            // Envio "sombra" (opt-in via parametro "AsappConfig", campos enable+enable_shadow) - SICE sigue siendo
+            // el proveedor real sin ningun cambio; esto solo dispara en paralelo, de forma asincrona y sin
+            // bloquear, una copia del comprobante hacia el ambiente configurado en AsappConfig para validar su
+            // comportamiento con datos reales. No toca el comprobante real, solo deja registro en log_asapp.
+            // Cubre los 6 tipos soportados por Asapp - se dispara ANTES de cualquier logica de proveedor/SICE
+            // (incluido el guard de abajo que bloquea SICE para ND/LC/GR) para que tambien aplique a esos 3 tipos.
+            // Ver ElectronicoAsapp.ShadowSendComprobanteAsync (ahi vive tambien el guard de dominio de staging).
+            bool tipoSoportadoAsapp = com.com_tipodoc == Constantes.cFactura.tpd_codigo
+                || com.com_tipodoc == Constantes.cNotacre.tpd_codigo
+                || com.com_tipodoc == Constantes.cNotadeb.tpd_codigo
+                || com.com_tipodoc == Constantes.cRetencion.tpd_codigo
+                || com.com_tipodoc == Constantes.cLiquidacionCompra.tpd_codigo
+                || com.com_tipodoc == Constantes.cGuiaRemision.tpd_codigo;
+            if (tipoSoportadoAsapp)
+            {
+                AsappConfig shadowConfig = Constantes.cAsappConfig;
+                if (shadowConfig != null && shadowConfig.enable && shadowConfig.enable_shadow)
+                    ElectronicoAsapp.ShadowSendComprobanteAsync(com);
+            }
+
             if (ResolveProvider(com) == "ASAPP")
                 return ElectronicoAsapp.GenerateElectronico(com);
 
@@ -1565,6 +1585,16 @@ namespace Packages
 
                         add = GetFormasPago(xmlnode, datasource);
                     }*/
+
+                    // Contenedor opcional (empty="no" en si mismo, sin source/nombre/valor propios, ej.
+                    // <infoAdicional empty="no">) que termino sin ningun hijo real tras la poda individual
+                    // de sus hijos - omitirlo entero. Sin esto, un contenedor sin caso especial en este switch
+                    // (a diferencia de detallesAdicionales, que si lo tiene via DetallesAdicionales()) siempre
+                    // se agrega (add=true por defecto, linea ~1479) aunque termine vacio, violando el XSD del
+                    // SRI (si el contenedor esta presente, exige >=1 hijo) - mismo bug que detallesAdicionales,
+                    // version generica para cubrir cualquier contenedor de este tipo sin repetir la funcion.
+                    if (add && empty == "no" && source == "" && nombre == "" && valor == "" && !xmlnode.HasChildNodes)
+                        add = false;
 
                     if (add)
                     {
@@ -1959,8 +1989,12 @@ namespace Packages
         {
             Electronicdet det = (Electronicdet)datasource;
 
+            // Debe usar el mismo criterio que el gate empty="no" de cada <detAdicional> hijo
+            // (CreateXmlNode, mas abajo) - si no, el padre se agrega aunque los 3 hijos se
+            // terminen podando por ser solo whitespace (ej. ddoc_observaciones = "\n"),
+            // dejando un <detallesAdicionales /> vacio que el XSD del SRI rechaza.
             bool existe = false;
-            if (!string.IsNullOrEmpty(det.eled_adicional1) || !string.IsNullOrEmpty(det.eled_adicional2) || !string.IsNullOrEmpty(det.eled_adicional3))
+            if (!string.IsNullOrWhiteSpace(det.eled_adicional1) || !string.IsNullOrWhiteSpace(det.eled_adicional2) || !string.IsNullOrWhiteSpace(det.eled_adicional3))
                 existe = true;
             return existe;
         }

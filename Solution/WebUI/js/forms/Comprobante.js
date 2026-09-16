@@ -1734,6 +1734,12 @@ function SetRecibo(obj) {
 
 function SaveObj() {
     if (!saving) {
+        // Si hay un producto tipeado en la fila de edicion sin "Agregar" (CalculaTotales() ya lo
+        // cuenta en el total en vivo), lo comprometemos automaticamente antes de guardar - evita que
+        // el detalle quede corto contra el total, sin interrumpir al usuario con un modal.
+        if ($.trim($("#txtCODPRO").val()) != "") {
+            AddEditRow();
+        }
         if (ValidateForm()) {
             if (!recibocreated) {
                 Recibo();

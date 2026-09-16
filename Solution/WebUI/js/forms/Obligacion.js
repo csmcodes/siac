@@ -866,7 +866,8 @@ function ValidateForm() {
         retorno = false;
         mensajehtml += "Es necesario ingresar al menos un detalle al comprobante<br>";
     }
-    
+
+
 
     /*var htmltable = $("#tdinvoice")[0];
     if (htmltable.rows.length < 3) {
@@ -910,6 +911,10 @@ function SetAfectacion(obj) {
 
 
 function SaveObj() {
+    // Auto-commit: si queda una cuenta tipeada sin "Agregar", la agregamos sola antes de validar/guardar.
+    if ($.trim($("#txtCODCUE").val()) != "") {
+        AddEditRow();
+    }
     if (ValidateForm()) {
         var compobj = GetComprobanteObj();
         //if (afectacionobj == null)

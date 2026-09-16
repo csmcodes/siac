@@ -930,6 +930,7 @@ function ValidateForm() {
     }
 
 
+
     /*var htmltable = $("#tdinvoice")[0];
     if (htmltable.rows.length < 3) {
         retorno = false;
@@ -972,6 +973,10 @@ function SetAfectacion(obj) {
 
 
 function SaveObj() {
+    // Auto-commit: si queda una cuenta/producto tipeado sin "Agregar", lo agregamos solo antes de validar/guardar.
+    if ($.trim($("#txtCODCUEPRO").val()) != "") {
+        AddEditRow();
+    }
     if (ValidateForm()) {
         var compobj = GetComprobanteObj();
         if (afectacionobj == null)

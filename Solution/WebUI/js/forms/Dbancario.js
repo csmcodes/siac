@@ -919,6 +919,7 @@ function ValidateForm() {
         mensajehtml += "Es necesario ingresar al menos un detalle al comprobante<br>";
     }
 
+
     if (!retorno) {
         jQuery.alerts.dialogClass = 'alert-danger';
         jAlert(mensajehtml, 'Error', function () {
@@ -954,6 +955,10 @@ function SetAfectacionGuias(obj) {
 
 
 function SaveObj() {
+    // Auto-commit: si queda un movimiento bancario tipeado sin "Agregar", lo agregamos solo antes de validar/guardar.
+    if ($.trim($("#txtCODBANCO").val()) != "") {
+        AddEditRow();
+    }
     if (ValidateForm()) {
         var compobj = GetComprobanteObj();
        

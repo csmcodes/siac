@@ -35,6 +35,27 @@ namespace Services
     }
 
 
+    // Configuracion unica de conexion a Asapp Electronic API - parametro "AsappConfig" (JSON), reemplaza los
+    // campos emp_asappapikeyprod/emp_asappapikeypruebas de Empresa y las URLs/endpoints hardcodeados que existian
+    // antes en ElectronicoAsapp.cs. Un solo par api_key/api_url activo a la vez (el operador decide si apunta a
+    // staging o produccion) - ya no hay seleccion automatica por ambiente del documento.
+    public class AsappConfig
+    {
+        public string api_key { get; set; }
+        public string api_url { get; set; }
+        public string endpoint_envio { get; set; }
+        public string endpoint_estado { get; set; }
+        public string endpoint_ride { get; set; }
+        public string endpoint_xml { get; set; }
+        // Si es TRUE, envia una copia de cada Factura mayorizada al ambiente configurado en api_url/api_key, en
+        // paralelo y sin desactivar SICE (que sigue siendo el proveedor real) - solo para validar comportamiento
+        // de Asapp con datos reales. Requiere que api_url apunte a un dominio de staging (ver guard en ElectronicoAsapp).
+        public bool enable_shadow { get; set; }
+        // Interruptor maestro: si es FALSE, se trata como si Asapp no estuviera configurado en absoluto (ningun
+        // envio real ni sombra), sin importar el resto de los campos ni el switch "provider" de 'electronicos'.
+        public bool enable { get; set; }
+    }
+
     public class Electronicos
     {
         public int empresa { get; set; }

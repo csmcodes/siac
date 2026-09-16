@@ -37,9 +37,6 @@ namespace BusinessObjects
         [Data(noprop = true)]
         public string emp_regimenrimpe { get; set; }
 
-        public string emp_asappapikeyprod { get; set; }
-        public string emp_asappapikeypruebas { get; set; }
-
         #endregion
         #region Constructors
 
@@ -77,8 +74,6 @@ namespace BusinessObjects
             this.crea_fecha = (reader["crea_fecha"] != DBNull.Value) ? (DateTime?)reader["crea_fecha"] : null;
             this.mod_usr = reader["mod_usr"].ToString();
             this.mod_fecha = (reader["mod_fecha"] != DBNull.Value) ? (DateTime?)reader["mod_fecha"] : null;
-            this.emp_asappapikeyprod = (HasColumn(reader, "emp_asappapikeyprod") && reader["emp_asappapikeyprod"] != DBNull.Value) ? reader["emp_asappapikeyprod"].ToString() : null;
-            this.emp_asappapikeypruebas = (HasColumn(reader, "emp_asappapikeypruebas") && reader["emp_asappapikeypruebas"] != DBNull.Value) ? reader["emp_asappapikeypruebas"].ToString() : null;
         }
 
         private static bool HasColumn(IDataReader reader, string columnName)

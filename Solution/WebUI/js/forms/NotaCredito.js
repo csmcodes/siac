@@ -835,6 +835,7 @@ function ValidateForm() {
     }
 
 
+
     /*var htmltable = $("#tdinvoice")[0];
     if (htmltable.rows.length < 3) {
     retorno = false;
@@ -877,6 +878,10 @@ function SetAfectacion(obj) {
 
 
 function SaveObj() {
+    // Auto-commit: si queda una cuenta tipeada sin "Agregar", la agregamos sola antes de validar/guardar.
+    if ($.trim($("#txtCODCUE").val()) != "") {
+        AddEditRow();
+    }
     if (ValidateForm()) {
         var compobj = GetComprobanteObj();
         if (afectacionobj == null)

@@ -27,7 +27,7 @@
     <script type="text/javascript" src="js/functions.js?v=20260902"></script>    
 
     <script type="text/javascript" src="js/forms/autocomplete.js"></script>        
-    <script type="text/javascript" src="js/forms/ObligacionInv.js"></script>
+    <script type="text/javascript" src="js/forms/ObligacionInv.js?v=20260916"></script>
 </head>
 <body>
        <form id="form1" runat="server">

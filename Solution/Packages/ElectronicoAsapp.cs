@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Globalization;
 using RestSharp;
 using Newtonsoft.Json;
 using BusinessObjects;
@@ -22,9 +23,10 @@ namespace Packages
     //     Guia de remision depende de definir de donde sale el "transportista" como empresa (hoy Ccomrem solo tiene chofer/persona).
     public class ElectronicoAsapp
     {
-        private const string BaseUrlPruebas = "https://electronic-api-dev.asapp.com.ec";
-        private const string BaseUrlProduccion = "https://electronic-api.asapp.com.ec";
-        private const string Endpoint = "/api/v2/api/comprobantes";
+        // Dominio esperado del ambiente de staging de Asapp - usado solo como guard defensivo antes de disparar
+        // un envio sombra (ver ShadowSendFactura), para no depender ciegamente de que AsappConfig.api_url este
+        // bien configurado. No se usa para elegir la URL real - esa siempre sale de AsappConfig.
+        private const string DominioStaging = "-dev.";
 
         public class AsappResponse
         {
@@ -39,6 +41,7 @@ namespace Packages
         public class AsappError
         {
             public string error { get; set; }
+            public string errorCode { get; set; }
             public string mensaje { get; set; }
         }
 
@@ -113,19 +116,15 @@ namespace Packages
                 if (string.IsNullOrEmpty(com.com_claveelec))
                     return "";
 
-                Empresa empresa = new Empresa { emp_codigo = com.com_empresa, emp_codigo_key = com.com_empresa };
-                empresa = EmpresaBLL.GetByPK(empresa);
-
-                bool produccion = com.com_ambiente == "2";
-                string apiKey = produccion ? empresa.emp_asappapikeyprod : empresa.emp_asappapikeypruebas;
-                if (string.IsNullOrEmpty(apiKey))
+                AsappConfig config = Constantes.cAsappConfig;
+                if (config == null || !config.enable || string.IsNullOrEmpty(config.api_key) || string.IsNullOrEmpty(config.api_url) || string.IsNullOrEmpty(config.endpoint_ride))
                     return "";
 
                 ServicePointManager.SecurityProtocol |= SecurityProtocolType.Tls12;
-                var client = new RestClient(produccion ? BaseUrlProduccion : BaseUrlPruebas);
-                endpoint = "/api/v1/comprobantes/clave/" + com.com_claveelec + "/ride";
+                var client = new RestClient(config.api_url);
+                endpoint = config.endpoint_ride.Replace("{clave}", com.com_claveelec);
                 var request = new RestRequest(endpoint, Method.Get);
-                request.AddHeader("X-Api-Key", apiKey);
+                request.AddHeader("X-Api-Key", config.api_key);
                 RestResponse response = client.Execute(request);
 
                 if (response.IsSuccessful && !string.IsNullOrEmpty(response.Content))
@@ -144,6 +143,167 @@ namespace Packages
                 Log(com, "RIDE", endpoint, null, false, null, "Excepcion: " + ex.Message, inicio);
             }
             return "";
+        }
+
+        delegate void DelegadoShadowSend(Comprobante com);
+
+        // Dispara el envio "sombra" en background (fire-and-forget, mismo patron ya usado por
+        // Electronico.UpdateElectronicoDataAsync) - no bloquea al llamador ni afecta el flujo real de SICE.
+        // Cubre los 6 tipos de comprobante que soporta la integracion (Factura, NC, ND, Retencion, Liquidacion
+        // de Compra, Guia de Remision) - ver ShadowSendComprobante.
+        public static void ShadowSendComprobanteAsync(Comprobante com)
+        {
+            DelegadoShadowSend delegado = new DelegadoShadowSend(ShadowSendComprobante);
+            delegado.BeginInvoke(com, null, null);
+        }
+
+        // Envia una copia del comprobante real (cualquiera de los 6 tipos soportados) al ambiente de PRUEBAS de
+        // Asapp, para validar su comportamiento con datos reales de produccion mientras SICE sigue siendo el
+        // proveedor real (sin cambios). A proposito:
+        // - Fuerza SIEMPRE ambiente de pruebas, sin importar el ambiente real del comprobante, para nunca golpear
+        //   produccion de Asapp por accidente.
+        // - NUNCA escribe sobre el comprobante real (com_claveelec/com_estadoelec/com_provider/etc.) - el unico
+        //   efecto es un registro en log_asapp (operacion "SHADOW_ENVIO") para poder revisar el resultado despues.
+        // - Cualquier fallo (config faltante, excepcion, error HTTP) solo se loguea, nunca se propaga.
+        private static void ShadowSendComprobante(Comprobante com)
+        {
+            // Este metodo corre en un hilo del ThreadPool disparado via Delegate.BeginInvoke (ver
+            // ShadowSendFacturaAsync) - a diferencia del hilo de la peticion ASP.NET, NO hereda el
+            // <globalization culture="es-EC"/> de Web.config. Sin esto, cualquier parseo de fecha en formato
+            // dd/MM/yyyy dentro de LoadElectronico (ej. Constantes.GetValorIVA, que parsea el parametro
+            // "valoriva") falla con "String was not recognized as a valid DateTime" bajo la cultura por
+            // defecto del servidor - encontrado en produccion real de Carlogistica (2026-09-09).
+            CultureInfo cultura = new CultureInfo("es-EC");
+            System.Threading.Thread.CurrentThread.CurrentCulture = cultura;
+            System.Threading.Thread.CurrentThread.CurrentUICulture = cultura;
+
+            DateTime inicio = DateTime.Now;
+            try
+            {
+                // Mismo guard que el envio real (GenerateElectronico arriba) - no tiene sentido reflejar en Asapp
+                // un comprobante que no esta finalizado (podria estar a medio descuadrar/editar).
+                if (com.com_estado != Constantes.cEstadoMayorizado)
+                {
+                    Log(com, "SHADOW_ENVIO", null, null, false, null, "Comprobante no esta mayorizado, no se refleja en shadow", inicio);
+                    return;
+                }
+
+                // Defensa en profundidad: el router (Electronico.cs) ya filtra por tipo antes de llamar, pero este
+                // metodo tambien es el punto de entrada del reenvio manual (ws/Metodos.asmx.cs::ReenviarShadowComprobante),
+                // que recibe el codigo directo del usuario - revalidar aca evita construir un payload sin sentido
+                // para un tipo de documento que Asapp no soporta.
+                bool tipoSoportado = com.com_tipodoc == Constantes.cFactura.tpd_codigo
+                    || com.com_tipodoc == Constantes.cNotacre.tpd_codigo
+                    || com.com_tipodoc == Constantes.cNotadeb.tpd_codigo
+                    || com.com_tipodoc == Constantes.cRetencion.tpd_codigo
+                    || com.com_tipodoc == Constantes.cLiquidacionCompra.tpd_codigo
+                    || com.com_tipodoc == Constantes.cGuiaRemision.tpd_codigo;
+                if (!tipoSoportado)
+                {
+                    Log(com, "SHADOW_ENVIO", null, null, false, null, "Tipo de documento (com_tipodoc=" + com.com_tipodoc + ") no soportado para shadow", inicio);
+                    return;
+                }
+
+                AsappConfig config = Constantes.cAsappConfig;
+                if (config == null || !config.enable || !config.enable_shadow)
+                {
+                    // No deberia llegar aca (el router en Electronico.cs ya valida esto antes de llamar), pero se
+                    // revalida por si este metodo se invoca desde otro lado en el futuro sin pasar por el router.
+                    Log(com, "SHADOW_ENVIO", null, null, false, null, "AsappConfig no habilitado para envio sombra (enable/enable_shadow)", inicio);
+                    return;
+                }
+                if (string.IsNullOrEmpty(config.api_key) || string.IsNullOrEmpty(config.api_url) || string.IsNullOrEmpty(config.endpoint_envio))
+                {
+                    Log(com, "SHADOW_ENVIO", config.api_url, null, false, null, "AsappConfig incompleto (falta api_key/api_url/endpoint_envio)", inicio);
+                    return;
+                }
+                // Guard de seguridad: el envio sombra NUNCA debe golpear un dominio que no sea el de staging conocido,
+                // sin importar lo que diga enable_shadow - protege contra dejar AsappConfig apuntando a produccion
+                // por error mientras el shadow sigue activo.
+                if (!config.api_url.Contains(DominioStaging))
+                {
+                    Log(com, "SHADOW_ENVIO", config.api_url, null, false, null, "Shadow bloqueado: api_url (" + config.api_url + ") no parece ser de staging (falta '" + DominioStaging + "' en el dominio)", inicio);
+                    return;
+                }
+
+                // Guia de Remision no pasa por Electronico.LoadElectronico (ver GenerateElectronicoGuiaRemision) -
+                // camino propio, comparte con el envio real solo BuildGuiaRemisionPayload.
+                if (com.com_tipodoc == Constantes.cGuiaRemision.tpd_codigo)
+                {
+                    ShadowSendGuiaRemision(com, config, inicio);
+                    return;
+                }
+
+                Electronico electronicoHelper = new Electronico();
+                electronicoHelper.empresa = new Empresa { emp_codigo = com.com_empresa, emp_codigo_key = com.com_empresa };
+                electronicoHelper.empresa = EmpresaBLL.GetByPK(electronicoHelper.empresa);
+                electronicoHelper.empresa.emp_agenteretxml = Constantes.GetParameter("agenteretxml");
+                Empresa empresa = electronicoHelper.empresa;
+
+                Comprobante comprobante = new Comprobante { com_empresa = com.com_empresa, com_empresa_key = com.com_empresa, com_codigo = com.com_codigo, com_codigo_key = com.com_codigo };
+                comprobante = ComprobanteBLL.GetByPK(comprobante);
+                comprobante.com_empresa_key = com.com_empresa;
+                comprobante.com_codigo_key = com.com_codigo;
+
+                Ccomdoc ccomdoc = new Ccomdoc { cdoc_empresa = comprobante.com_empresa, cdoc_empresa_key = comprobante.com_empresa, cdoc_comprobante = comprobante.com_codigo, cdoc_comprobante_key = comprobante.com_codigo };
+                ccomdoc = CcomdocBLL.GetByPK(ccomdoc);
+                if (string.IsNullOrEmpty(ccomdoc.cdoc_direccion))
+                    ccomdoc.cdoc_direccion = "S/D";
+                ccomdoc.detalle = DcomdocBLL.GetAll(new WhereParams("ddoc_empresa={0} and ddoc_comprobante={1}", comprobante.com_empresa, comprobante.com_codigo), "ddoc_secuencia");
+                comprobante.ccomdoc = ccomdoc;
+
+                Total total = new Total { tot_empresa = comprobante.com_empresa, tot_empresa_key = comprobante.com_empresa, tot_comprobante = comprobante.com_codigo, tot_comprobante_key = comprobante.com_codigo };
+                comprobante.total = TotalBLL.GetByPK(total);
+
+                Ccomenv ccomenv = new Ccomenv { cenv_empresa = comprobante.com_empresa, cenv_empresa_key = comprobante.com_empresa, cenv_comprobante = comprobante.com_codigo, cenv_comprobante_key = comprobante.com_codigo };
+                comprobante.ccomenv = CcomenvBLL.GetByPK(ccomenv);
+
+                comprobante.retenciones = DretencionBLL.GetAll(new WhereParams("drt_empresa={0} and drt_comprobante={1}", comprobante.com_empresa, comprobante.com_codigo), "drt_secuencia");
+                comprobante.notascre = DnotacreBLL.GetAll(new WhereParams("dnc_empresa={0} and dnc_comprobante={1}", comprobante.com_empresa, comprobante.com_codigo), "dnc_secuencia");
+
+                List<Drecibo> detalleformas = DreciboBLL.GetAll(new WhereParams("dfp_empresa={0} and dfp_ref_comprobante={1} and com_estado=2", comprobante.com_empresa, comprobante.com_codigo), "dfp_secuencia");
+
+                Electronic electronic = electronicoHelper.LoadElectronico(comprobante, detalleformas);
+                if (electronic == null)
+                {
+                    Log(com, "SHADOW_ENVIO", null, null, false, null, "LoadElectronico no genero datos", inicio);
+                    return;
+                }
+
+                // Forzar SIEMPRE ambiente de pruebas en el cuerpo del payload - independiente de la URL/key (Asapp
+                // confirmo que el campo "ambiente" del body decide el ruteo real/pruebas, sin relacion a la URL base).
+                electronic.ele_ambiente = 1;
+
+                Comprobante docSustento = null;
+                if (comprobante.ccomdoc.cdoc_factura.HasValue)
+                    docSustento = ComprobanteBLL.GetByPK(new Comprobante { com_empresa = comprobante.com_empresa, com_empresa_key = comprobante.com_empresa, com_codigo = comprobante.ccomdoc.cdoc_factura.Value, com_codigo_key = comprobante.ccomdoc.cdoc_factura.Value });
+
+                // Mismo dispatcher que usa el envio real (BuildPayload) - Factura/NC/ND/Retencion/Liquidacion de
+                // Compra quedan cubiertos automaticamente; retorna null para tipos no soportados por Asapp.
+                object payload = BuildPayload(comprobante, electronic, docSustento, empresa);
+                if (payload == null)
+                {
+                    Log(com, "SHADOW_ENVIO", null, null, false, null, "Tipo de documento (com_tipodoc=" + comprobante.com_tipodoc + ") no soportado para shadow", inicio);
+                    return;
+                }
+
+                ServicePointManager.SecurityProtocol |= SecurityProtocolType.Tls12;
+                var client = new RestClient(config.api_url);
+                var request = new RestRequest(config.endpoint_envio, Method.Post);
+                request.AddHeader("X-Api-Key", config.api_key);
+                request.AddJsonBody(payload);
+                string requestJson = JsonConvert.SerializeObject(payload);
+                RestResponse response = client.Execute(request);
+
+                bool exitoso = response.IsSuccessful && !string.IsNullOrEmpty(response.Content);
+                string mensaje = exitoso ? "Shadow enviado OK" : ("HTTP " + (int)response.StatusCode + " - " + response.Content);
+                Log(com, "SHADOW_ENVIO", config.endpoint_envio, response, exitoso, requestJson, mensaje, inicio);
+            }
+            catch (Exception ex)
+            {
+                ExceptionHandling.Log.AddExepcion(ex);
+                Log(com, "SHADOW_ENVIO", null, null, false, null, "Excepcion: " + ex.Message, inicio);
+            }
         }
 
         public static bool GenerateElectronico(Comprobante com)
@@ -217,11 +377,15 @@ namespace Packages
                     return false;
                 }
 
-                bool produccion = electronic.ele_ambiente == 2;
-                string apiKey = produccion ? empresa.emp_asappapikeyprod : empresa.emp_asappapikeypruebas;
-                if (string.IsNullOrEmpty(apiKey))
+                AsappConfig config = Constantes.cAsappConfig;
+                if (config == null || !config.enable)
                 {
-                    MarcarNoEnviado(com, "NOCONFIG-ASAPP", "Empresa " + empresa.emp_codigo + " sin X-Api-Key de Asapp para ambiente " + (produccion ? "produccion" : "pruebas"));
+                    MarcarNoEnviado(com, "NOCONFIG-ASAPP", "Parametro 'AsappConfig' no existe o enable=false");
+                    return false;
+                }
+                if (string.IsNullOrEmpty(config.api_key) || string.IsNullOrEmpty(config.api_url) || string.IsNullOrEmpty(config.endpoint_envio))
+                {
+                    MarcarNoEnviado(com, "NOCONFIG-ASAPP", "AsappConfig incompleto (falta api_key/api_url/endpoint_envio)");
                     return false;
                 }
 
@@ -229,9 +393,9 @@ namespace Packages
                 // siempre negocia TLS 1.2 con el default de ServicePointManager - forzarlo evita fallos de conexion silenciosos (HTTP 0).
                 ServicePointManager.SecurityProtocol |= SecurityProtocolType.Tls12;
 
-                var client = new RestClient(produccion ? BaseUrlProduccion : BaseUrlPruebas);
-                var request = new RestRequest(Endpoint, Method.Post);
-                request.AddHeader("X-Api-Key", apiKey);
+                var client = new RestClient(config.api_url);
+                var request = new RestRequest(config.endpoint_envio, Method.Post);
+                request.AddHeader("X-Api-Key", config.api_key);
                 request.AddJsonBody(payload);
                 string requestJson = JsonConvert.SerializeObject(payload);
                 RestResponse response = client.Execute(request);
@@ -250,20 +414,20 @@ namespace Packages
                     comprobante.com_provider = "ASAPP";
                     comprobante.com_mensajeelec = result.mensaje;
                     ComprobanteBLL.Update(comprobante);
-                    Log(com, "ENVIO", Endpoint, response, true, requestJson, "Enviado OK, estado=" + comprobante.com_estadoelec, inicio);
+                    Log(com, "ENVIO", config.endpoint_envio, response, true, requestJson, "Enviado OK, estado=" + comprobante.com_estadoelec, inicio);
                     return true;
                 }
 
                 AsappError error = SafeDeserializeError(response.Content);
 
                 // Ya existe en Asapp con ese secuencial: no es un fallo real, se recupera y no se reintenta.
-                if (error != null && error.error == "SECUENCIAL_DUPLICADO")
+                if (error != null && error.errorCode == "SECUENCIAL_DUPLICADO")
                 {
                     comprobante.com_estadoelec = "DUPLICADO-ASAPP";
                     comprobante.com_mensajeelec = error.mensaje;
                     comprobante.com_provider = "ASAPP";
                     ComprobanteBLL.Update(comprobante);
-                    Log(com, "ENVIO", Endpoint, response, false, requestJson, "SECUENCIAL_DUPLICADO: " + error.mensaje, inicio);
+                    Log(com, "ENVIO", config.endpoint_envio, response, false, requestJson, "SECUENCIAL_DUPLICADO: " + error.mensaje, inicio);
                     ExceptionHandling.Log.AddExepcion(new Exception("Asapp SECUENCIAL_DUPLICADO comprobante " + com.com_codigo + ": " + error.mensaje));
                     return false;
                 }
@@ -273,14 +437,14 @@ namespace Packages
                 comprobante.com_mensajeelec = mensajeError.Length > 500 ? mensajeError.Substring(0, 500) : mensajeError;
                 comprobante.com_provider = "ASAPP";
                 ComprobanteBLL.Update(comprobante);
-                Log(com, "ENVIO", Endpoint, response, false, requestJson, mensajeError, inicio);
+                Log(com, "ENVIO", config.endpoint_envio, response, false, requestJson, mensajeError, inicio);
                 ExceptionHandling.Log.AddExepcion(new Exception("Asapp error al enviar comprobante " + com.com_codigo + ": " + mensajeError));
                 return false;
             }
             catch (Exception ex)
             {
                 ExceptionHandling.Log.AddExepcion(ex);
-                Log(com, "ENVIO", Endpoint, null, false, null, "Excepcion: " + ex.Message, inicio);
+                Log(com, "ENVIO", null, null, false, null, "Excepcion: " + ex.Message, inicio);
                 return false;
             }
         }
@@ -292,6 +456,110 @@ namespace Packages
         // sin campo separado para chofer), asi que no es una aproximacion, es el dato correcto.
         // Ambiente/api key salen de la config actual (Electronico.GetElectronicoConfig), no de un objeto Electronic
         // (que no se construye para este tipo).
+        // Construye el payload de Guia de Remision a partir de Ccomrem/Dcomrem - compartido entre el envio real
+        // (GenerateElectronicoGuiaRemision) y el envio sombra (ShadowSendGuiaRemision). El llamador decide el
+        // texto de "ambiente" (real: segun config de 'electronicos'; sombra: siempre "pruebas" forzado).
+        private static object BuildGuiaRemisionPayload(Comprobante comprobante, string ambienteTexto)
+        {
+            Ccomrem ccomrem = new Ccomrem { crem_empresa = comprobante.com_empresa, crem_empresa_key = comprobante.com_empresa, crem_comprobante = comprobante.com_codigo, crem_comprobante_key = comprobante.com_codigo };
+            ccomrem = CcomremBLL.GetByPK(ccomrem);
+
+            List<Dcomrem> detalle = DcomremBLL.GetAll(new WhereParams("drem_empresa={0} and drem_comprobante={1}", comprobante.com_empresa, comprobante.com_codigo), "drem_secuencia");
+
+            string emailDestinatario = "";
+            if (ccomrem.crem_destinatario.HasValue)
+            {
+                Persona destinatario = new Persona { per_empresa = comprobante.com_empresa, per_empresa_key = comprobante.com_empresa, per_codigo = ccomrem.crem_destinatario.Value, per_codigo_key = ccomrem.crem_destinatario.Value };
+                destinatario = PersonaBLL.GetByPK(destinatario);
+                emailDestinatario = destinatario.per_mail;
+            }
+
+            Comprobante docSustento = null;
+            if (ccomrem.crem_factura.HasValue)
+                docSustento = ComprobanteBLL.GetByPK(new Comprobante { com_empresa = comprobante.com_empresa, com_empresa_key = comprobante.com_empresa, com_codigo = ccomrem.crem_factura.Value, com_codigo_key = ccomrem.crem_factura.Value });
+
+            // Defensivo: no hay validador obligatorio en wfGuiaRemision.aspx para estas fechas (confirmado por
+            // investigacion 2026-07-10), tratarlas como opcionales y no crashear si vienen vacias.
+            DateTime fechaInicioTraslado = ccomrem.crem_trasladoini ?? comprobante.com_fecha;
+            DateTime fechaFinTraslado = ccomrem.crem_trasladofin ?? comprobante.com_fecha;
+
+            List<object> items = new List<object>();
+            if (detalle != null)
+            {
+                foreach (Dcomrem item in detalle)
+                {
+                    items.Add(new
+                    {
+                        // Dcomrem no tiene un codigo de producto en string (solo drem_producto, un id numerico) -
+                        // se usa ese id como codigo, o "SN" (el mismo default que usa Asapp) si no hay producto.
+                        codigo = item.drem_producto.HasValue ? item.drem_producto.Value.ToString() : "SN",
+                        descripcion = item.drem_descripcion,
+                        cantidad = item.drem_cantidad ?? 0,
+                        precioUnitario = item.drem_precio ?? 0,
+                        // La guia de remision no tributa (el IVA ya se declaro en la factura sustento) - Dcomrem
+                        // no tiene desglose de IVA por linea, se manda "0" siempre.
+                        iva = "0"
+                    });
+                }
+            }
+
+            return new
+            {
+                tipo = "guia_remision",
+                ambiente = ambienteTexto,
+                establecimiento = comprobante.com_almacenid,
+                puntoEmision = comprobante.com_pventaid,
+                fecha = FechaIso(comprobante.com_fecha),
+                secuencial = comprobante.com_numero,
+                destinatario = new
+                {
+                    identificacion = ccomrem.crem_ciruc_des,
+                    nombre = ccomrem.crem_nombres_des,
+                    direccion = ccomrem.crem_direccion_des,
+                    email = emailDestinatario
+                },
+                transporte = new
+                {
+                    dirPartida = ccomrem.crem_direccion_rem,
+                    motivoTraslado = ccomrem.crem_motivo,
+                    fechaInicio = FechaIso(fechaInicioTraslado),
+                    fechaFin = FechaIso(fechaFinTraslado),
+                    rucTransportista = ccomrem.crem_ciruc_cho,
+                    nombreTransportista = ccomrem.crem_nombres_cho,
+                    placa = ccomrem.crem_placa,
+                    tipoDocSustento = "factura",
+                    numeroDocSustento = docSustento != null ? string.Format("{0:000}-{1:000}-{2:000000000}", docSustento.com_almacenid, docSustento.com_pventaid, docSustento.com_numero) : "",
+                    numeroAutorizacionSustento = docSustento != null ? docSustento.com_claveelec : "",
+                    fechaDocSustento = docSustento != null ? FechaIso(docSustento.com_fecha) : ""
+                },
+                items = items
+            };
+        }
+
+        // Envio sombra de Guia de Remision - reutiliza BuildGuiaRemisionPayload forzando ambiente="pruebas",
+        // nunca escribe sobre el comprobante real. Llamado desde ShadowSendComprobante.
+        private static void ShadowSendGuiaRemision(Comprobante com, AsappConfig config, DateTime inicio)
+        {
+            Comprobante comprobante = new Comprobante { com_empresa = com.com_empresa, com_empresa_key = com.com_empresa, com_codigo = com.com_codigo, com_codigo_key = com.com_codigo };
+            comprobante = ComprobanteBLL.GetByPK(comprobante);
+            comprobante.com_empresa_key = com.com_empresa;
+            comprobante.com_codigo_key = com.com_codigo;
+
+            object payload = BuildGuiaRemisionPayload(comprobante, "pruebas");
+
+            ServicePointManager.SecurityProtocol |= SecurityProtocolType.Tls12;
+            var client = new RestClient(config.api_url);
+            var request = new RestRequest(config.endpoint_envio, Method.Post);
+            request.AddHeader("X-Api-Key", config.api_key);
+            request.AddJsonBody(payload);
+            string requestJson = JsonConvert.SerializeObject(payload);
+            RestResponse response = client.Execute(request);
+
+            bool exitoso = response.IsSuccessful && !string.IsNullOrEmpty(response.Content);
+            string mensaje = exitoso ? "Shadow enviado OK" : ("HTTP " + (int)response.StatusCode + " - " + response.Content);
+            Log(com, "SHADOW_ENVIO", config.endpoint_envio, response, exitoso, requestJson, mensaje, inicio);
+        }
+
         private static bool GenerateElectronicoGuiaRemision(Comprobante com)
         {
             DateTime inicio = DateTime.Now;
@@ -304,100 +572,29 @@ namespace Packages
                     return false;
                 }
 
-                Empresa empresa = new Empresa { emp_codigo = com.com_empresa, emp_codigo_key = com.com_empresa };
-                empresa = EmpresaBLL.GetByPK(empresa);
-
                 Comprobante comprobante = new Comprobante { com_empresa = com.com_empresa, com_empresa_key = com.com_empresa, com_codigo = com.com_codigo, com_codigo_key = com.com_codigo };
                 comprobante = ComprobanteBLL.GetByPK(comprobante);
                 comprobante.com_empresa_key = com.com_empresa;
                 comprobante.com_codigo_key = com.com_codigo;
 
-                Ccomrem ccomrem = new Ccomrem { crem_empresa = comprobante.com_empresa, crem_empresa_key = comprobante.com_empresa, crem_comprobante = comprobante.com_codigo, crem_comprobante_key = comprobante.com_codigo };
-                ccomrem = CcomremBLL.GetByPK(ccomrem);
+                object payload = BuildGuiaRemisionPayload(comprobante, config.ambiente == 2 ? "produccion" : "pruebas");
 
-                List<Dcomrem> detalle = DcomremBLL.GetAll(new WhereParams("drem_empresa={0} and drem_comprobante={1}", comprobante.com_empresa, comprobante.com_codigo), "drem_secuencia");
-
-                string emailDestinatario = "";
-                if (ccomrem.crem_destinatario.HasValue)
+                AsappConfig asappConfig = Constantes.cAsappConfig;
+                if (asappConfig == null || !asappConfig.enable)
                 {
-                    Persona destinatario = new Persona { per_empresa = comprobante.com_empresa, per_empresa_key = comprobante.com_empresa, per_codigo = ccomrem.crem_destinatario.Value, per_codigo_key = ccomrem.crem_destinatario.Value };
-                    destinatario = PersonaBLL.GetByPK(destinatario);
-                    emailDestinatario = destinatario.per_mail;
+                    MarcarNoEnviado(com, "NOCONFIG-ASAPP", "Parametro 'AsappConfig' no existe o enable=false");
+                    return false;
                 }
-
-                Comprobante docSustento = null;
-                if (ccomrem.crem_factura.HasValue)
-                    docSustento = ComprobanteBLL.GetByPK(new Comprobante { com_empresa = comprobante.com_empresa, com_empresa_key = comprobante.com_empresa, com_codigo = ccomrem.crem_factura.Value, com_codigo_key = ccomrem.crem_factura.Value });
-
-                // Defensivo: no hay validador obligatorio en wfGuiaRemision.aspx para estas fechas (confirmado por
-                // investigacion 2026-07-10), tratarlas como opcionales y no crashear si vienen vacias.
-                DateTime fechaInicioTraslado = ccomrem.crem_trasladoini ?? comprobante.com_fecha;
-                DateTime fechaFinTraslado = ccomrem.crem_trasladofin ?? comprobante.com_fecha;
-
-                List<object> items = new List<object>();
-                if (detalle != null)
+                if (string.IsNullOrEmpty(asappConfig.api_key) || string.IsNullOrEmpty(asappConfig.api_url) || string.IsNullOrEmpty(asappConfig.endpoint_envio))
                 {
-                    foreach (Dcomrem item in detalle)
-                    {
-                        items.Add(new
-                        {
-                            // Dcomrem no tiene un codigo de producto en string (solo drem_producto, un id numerico) -
-                            // se usa ese id como codigo, o "SN" (el mismo default que usa Asapp) si no hay producto.
-                            codigo = item.drem_producto.HasValue ? item.drem_producto.Value.ToString() : "SN",
-                            descripcion = item.drem_descripcion,
-                            cantidad = item.drem_cantidad ?? 0,
-                            precioUnitario = item.drem_precio ?? 0,
-                            // La guia de remision no tributa (el IVA ya se declaro en la factura sustento) - Dcomrem
-                            // no tiene desglose de IVA por linea, se manda "0" siempre.
-                            iva = "0"
-                        });
-                    }
-                }
-
-                object payload = new
-                {
-                    tipo = "guia_remision",
-                    ambiente = config.ambiente == 2 ? "produccion" : "pruebas",
-                    establecimiento = comprobante.com_almacenid,
-                    puntoEmision = comprobante.com_pventaid,
-                    fecha = FechaIso(comprobante.com_fecha),
-                    secuencial = comprobante.com_numero,
-                    destinatario = new
-                    {
-                        identificacion = ccomrem.crem_ciruc_des,
-                        nombre = ccomrem.crem_nombres_des,
-                        direccion = ccomrem.crem_direccion_des,
-                        email = emailDestinatario
-                    },
-                    transporte = new
-                    {
-                        dirPartida = ccomrem.crem_direccion_rem,
-                        motivoTraslado = ccomrem.crem_motivo,
-                        fechaInicio = FechaIso(fechaInicioTraslado),
-                        fechaFin = FechaIso(fechaFinTraslado),
-                        rucTransportista = ccomrem.crem_ciruc_cho,
-                        nombreTransportista = ccomrem.crem_nombres_cho,
-                        placa = ccomrem.crem_placa,
-                        tipoDocSustento = "factura",
-                        numeroDocSustento = docSustento != null ? string.Format("{0:000}-{1:000}-{2:000000000}", docSustento.com_almacenid, docSustento.com_pventaid, docSustento.com_numero) : "",
-                        numeroAutorizacionSustento = docSustento != null ? docSustento.com_claveelec : "",
-                        fechaDocSustento = docSustento != null ? FechaIso(docSustento.com_fecha) : ""
-                    },
-                    items = items
-                };
-
-                bool produccion = config.ambiente == 2;
-                string apiKey = produccion ? empresa.emp_asappapikeyprod : empresa.emp_asappapikeypruebas;
-                if (string.IsNullOrEmpty(apiKey))
-                {
-                    MarcarNoEnviado(com, "NOCONFIG-ASAPP", "Empresa " + empresa.emp_codigo + " sin X-Api-Key de Asapp para ambiente " + (produccion ? "produccion" : "pruebas"));
+                    MarcarNoEnviado(com, "NOCONFIG-ASAPP", "AsappConfig incompleto (falta api_key/api_url/endpoint_envio)");
                     return false;
                 }
 
                 ServicePointManager.SecurityProtocol |= SecurityProtocolType.Tls12;
-                var client = new RestClient(produccion ? BaseUrlProduccion : BaseUrlPruebas);
-                var request = new RestRequest(Endpoint, Method.Post);
-                request.AddHeader("X-Api-Key", apiKey);
+                var client = new RestClient(asappConfig.api_url);
+                var request = new RestRequest(asappConfig.endpoint_envio, Method.Post);
+                request.AddHeader("X-Api-Key", asappConfig.api_key);
                 request.AddJsonBody(payload);
                 string requestJson = JsonConvert.SerializeObject(payload);
                 RestResponse response = client.Execute(request);
@@ -413,19 +610,19 @@ namespace Packages
                     comprobante.com_provider = "ASAPP";
                     comprobante.com_mensajeelec = result.mensaje;
                     ComprobanteBLL.Update(comprobante);
-                    Log(com, "ENVIO", Endpoint, response, true, requestJson, "Enviado OK, estado=" + comprobante.com_estadoelec, inicio);
+                    Log(com, "ENVIO", asappConfig.endpoint_envio, response, true, requestJson, "Enviado OK, estado=" + comprobante.com_estadoelec, inicio);
                     return true;
                 }
 
                 AsappError error = SafeDeserializeError(response.Content);
 
-                if (error != null && error.error == "SECUENCIAL_DUPLICADO")
+                if (error != null && error.errorCode == "SECUENCIAL_DUPLICADO")
                 {
                     comprobante.com_estadoelec = "DUPLICADO-ASAPP";
                     comprobante.com_mensajeelec = error.mensaje;
                     comprobante.com_provider = "ASAPP";
                     ComprobanteBLL.Update(comprobante);
-                    Log(com, "ENVIO", Endpoint, response, false, requestJson, "SECUENCIAL_DUPLICADO: " + error.mensaje, inicio);
+                    Log(com, "ENVIO", asappConfig.endpoint_envio, response, false, requestJson, "SECUENCIAL_DUPLICADO: " + error.mensaje, inicio);
                     ExceptionHandling.Log.AddExepcion(new Exception("Asapp SECUENCIAL_DUPLICADO comprobante " + com.com_codigo + ": " + error.mensaje));
                     return false;
                 }
@@ -435,14 +632,14 @@ namespace Packages
                 comprobante.com_mensajeelec = mensajeError.Length > 500 ? mensajeError.Substring(0, 500) : mensajeError;
                 comprobante.com_provider = "ASAPP";
                 ComprobanteBLL.Update(comprobante);
-                Log(com, "ENVIO", Endpoint, response, false, requestJson, mensajeError, inicio);
+                Log(com, "ENVIO", asappConfig.endpoint_envio, response, false, requestJson, mensajeError, inicio);
                 ExceptionHandling.Log.AddExepcion(new Exception("Asapp error al enviar comprobante " + com.com_codigo + ": " + mensajeError));
                 return false;
             }
             catch (Exception ex)
             {
                 ExceptionHandling.Log.AddExepcion(ex);
-                Log(com, "ENVIO", Endpoint, null, false, null, "Excepcion: " + ex.Message, inicio);
+                Log(com, "ENVIO", null, null, false, null, "Excepcion: " + ex.Message, inicio);
                 return false;
             }
         }
@@ -464,19 +661,15 @@ namespace Packages
                 if (string.IsNullOrEmpty(com.com_claveelec))
                     return com;
 
-                Empresa empresa = new Empresa { emp_codigo = com.com_empresa, emp_codigo_key = com.com_empresa };
-                empresa = EmpresaBLL.GetByPK(empresa);
-
-                bool produccion = com.com_ambiente == "2";
-                string apiKey = produccion ? empresa.emp_asappapikeyprod : empresa.emp_asappapikeypruebas;
-                if (string.IsNullOrEmpty(apiKey))
+                AsappConfig config = Constantes.cAsappConfig;
+                if (config == null || !config.enable || string.IsNullOrEmpty(config.api_key) || string.IsNullOrEmpty(config.api_url) || string.IsNullOrEmpty(config.endpoint_estado))
                     return com;
 
                 ServicePointManager.SecurityProtocol |= SecurityProtocolType.Tls12;
-                var client = new RestClient(produccion ? BaseUrlProduccion : BaseUrlPruebas);
-                endpoint = "/api/v1/comprobantes/clave/" + com.com_claveelec + "/estado";
+                var client = new RestClient(config.api_url);
+                endpoint = config.endpoint_estado.Replace("{clave}", com.com_claveelec);
                 var request = new RestRequest(endpoint, Method.Get);
-                request.AddHeader("X-Api-Key", apiKey);
+                request.AddHeader("X-Api-Key", config.api_key);
                 RestResponse response = client.Execute(request);
 
                 if (response.IsSuccessful && !string.IsNullOrEmpty(response.Content))
@@ -685,25 +878,36 @@ namespace Packages
 
         private static object BuildFactura(Comprobante comprobante, Electronic electronic, Empresa empresa)
         {
-            return new
+            var payload = new Dictionary<string, object>
             {
-                tipo = "factura",
-                ambiente = Ambiente(electronic),
-                establecimiento = comprobante.com_almacenid,
-                puntoEmision = comprobante.com_pventaid,
-                fecha = FechaIso(comprobante.com_fecha),
-                secuencial = comprobante.com_numero,
-                cliente = new
-                {
-                    identificacion = electronic.ele_idcomprador,
-                    nombre = electronic.ele_razonsocial,
-                    email = electronic.ele_email,
-                    direccion = electronic.ele_dircomprador
+                { "tipo", "factura" },
+                { "ambiente", Ambiente(electronic) },
+                { "establecimiento", comprobante.com_almacenid },
+                { "puntoEmision", comprobante.com_pventaid },
+                { "fecha", FechaIso(comprobante.com_fecha) },
+                { "secuencial", comprobante.com_numero },
+                { "cliente", new
+                    {
+                        identificacion = electronic.ele_idcomprador,
+                        nombre = electronic.ele_razonsocial,
+                        email = electronic.ele_email,
+                        direccion = electronic.ele_dircomprador
+                    }
                 },
-                items = BuildItems(electronic),
-                pagos = BuildPagos(electronic),
-                infoAdicional = BuildInfoAdicional(electronic, empresa)
+                { "items", BuildItems(electronic) },
+                { "pagos", BuildPagos(electronic) },
+                { "infoAdicional", BuildInfoAdicional(electronic, empresa) }
             };
+
+            // Asapp rechaza el documento entero (422 XsdValidationError) si "placa" viene presente pero vacio -
+            // solo incluirlo cuando hay un valor real. Empresas que hicieron la placa opcional (ej. TORTIZ, ver
+            // Constantes.cPlacaSriObligatoria) pueden guardar una factura sin placa; en ese caso hay que omitir
+            // el campo por completo, nunca mandarlo como cadena vacia. Encontrado via prueba real de envio sombra
+            // contra el sandbox de Asapp (2026-09-08).
+            if (!string.IsNullOrWhiteSpace(electronic.ele_placa))
+                payload["placa"] = electronic.ele_placa;
+
+            return payload;
         }
 
         // NC y RET no cargan cliente en el objeto Electronic (asi lo hace tambien la plantilla XML legacy,

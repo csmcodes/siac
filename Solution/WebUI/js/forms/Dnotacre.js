@@ -767,6 +767,7 @@ function ValidateForm() {
     }
 
 
+
     if (!retorno) {
         jQuery.alerts.dialogClass = 'alert-danger';
         jAlert(mensajehtml, 'Error', function () {
@@ -805,6 +806,10 @@ function SetAfectacionGuias(obj) {
 
 function SaveObj() {
     if (!saving) {
+        // Auto-commit: si queda un tipo de pago tipeado sin "Agregar", lo agregamos solo antes de validar/guardar.
+        if ($.trim($("#txtCODTIPO").val()) != "") {
+            AddEditRow();
+        }
         if (ValidateForm()) {
             var compobj = GetComprobanteObj();
             if (afectacionobj == null)

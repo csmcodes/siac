@@ -137,6 +137,24 @@ namespace Services
             }
         }
 
+        // Configuracion unica de conexion a Asapp Electronic API - parametro "AsappConfig" (JSON). Reemplaza el
+        // viejo par de campos emp_asappapikeyprod/emp_asappapikeypruebas en Empresa, las URLs/endpoints hardcodeados
+        // en ElectronicoAsapp.cs, y el parametro puntual "asappshadowfactura" (absorbido en AsappConfig.enable_shadow).
+        // Es global a la base de datos del cliente (parametro no tiene columna de empresa) - en la practica cada
+        // cliente (TORTIZ, Carlogistica) tiene una sola empresa activa, no es una limitacion real.
+        // Retorna null si el parametro no existe (tratar como "Asapp no configurado", igual que enable=false).
+        public static AsappConfig cAsappConfig
+        {
+            get
+            {
+                string parametro = GetParameter("AsappConfig");
+                if (string.IsNullOrEmpty(parametro))
+                    return null;
+                var serializer = new JavaScriptSerializer();
+                return serializer.Deserialize<AsappConfig>(parametro);
+            }
+        }
+
 
         public static List<PoliticaTipoPago> cPoliticaTipoPago {
             get

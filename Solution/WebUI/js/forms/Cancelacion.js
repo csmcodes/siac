@@ -817,7 +817,7 @@ function ValidateForm() {
         retorno = false;
         mensajehtml += "Es necesario ingresar al menos un detalle al comprobante<br>";
     }
-    
+
     /*var htmltable = $("#tdinvoice")[0];
     if (htmltable.rows.length < 3) {
         retorno = false;
@@ -908,6 +908,10 @@ function SetAfectacion(obj) {
 
 function SaveObj() {
     if (!saving) {
+        // Auto-commit: si queda una forma de pago tipeada sin "Agregar", la agregamos sola antes de validar/guardar.
+        if ($.trim($("#txtCODTIPO").val()) != "") {
+            AddEditRow();
+        }
         if (ValidateForm()) {
             var compobj = GetComprobanteObj();
             if (afectacionobj == null)

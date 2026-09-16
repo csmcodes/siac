@@ -1227,6 +1227,7 @@ function ValidateForm() {
         mensajehtml += "Es necesario ingresar al menos un detalle al comprobante<br>";
     }
 
+
     if ($("#txtnocontable").val() == "1")
         recibocreated = true;
 
@@ -1263,6 +1264,10 @@ function SetRecibo(obj) {
 
 function SaveObj() {
     if (!saving) {
+        // Auto-commit: si queda un impuesto tipeado sin "Agregar", lo agregamos solo antes de validar/guardar.
+        if ($.trim($("#txtCODIMP").val()) != "") {
+            AddEditRow();
+        }
         if (ValidateForm()) {
 
             var obj = {};

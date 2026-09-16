@@ -6374,6 +6374,24 @@ namespace WebUI.ws
 
         }
 
+        // Reenvia el envio "sombra" de un comprobante puntual hacia el ambiente de pruebas de Asapp, sin esperar
+        // a que se mayorice uno nuevo - util para validar/reintentar sin generar comprobantes de prueba. Es
+        // literalmente el mismo codigo que corre automaticamente al mayorizar (Electronico.cs llama al mismo
+        // ElectronicoAsapp.ShadowSendComprobanteAsync) - no es un camino de prueba aparte, respeta los mismos
+        // guards (AsappConfig.enable/enable_shadow, dominio de staging, mayorizado, tipo soportado). Cubre los
+        // 6 tipos de comprobante que soporta la integracion (Factura, NC, ND, Retencion, Liquidacion de Compra,
+        // Guia de Remision).
+        [WebMethod]
+        public string ReenviarShadowComprobante(object objeto)
+        {
+            Comprobante com = new Comprobante(objeto);
+            com.com_empresa_key = com.com_empresa;
+            com.com_codigo_key = com.com_codigo;
+            com = ComprobanteBLL.GetByPK(com);
+            Packages.ElectronicoAsapp.ShadowSendComprobanteAsync(com);
+            return "disparado";
+        }
+
         [WebMethod]
         public string ElectronicRIDE(object objeto)
         {

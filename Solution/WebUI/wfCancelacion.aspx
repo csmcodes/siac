@@ -27,7 +27,7 @@
     <script type="text/javascript" src="js/popup.js?v=20260902"></script>
     <script type="text/javascript" src="js/functions.js?v=20260902"></script>    
     <script type="text/javascript" src="js/forms/autocomplete.js"></script>    
-    <script type="text/javascript" src="js/forms/Cancelacion.js"></script>
+    <script type="text/javascript" src="js/forms/Cancelacion.js?v=20260916"></script>
 </head>
 <body>
        <form id="form1" runat="server">

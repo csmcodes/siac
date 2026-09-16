@@ -705,6 +705,10 @@ function ValidateForm() {
 
 
 function SaveObj() {
+    // Auto-commit: si queda una forma de pago tipeada sin "Agregar", la agregamos sola antes de validar/guardar.
+    if ($.trim($("#txtCODTIPO").val()) != "") {
+        AddEditRow();
+    }
     if (ValidateForm()) {
         var compobj = GetComprobanteObj();
         var obj = {};

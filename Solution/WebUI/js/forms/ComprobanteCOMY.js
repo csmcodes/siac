@@ -1740,6 +1740,7 @@ function ValidateForm() {
         mensajehtml += "Es necesario ingresar al menos un detalle al comprobante<br>";
     }
 
+
     // Placa SRI (Anexo 25, Resolucion NAC-DGERCGC26-00000024) - formato: 2 a 3 letras seguidas de 3 a 4 numeros,
     // sin espacios ni guiones (ver Tabla 33 de la ficha tecnica de comprobantes electronicos).
     $($("#txtPLACASRI")[0].parentNode).removeClass('obligatorio');
@@ -1796,6 +1797,10 @@ function SetRecibo(obj) {
 
 function SaveObj() {
     if (!saving) {
+        // Auto-commit: si queda un producto tipeado sin "Agregar", lo agregamos solo antes de validar/guardar.
+        if ($.trim($("#txtCODPRO").val()) != "") {
+            AddEditRow();
+        }
         if (ValidateForm()) {
             if (!recibocreated) {
                 Recibo();

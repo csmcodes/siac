@@ -29,7 +29,7 @@
     <script type="text/javascript" src="js/forms/autocomplete.js"></script>    
     
      <script type="text/javascript" src="js/forms/DiarioD.js"></script>
-     <script type="text/javascript" src="js/forms/Dbancario.js"></script>
+     <script type="text/javascript" src="js/forms/Dbancario.js?v=20260916"></script>
 
 </head>
 <body>
