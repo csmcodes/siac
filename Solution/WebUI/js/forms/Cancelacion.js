@@ -478,6 +478,29 @@ function AddEditRow() {
     var editrow = $("#editrow");
     newrow.insertBefore(editrow);
 
+    //Si Edit() habia movido los inputs de Tipo/Descripcion/Valor a otra fila para editarla, hay
+    //que sacarlos de ahi ANTES de tocar esa fila - remove() destruye todo lo que tiene adentro,
+    //inputs incluidos, asi que primero los movemos (MoveTo hace detach(), que los preserva) y
+    //recien despues borramos la fila que quedo vacia y huerfana.
+    var currentHost = $("#txtCODTIPO")[0].parentNode.parentNode;
+    if (currentHost != editrow[0]) {
+        //#editrow quedo "congelada" por Edit() con texto suelto (lo que estaba tipeado antes de
+        //hacer click en otra fila) - lo limpiamos para que no quede pegado al lado del input.
+        $(editrow[0].cells[0]).text("");
+        $(editrow[0].cells[1]).text("");
+        $(editrow[0].cells[2]).text("");
+    }
+
+    MoveTo($("#txtIDTIPO"), $(editrow[0].cells[0]));
+    MoveTo($("#txtCODTIPO"), $(editrow[0].cells[0]));
+    MoveTo($("#txtNOMBRETIPO"), $(editrow[0].cells[1]));
+    MoveTo($("#txtVALOR"), $(editrow[0].cells[2]));
+    editrow.removeAttr('onclick');
+
+    if (currentHost != editrow[0]) {
+        $(currentHost).remove();
+    }
+
     $("#txtCODTIPO").val("");
     $("#txtIDTIPO").val("");
     $("#txtNOMBRETIPO").val("");
@@ -675,8 +698,13 @@ function GetDetalle() {
     var htmltable = $("#tdinvoice")[0];
     for (var r = 1; r < htmltable.rows.length; r++) {
         var obj = GetDreciboObj(htmltable.rows[r]);
+        //Antes se guardaba en detalle[r] (indice de la fila en la tabla), lo que dejaba "huecos"
+        //en el arreglo por cada fila invalida/vacia salteada - esos huecos se serializan como
+        //null en el JSON y el servidor los recibe como Drecibo null en obj.recibos, rompiendo con
+        //NullReferenceException. Con push() el arreglo que se manda al servidor queda compacto,
+        //solo con filas validas.
         if (obj != null)
-            detalle[r] = obj;
+            detalle.push(obj);
     }
     return detalle;
 }
@@ -719,15 +747,18 @@ function GetDreciboObj(row) {
             obj["dfp_tipopagonombre"] = $(row.cells[1]).text();
             obj["dfp_monto"] = parseFloat($(row.cells[2]).text());
 
-            obj["dfp_nro_documento"] = $(row).data("nrodocumento");
-            obj["dfp_nro_cuenta"] = $(row).data("nrocuenta");
-            obj["dfp_emisor"] = $(row).data("emisor");
+            //data() de jQuery convierte solo los valores que parecen numero puro (ej "99") a Number
+            //en vez de dejarlos como string - forzamos toString() para que estos campos siempre
+            //lleguen al servidor como texto, igual que ya se hace abajo con "fecha".
+            obj["dfp_nro_documento"] = ($(row).data("nrodocumento") != null) ? $(row).data("nrodocumento").toString() : "";
+            obj["dfp_nro_cuenta"] = ($(row).data("nrocuenta") != null) ? $(row).data("nrocuenta").toString() : "";
+            obj["dfp_emisor"] = ($(row).data("emisor") != null) ? $(row).data("emisor").toString() : "";
             //obj["dfp_debcre"] = 1; // DEBITO CREDITO??
             //obj["dfp_tarjeta"] = ;
             if ($(row).data("banco")!=null)
                 obj["dfp_banco"] = parseInt($(row).data("banco").toString());
-            obj["dfp_nro_cheque"] = $(row).data("nrocheque");
-            obj["dfp_beneficiario"] = $(row).data("beneficiario");
+            obj["dfp_nro_cheque"] = ($(row).data("nrocheque") != null) ? $(row).data("nrocheque").toString() : "";
+            obj["dfp_beneficiario"] = ($(row).data("beneficiario") != null) ? $(row).data("beneficiario").toString() : "";
 
             if ($(row).data("fecha") != null) {
                 var venceDate = $.datepicker.parseDate("dd/mm/yy", $(row).data("fecha").toString());
@@ -816,6 +847,30 @@ function ValidateForm() {
     if (detalle.length == 0) {
         retorno = false;
         mensajehtml += "Es necesario ingresar al menos un detalle al comprobante<br>";
+    }
+
+    //VALIDACIONES DE FORMA DE PAGO (replican las reglas del servidor en wfCancelacion.aspx.cs SaveObject,
+    //necesario desde que el auto-commit del detalle empezo a mandar filas incompletas al servidor)
+    for (var d = 0; d < detalle.length; d++) {
+        if (detalle[d] == undefined) continue;
+        var tipopago = detalle[d]["dfp_tipopago"];
+        var nombretipopago = detalle[d]["dfp_tipopagonombre"];
+
+        //CONTROL DE CHEQUES (cliente 2/14, proveedor 12/24)
+        if (tipopago == 2 || tipopago == 12 || tipopago == 14 || tipopago == 24) {
+            if ($.trim(detalle[d]["dfp_nro_cheque"]) == "") {
+                retorno = false;
+                mensajehtml += "Es necesario ingresar el <b>numero de cheque</b> para el pago con " + nombretipopago + "<br>";
+            }
+        }
+
+        //CONTROL DE RETENCIONES
+        if (tipopago == 7 || tipopago == 8 || tipopago == 16) {
+            if ($.trim(detalle[d]["dfp_nro_documento"]) == "") {
+                retorno = false;
+                mensajehtml += "Es necesario ingresar el <b>numero de retencion</b> para el pago con " + nombretipopago + "<br>";
+            }
+        }
     }
 
     /*var htmltable = $("#tdinvoice")[0];
@@ -909,7 +964,10 @@ function SetAfectacion(obj) {
 function SaveObj() {
     if (!saving) {
         // Auto-commit: si queda una forma de pago tipeada sin "Agregar", la agregamos sola antes de validar/guardar.
-        if ($.trim($("#txtCODTIPO").val()) != "") {
+        // Si todavia falta un campo obligatorio del tipo de pago (cheque/retencion), NO la comprometemos aqui -
+        // se queda como fila "en edicion" y ValidateForm()/GetDetalle() la toma igual, mostrando el mensaje
+        // claro de qué falta en vez de crear una fila a medias.
+        if ($.trim($("#txtCODTIPO").val()) != "" && CampoPagoFaltante() == null) {
             AddEditRow();
         }
         if (ValidateForm()) {
@@ -1043,13 +1101,32 @@ function RowUp() {
         Edit($(r).prev()[0]);
 }
 
+//Devuelve el id del campo que todavia falta llenar segun el tipo de pago actual
+//(mismas reglas que ValidateForm/servidor: cheque necesita nro cheque, retencion necesita
+//nro documento), o null si no falta nada. Se usa para no comprometer una fila incompleta,
+//ni por navegacion de teclado (RowDown) ni por el auto-commit de SaveObj().
+function CampoPagoFaltante() {
+    var tipopago = parseInt($("#txtCODTIPO").val());
+    if ((tipopago == 2 || tipopago == 12 || tipopago == 14 || tipopago == 24) && $.trim($("#txtNROCHEQUE").val()) == "")
+        return "txtNROCHEQUE";
+    if ((tipopago == 7 || tipopago == 8 || tipopago == 16) && $.trim($("#txtNRODOCUMENTO").val()) == "")
+        return "txtNRODOCUMENTO";
+    return null;
+}
+
 function RowDown() {
     var r = $("#txtCODTIPO")[0].parentNode.parentNode;
     if ($(r).next().length > 0)
         Edit($(r).next()[0]);
     else {
-        if ($("#txtCODTIPO").val() != "")
+        if ($("#txtCODTIPO").val() != "") {
+            var faltante = CampoPagoFaltante();
+            if (faltante != null) {
+                $("#" + faltante).focus();
+                return;
+            }
             AddEditRow();
+        }
     }
 }
 
