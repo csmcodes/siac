@@ -117,9 +117,10 @@ namespace Packages
 
         public static string GetTipoId(string tipoid, string id, List<ElectronicIds> lst)
         {
-            if (tipoid == "Cédula" && id.Length == 13)
+            int idLength = (id ?? "").Trim().Length;
+            if (tipoid == "Cédula" && idLength == 13)
                 tipoid = "RUC";
-            if (tipoid == "RUC" && id.Length == 10)
+            if (tipoid == "RUC" && idLength == 10)
                 tipoid = "Cédula";
 
 
