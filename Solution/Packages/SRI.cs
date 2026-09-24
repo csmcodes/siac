@@ -57,7 +57,23 @@ namespace Packages
 
         public static List<string> rucsOmite = new List<string>();
 
-        
+        // Solo para la generacion del ATS (SetTablaVentas/SetTablaNotasCC): valida_cedularuc() no
+        // hace ninguna validacion real para RUCs de 13 digitos (solo comprueba el largo, ver
+        // Functions/Validaciones.cs) - se agrega aqui el chequeo real (valida_ruc, ya implementado
+        // pero nunca conectado) para no seguir dependiendo de agregar RUCs malformados a mano al
+        // parametro "rucsomite". No se toca valida_cedularuc en si porque la usan otras 7 pantallas
+        // (ej. wfPersona.aspx, alta/edicion de cliente) donde habilitarla de golpe podria bloquear
+        // la edicion de clientes ya guardados con un RUC invalido.
+        private static bool EsRucValidoParaAts(string ruc)
+        {
+            if (!Functions.Validaciones.valida_cedularuc(ruc))
+                return false;
+            if (ruc.Length == 13 && !Functions.Validaciones.valida_ruc(ruc))
+                return false;
+            return true;
+        }
+
+
 
         public static void CreateXmlNode(XmlNode parent, XmlNode nodtemp, Int64? codigo, object datasource)
         {
@@ -396,7 +412,7 @@ namespace Packages
             string tipoatsventa = Constantes.GetParameter("tipoatsventa");
             foreach (vVenta item in ventas)
             {
-                item.ruc = (Functions.Validaciones.valida_cedularuc(item.ruc)) ? item.ruc : "9999999999999";
+                item.ruc = (EsRucValidoParaAts(item.ruc)) ? item.ruc : "9999999999999";
                 //Valida Omite RUCS
                 if (rucsOmite.Contains(item.ruc))
                     item.ruc = "9999999999999";
@@ -501,7 +517,7 @@ namespace Packages
             
             foreach (vVenta item in notascc)
             {
-                item.ruc = (Functions.Validaciones.valida_cedularuc(item.ruc)) ? item.ruc : "9999999999999";
+                item.ruc = (EsRucValidoParaAts(item.ruc)) ? item.ruc : "9999999999999";
                 //Valida Omite RUCS
                 if (rucsOmite.Contains(item.ruc))
                     item.ruc = "9999999999999";
