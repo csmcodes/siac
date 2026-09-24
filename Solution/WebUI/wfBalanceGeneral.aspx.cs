@@ -128,18 +128,24 @@ namespace WebUI
             object dcontable = null;
             object empresa = null;
             object tipo = null;
+            object debcreObj = null;
             tmp.TryGetValue("cuenta", out cuenta);
             tmp.TryGetValue("empresa", out empresa);
             tmp.TryGetValue("dcontable", out dcontable);
             tmp.TryGetValue("tipo", out tipo);
+            tmp.TryGetValue("debcre", out debcreObj);
             if (tipo == null)
                 tipo = "a";
+            int? debcreLocal = debcre;
+            int debcreParsed;
+            if (debcreObj != null && int.TryParse(debcreObj.ToString(), out debcreParsed))
+                debcreLocal = debcreParsed;
             Cuenta cuentas = new Cuenta(cuenta);
             Dcontable dcontables = new Dcontable(dcontable);
             cuentas.cue_movimiento = 1;
             cuentas.cue_nivel = 0;
-            SetWhereClause(cuentas);
-            Empresa emp = new Empresa();            
+            SetWhereClause(cuentas, debcreLocal);
+            Empresa emp = new Empresa();
             emp.emp_codigo_key = (Int32)Conversiones.GetValueByType(empresa, typeof(Int32));
             emp = EmpresaBLL.GetByPK(emp);
             if (dcontables.dco_almacen == 0 || !dcontables.dco_almacen.HasValue)
@@ -164,7 +170,7 @@ namespace WebUI
                   decimal credito = General.SaldoCuenta("m", Constantes.cCredito, 1, emp.emp_codigo, item.cue_codigo, 0, dcontables.dco_almacen.Value, 0, dcontables.dco_fecha_vence.Value);
                   decimal final = inicial + debito - credito;*/
 
-                if (debcre == 1)
+                if (debcreLocal == 1)
                 {
                     if (item.cue_movimiento == 1 && (item.cue_genero == 1 || item.cue_genero == 3 ))
                     {
@@ -178,7 +184,7 @@ namespace WebUI
 
 
                 }
-                if (debcre == 2)
+                if (debcreLocal == 2)
                 {
                     if (item.cue_movimiento == 1 && item.cue_genero == 4)
                     {
@@ -209,12 +215,14 @@ namespace WebUI
             object tipo = null;
             object todas = null;
             object saldo = null;
+            object debcreObj = null;
             tmp.TryGetValue("cuenta", out cuenta);
             tmp.TryGetValue("empresa", out empresa);
             tmp.TryGetValue("dcontable", out dcontable);
             tmp.TryGetValue("tipo", out tipo);
             tmp.TryGetValue("todas", out todas);
             tmp.TryGetValue("saldo", out saldo);
+            tmp.TryGetValue("debcre", out debcreObj);
             if (tipo == null)
                 tipo = "a";
 
@@ -223,6 +231,11 @@ namespace WebUI
 
             bool sal = false;
             bool.TryParse(saldo.ToString(), out sal);
+
+            int? debcreLocal = debcre;
+            int debcreParsed;
+            if (debcreObj != null && int.TryParse(debcreObj.ToString(), out debcreParsed))
+                debcreLocal = debcreParsed;
 
             Cuenta cuentas = new Cuenta(cuenta);
             Dcontable dcontables = new Dcontable(dcontable);
@@ -243,7 +256,7 @@ namespace WebUI
             {
                 dcontables.dco_fecha_vence = DateTime.Now;
             }
-            SetWhereClause(cuentas);
+            SetWhereClause(cuentas, debcreLocal);
             int desde = (pageIndex * pageSize) - pageSize + 1;
             int hasta = (pageIndex * pageSize);
             pageIndex++;
@@ -254,7 +267,7 @@ namespace WebUI
             foreach (Cuenta item in lst)
             {
                 bool flag = true;
-                if (debcre == 1)//BALANCE GENERAL
+                if (debcreLocal == 1)//BALANCE GENERAL
                 {
                     //if (item.cue_genero > 3 || item.cue_genero < 1)
                     if (item.cue_genero > 0 && item.cue_genero < 4)
@@ -272,7 +285,7 @@ namespace WebUI
                     if (item.cue_movimiento == 1 && (item.cue_genero == 2))
                         ctotal -= item.final;*/
                 }
-                if (debcre == 2)//ESTADO DE RESULTADOS
+                if (debcreLocal == 2)//ESTADO DE RESULTADOS
                 {
                     //if (item.cue_genero > 7 || item.cue_genero < 4)
                     if (item.cue_genero > 3 && item.cue_genero < 8)
@@ -370,12 +383,12 @@ namespace WebUI
             //return html.ToString();
         }
 
-        public static void SetWhereClause(Cuenta obj)
+        public static void SetWhereClause(Cuenta obj, int? debcreParam)
         {
             int contador = 0;
             parametros = new WhereParams();
             List<object> valores = new List<object>();
-            if (debcre == 1)
+            if (debcreParam == 1)
             {
                 parametros.where += ((parametros.where != "") ? " and " : "") + " (cue_genero = {" + contador + "} ";
                 valores.Add(1);
@@ -387,7 +400,7 @@ namespace WebUI
                 valores.Add(3);
                 contador++;
             }
-            if (debcre == 2)
+            if (debcreParam == 2)
             {
                 parametros.where += ((parametros.where != "") ? " and " : "") + " (cue_genero = {" + contador + "} ";
                 valores.Add(4);

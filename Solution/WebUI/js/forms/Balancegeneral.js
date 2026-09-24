@@ -138,6 +138,7 @@ function GetCabeceraData() {
     obj["todas"] = $("#chkTODAS_S").is(":checked");
     obj["saldo"] = $("#chkSALDO_S").is(":checked");
     obj["empresa"] = parseInt(empresasigned["emp_codigo"]);
+    obj["debcre"] = parseInt($("#txtdebcre").val());
     return obj;
 }
 
