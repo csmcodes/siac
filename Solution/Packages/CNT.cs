@@ -525,7 +525,7 @@ namespace Packages
 
             //decimal totdebito = DcontableBLL.GetSum("dco_valor_nac", new WhereParams("dco_empresa={0} and dco_comprobante={1}"), "");     
             List<Dcontable> detalle = DcontableBLL.GetAll(new WhereParams("dco_empresa={0} and dco_comprobante={1}", empresa, comprobante), "");
-            List<Dbancario> detalleban = DbancarioBLL.GetAll(new WhereParams("dban_empresa={0} and dban_comprobante={1}", empresa, comprobante), "");  
+            List<Dbancario> detalleban = DbancarioBLL.GetAll(new WhereParams("dban_empresa={0} and dban_cco_comproba={1}", empresa, comprobante), "");
             List<Ddocumento> documentos = DdocumentoBLL.GetAll(new WhereParams("ddo_empresa={0} and ddo_comprobante={1} and ddo_modulo <> {2}", empresa, comprobante, 3), "");  
             List<Dcancelacion> cancelaciones = DcancelacionBLL.GetAll(new WhereParams("dca_empresa={0} and dca_comprobante={1}", empresa, comprobante), "");  
 
