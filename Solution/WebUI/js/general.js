@@ -384,7 +384,9 @@ function CurrencyFormatted(amount) {
     var minus = '';
     if (i < 0) { minus = '-'; }
     i = Math.abs(i);
-    i = parseInt((i + .005) * 100);
+    // half-up a centavos ignorando ruido de punto flotante (4.725 llega como 4.72499999 y
+    // (i+.005)*100 lo truncaba a 4.72, mientras el total se redondeaba a 36.23 -> IVA+subtotal != total)
+    i = Math.round(parseFloat((i * 100).toFixed(6)));
     i = i / 100;
     s = new String(i);
     if (s.indexOf('.') < 0) { s += '.00'; }
