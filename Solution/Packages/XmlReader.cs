@@ -987,6 +987,9 @@ namespace Packages
                     comprobante.com_codclipro = per.per_codigo;
                     comprobante.com_fecha = GetDateTimeFormat(xmldoc.SelectSingleNode("/comprobanteRetencion/infoCompRetencion/fechaEmision"),"dd/MM/yyyy").Value;
                     comprobante.com_fechastr = GetString(xmldoc.SelectSingleNode("/comprobanteRetencion/infoCompRetencion/fechaEmision"));
+                    // La fecha viene autorizada por el SRI en el XML - ResolveFechaComprobante (ver General.cs)
+                    // no debe reemplazarla por la fecha de proceso.
+                    comprobante.com_fecha_manual = true;
 
                     ElectronicoExists(comprobante.com_empresa, nroautoriza, comprobante.com_fecha);
 
