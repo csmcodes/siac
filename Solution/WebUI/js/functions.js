@@ -1123,18 +1123,25 @@ function ElectronicRideResult(data)
 (function () {
     var CHEQUEO_INTERVALO_MS = 10 * 60 * 1000; // 10 minutos
     var INACTIVIDAD_PARA_AUTORECARGAR_MS = 5 * 60 * 1000; // 5 minutos sin clicks/teclas
+    // Tope real encontrado 2026-10-16: con solo el aviso descartable, una sesion activa (digitacion
+    // continua, nunca 5 min inactiva) podia ignorarlo mas de una semana y seguir corriendo JS viejo
+    // (ej. CurrencyFormatted sin el fix de redondeo de IVA del 25-sep). Pasado este tope se recarga
+    // igual aunque siga activo.
+    var TIEMPO_MAXIMO_AVISO_MS = 30 * 60 * 1000; // 30 minutos con el aviso visible
     var versionConocida = null;
     var ultimaActividad = Date.now();
+    var avisoDesde = null;
 
     document.addEventListener('click', function () { ultimaActividad = Date.now(); }, true);
     document.addEventListener('keydown', function () { ultimaActividad = Date.now(); }, true);
 
     function mostrarAvisoNuevaVersion() {
+        if (avisoDesde === null) avisoDesde = Date.now();
         if (document.getElementById('avisoNuevaVersionSiac')) return;
         var div = document.createElement('div');
         div.id = 'avisoNuevaVersionSiac';
         div.style.cssText = 'position:fixed;top:0;left:0;right:0;background:#f0ad4e;color:#fff;padding:10px 15px;text-align:center;z-index:99999;font-size:14px;font-family:Arial,sans-serif;box-shadow:0 2px 6px rgba(0,0,0,0.3);';
-        div.innerHTML = 'Hay una actualizacion del sistema disponible. Los cambios recientes no se veran hasta recargar. '
+        div.innerHTML = 'Hay una actualizacion del sistema disponible. Guarde su trabajo: esta pagina se va a recargar sola en unos minutos si no lo hace antes. '
             + '<button id="btnRecargarVersionSiac" style="margin-left:10px;padding:4px 14px;cursor:pointer;border:0;border-radius:3px;background:#fff;color:#f0ad4e;font-weight:bold;">Recargar ahora</button>';
         document.body.appendChild(div);
         document.getElementById('btnRecargarVersionSiac').onclick = function () {
@@ -1156,7 +1163,8 @@ function ElectronicRideResult(data)
                 }
                 if (version !== versionConocida) {
                     var inactivo = (Date.now() - ultimaActividad) > INACTIVIDAD_PARA_AUTORECARGAR_MS;
-                    if (inactivo)
+                    var avisoVencido = (avisoDesde !== null) && ((Date.now() - avisoDesde) > TIEMPO_MAXIMO_AVISO_MS);
+                    if (inactivo || avisoVencido)
                         location.reload(true);
                     else
                         mostrarAvisoNuevaVersion();
