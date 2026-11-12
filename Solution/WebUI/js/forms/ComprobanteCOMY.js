@@ -478,15 +478,24 @@ function RemoveRow(btn) {
     if ($(row)[0].id != "editrow" && !hascontrols) {
         jConfirm('¿Está seguro que desea eliminar el registro?', 'Eliminar', function (r) {
             if (r) {
+                // CalculaTotales() se dispara aca, DESPUES de que fadeOut termina y la fila ya
+                // se removio del DOM - antes corria justo despues de iniciar el fadeOut (afuera de
+                // este callback), mientras la fila todavia estaba presente, asi que el total de
+                // cabecera quedaba calculado CON la linea que se estaba borrando (nunca se
+                // recalculaba de nuevo una vez que de verdad desaparecia). Caso real TORTIZ,
+                // 4 facturas de octubre-2026 con el total de cabecera mayor al de los items
+                // restantes, exactamente por el valor de la linea borrada.
                 $(btn).parents('tr').fadeOut(function () {
                     $(this).remove();
+                    CalculaTotales();
                 });
             }
         });
     }
-    else
+    else {
         CleanRow();
-    CalculaTotales();
+        CalculaTotales();
+    }
     StopPropagation();
 }
 
@@ -1179,6 +1188,16 @@ function CalculaTotalesCan() {
 /*********************FUNCIONES PARA AGREGAR y EDITAR UN DETALLE**********************/
 
 function AddEditRow() {
+
+    // Recalcula antes de leer txtTOTAL: si cantidad/precio/desc cambiaron sin pasar por un
+    // keyup real (ej. pegar con el mouse), MustCalculate() nunca se dispara y el total quedaba
+    // obsoleto (0) aunque cantidad/precio ya estuvieran correctos - caso real Carlogistica,
+    // factura VACA JANA 06-oct-2026 (bloqueada por ValidarCuadreDetalle antes de llegar al SRI).
+    // En modo "total por producto" (txtTOTPRO=="1") el total lo digita el usuario y el precio
+    // se deriva de el (ver CalculaTotal) - no recalcular aqui para no pisar ese total con un
+    // cant*precio-desc que ademas restaria el descuento dos veces.
+    if ($("#txtTOTPRO").val() != "1")
+        CalculaLinea();
 
     var r = $("#txtCODPRO")[0].parentNode.parentNode;
 
