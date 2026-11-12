@@ -6371,6 +6371,140 @@ namespace WebUI.ws
 
         }
 
+        // Barrido para que com_estadoelec no dependa de que alguien abra el comprobante (la consulta es "perezosa" -
+        // ver GetElectronicoData). Pensado para ser llamado por una tarea programada cada 5-10 min, no desde la UI.
+        // Solo re-consulta comprobantes que ya se enviaron (com_claveelec no nulo) y que no llegaron a un estado
+        // terminal (AUTORIZADO/DEVUELTO/NOAUTORIZADO/TIMEOUT - ver Electronico.cs y ElectronicoAsapp.cs). Un error en
+        // un comprobante no debe frenar el barrido del resto.
+        [WebMethod]
+        public string RefrescarEstadosPendientes(int diasAtras)
+        {
+            if (diasAtras <= 0)
+                diasAtras = 3;
+
+            int autorizados = 0;
+            int pendientes = 0;
+            int errores = 0;
+
+            // TIMEOUT se saca de la lista de estados terminales: a diferencia de DEVUELTO/NOAUTORIZADO (rechazos
+            // definitivos del SRI), un TIMEOUT significa que Asapp dejo de reintentar, pero el SRI puede resolverlo
+            // igual mas tarde - caso real confirmado 07-oct-2026 (los 7 TIMEOUT de ese dia en TO+CL terminaron
+            // AUTORIZADO horas despues, y nadie se entero hasta volver a consultarlos a mano). Sigue acotado por
+            // diasAtras como todo lo demas, asi que tampoco se reintenta para siempre.
+            string whereClausePendientes = "com_claveelec is not null and com_claveelec <> '' " +
+                "and com_estadoelec not in ('AUTORIZADO','DEVUELTO','NOAUTORIZADO','ANULADO') " +
+                "and (com_anulado is null or com_anulado = 0) " +
+                "and com_fecha >= '" + DateTime.Now.AddDays(-diasAtras).ToString("yyyy-MM-dd") + "'";
+
+            List<Comprobante> pendientesList = ComprobanteBLL.GetAll(whereClausePendientes, "com_fecha");
+
+            foreach (Comprobante item in pendientesList)
+            {
+                try
+                {
+                    Comprobante com = new Comprobante { com_empresa = item.com_empresa, com_empresa_key = item.com_empresa, com_codigo = item.com_codigo, com_codigo_key = item.com_codigo };
+                    com = ComprobanteBLL.GetByPK(com);
+                    com = Packages.Electronico.UpdateElectronicoData(com);
+
+                    if (com.com_estadoelec == "AUTORIZADO")
+                        autorizados++;
+                    else
+                        pendientes++;
+                }
+                catch (Exception ex)
+                {
+                    errores++;
+                    ExceptionHandling.Log.AddExepcion(ex);
+                }
+            }
+
+            // Segunda pasada: comprobantes mayorizados que NUNCA llegaron a enviarse (sin clave, error real de
+            // Asapp al momento del envio - no un simple corte de red post-envio, eso lo resuelve TryRecuperarClaveDeDuplicado
+            // en ElectronicoAsapp.cs). Antes esto solo quedaba logueado en 'excepcion' sin que nada lo reintentara -
+            // caso real TORTIZ, 16 facturas varadas 5 dias tras una caida de 5 min de Asapp el 02-oct-2026. Se
+            // reintenta el envio (no solo un poll, porque nunca hay clave que consultar), acotado por diasAtras
+            // igual que todo lo demas para no insistir indefinidamente si el motivo de fondo no se resuelve solo.
+            int reenviosOk = 0;
+            int reenviosError = 0;
+            string whereClauseSinEnviar = "com_estado = 2 " +
+                "and (com_claveelec is null or com_claveelec = '') " +
+                "and com_estadoelec = 'ERROR-ASAPP' " +
+                "and (com_anulado is null or com_anulado = 0) " +
+                "and com_fecha >= '" + DateTime.Now.AddDays(-diasAtras).ToString("yyyy-MM-dd") + "'";
+
+            List<Comprobante> sinEnviarList = ComprobanteBLL.GetAll(whereClauseSinEnviar, "com_fecha");
+
+            foreach (Comprobante item in sinEnviarList)
+            {
+                try
+                {
+                    Comprobante com = new Comprobante { com_empresa = item.com_empresa, com_empresa_key = item.com_empresa, com_codigo = item.com_codigo, com_codigo_key = item.com_codigo };
+                    com = ComprobanteBLL.GetByPK(com);
+                    bool ok = Packages.Electronico.GenerateElectronico(com);
+
+                    if (ok)
+                        reenviosOk++;
+                    else
+                        reenviosError++;
+                }
+                catch (Exception ex)
+                {
+                    reenviosError++;
+                    ExceptionHandling.Log.AddExepcion(ex);
+                }
+            }
+
+            // Tercera pasada: DEVUELTO/NOAUTORIZADO con el mensaje especifico "CLAVE ACCESO REGISTRADA" (codigo
+            // SRI 43) - confirmado real 29-oct-2026 en TO (facturas 3293204/3293212/3293337): quedaron marcadas
+            // DEVUELTO el 27-oct, pero una verificacion EN VIVO contra Asapp el 29-oct mostro que en realidad
+            // SI estaban AUTORIZADAS - la causa probable es que Asapp reintento el envio y el SRI rechazo el
+            // duplicado con este mensaje, mientras el intento original ya habia sido autorizado. A diferencia
+            // de un rechazo real (ej. RUC invalido, IVA mal calculado), este mensaje puntual amerita reintentar
+            // la verificacion - las dos listas de arriba (whereClausePendientes) excluyen DEVUELTO/NOAUTORIZADO
+            // a proposito porque son terminales en la gran mayoria de los casos reales; esta tercera pasada es
+            // la excepcion acotada a esa firma de mensaje especifica, no una reapertura general de esos estados.
+            int recuperadosDevuelto = 0;
+            int confirmadosDevuelto = 0;
+            string whereClauseDevueltoSospechoso = "com_estadoelec in ('DEVUELTO','NOAUTORIZADO') " +
+                "and com_claveelec is not null and com_claveelec <> '' " +
+                "and com_mensajeelec ILIKE '%CLAVE ACCESO REGISTRADA%' " +
+                "and (com_anulado is null or com_anulado = 0) " +
+                "and com_fecha >= '" + DateTime.Now.AddDays(-diasAtras).ToString("yyyy-MM-dd") + "'";
+
+            List<Comprobante> devueltoSospechosoList = ComprobanteBLL.GetAll(whereClauseDevueltoSospechoso, "com_fecha");
+
+            foreach (Comprobante item in devueltoSospechosoList)
+            {
+                try
+                {
+                    Comprobante com = new Comprobante { com_empresa = item.com_empresa, com_empresa_key = item.com_empresa, com_codigo = item.com_codigo, com_codigo_key = item.com_codigo };
+                    com = ComprobanteBLL.GetByPK(com);
+                    com = Packages.Electronico.UpdateElectronicoData(com);
+
+                    if (com.com_estadoelec == "AUTORIZADO")
+                        recuperadosDevuelto++;
+                    else
+                        confirmadosDevuelto++;
+                }
+                catch (Exception ex)
+                {
+                    confirmadosDevuelto++;
+                    ExceptionHandling.Log.AddExepcion(ex);
+                }
+            }
+
+            string[] retorno = new string[8];
+            retorno[0] = pendientesList.Count.ToString();
+            retorno[1] = autorizados.ToString();
+            retorno[2] = pendientes.ToString();
+            retorno[3] = errores.ToString();
+            retorno[4] = reenviosOk.ToString();
+            retorno[5] = reenviosError.ToString();
+            retorno[6] = recuperadosDevuelto.ToString();
+            retorno[7] = confirmadosDevuelto.ToString();
+            return new JavaScriptSerializer().Serialize(retorno);
+        }
+
         [WebMethod]
         public string GenerarElectronico(object objeto)
         {

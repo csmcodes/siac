@@ -444,9 +444,39 @@ namespace Packages
                         det.eled_codigo =  GetString( item.ddoc_productoid,25);
                         det.eled_codigoaux = GetString(item.ddoc_productocodigoaux,25); // NO SE ESTA USANDO CODIGO AUX
                         det.eled_descripcion = GetString(item.ddoc_productonombre + " " + item.ddoc_observaciones, 300);
-                        det.eled_cantidad = item.ddoc_cantidad;
-                        det.eled_precio = item.ddoc_precio;
-                        det.eled_descuento = (item.ddoc_dscitem ?? 0) > 0 ? ((item.ddoc_cantidad * item.ddoc_precio) - item.ddoc_total) : 0;
+                        if (item.ddoc_productototal.HasValue && item.ddoc_productototal.Value == 1)
+                        {
+                            // Producto "total por producto" (producto.pro_total=1, ej. codigo 252 "TOTAL" en
+                            // Carlogistica - ver ValidarCuadreDetalle en FAC.cs para el mismo criterio): el precio
+                            // unitario es SIEMPRE derivado (total/cantidad, redondeado a 2 decimales solo para
+                            // mostrar), asi que cantidad*precio casi nunca reproduce el total exacto - puede dar
+                            // descuento negativo (Asapp lo rechaza entero) o positivo (se pierde el centavo igual
+                            // por el clamping de abajo). Caso real Carlogistica FAC-001-001-0117236, 04-nov-2026:
+                            // SIAC $32.83, autorizado por Asapp en $32.80 (3 centavos perdidos). Fix definitivo para
+                            // estas lineas: reportar cantidad=1, precio=total exacto, descuento=0 - igual al patron
+                            // ya usado abajo para TRANSPORTE A DOMICILIO/SEGURO. Nunca mas hay rounding que perder.
+                            det.eled_cantidad = 1;
+                            det.eled_precio = item.ddoc_total;
+                            det.eled_descuento = 0;
+                        }
+                        else
+                        {
+                            det.eled_cantidad = item.ddoc_cantidad;
+                            det.eled_precio = item.ddoc_precio;
+                            // Antes solo calculaba el descuento si ddoc_dscitem>0 - si el total de la linea se
+                            // sobreescribio manualmente (ej. item de cortesia/sin costo) sin tocar ddoc_dscitem, el
+                            // descuento quedaba en 0 aunque cantidad*precio no coincidiera con el total real. SICE nunca
+                            // lo noto porque usa directamente precioTotalSinImpuesto (eled_totalsinimp); Asapp si, porque
+                            // calcula el total de cada item como cantidad*precioUnitario-descuento, de su lado.
+                            // Nunca negativo: el XSD del SRI exige descuento >= 0 (MinInclusive). Un total que
+                            // redondeo 1 centavo POR ENCIMA de cantidad*precio (normal, ej. 13*9.23=119.99 pero
+                            // ddoc_total=120.00) daria un "descuento" negativo (-0.01) - Asapp lo rechaza entero
+                            // ("The value '-0.01' is invalid... MinInclusive constraint failed", caso real
+                            // Carlogistica FAC-001-001-0116246, 2026-10-05). Clamping a 0 en vez de negativo: el
+                            // peor caso es un redondeo de centavo no reflejado en el item individual, muy por
+                            // debajo de lo que vale bloquear el envio entero.
+                            det.eled_descuento = Math.Max(0, (item.ddoc_cantidad * item.ddoc_precio) - item.ddoc_total);
+                        }
                         det.eled_totalsinimp = item.ddoc_total;
                         det.eled_adicional1 = item.ddoc_observaciones;
 
@@ -673,9 +703,34 @@ namespace Packages
                         det.eled_codigo = GetString(item.ddoc_productoid, 25);
                         det.eled_codigoaux = GetString(item.ddoc_productocodigoaux, 25);
                         det.eled_descripcion = GetString(item.ddoc_productonombre + " " + item.ddoc_observaciones, 300);
-                        det.eled_cantidad = item.ddoc_cantidad;
-                        det.eled_precio = item.ddoc_precio;
-                        det.eled_descuento = (item.ddoc_dscitem ?? 0) > 0 ? ((item.ddoc_cantidad * item.ddoc_precio) - item.ddoc_total) : 0;
+                        if (item.ddoc_productototal.HasValue && item.ddoc_productototal.Value == 1)
+                        {
+                            // Mismo fix que en la rama de Factura mas arriba - ver el comentario largo ahi.
+                            // Producto "total por producto" (pro_total=1): reportar cantidad=1, precio=total
+                            // exacto, descuento=0, para que nunca se pierda un centavo por redondeo del precio
+                            // unitario derivado.
+                            det.eled_cantidad = 1;
+                            det.eled_precio = item.ddoc_total;
+                            det.eled_descuento = 0;
+                        }
+                        else
+                        {
+                            det.eled_cantidad = item.ddoc_cantidad;
+                            det.eled_precio = item.ddoc_precio;
+                            // Antes solo calculaba el descuento si ddoc_dscitem>0 - si el total de la linea se
+                            // sobreescribio manualmente (ej. item de cortesia/sin costo) sin tocar ddoc_dscitem, el
+                            // descuento quedaba en 0 aunque cantidad*precio no coincidiera con el total real. SICE nunca
+                            // lo noto porque usa directamente precioTotalSinImpuesto (eled_totalsinimp); Asapp si, porque
+                            // calcula el total de cada item como cantidad*precioUnitario-descuento, de su lado.
+                            // Nunca negativo: el XSD del SRI exige descuento >= 0 (MinInclusive). Un total que
+                            // redondeo 1 centavo POR ENCIMA de cantidad*precio (normal, ej. 13*9.23=119.99 pero
+                            // ddoc_total=120.00) daria un "descuento" negativo (-0.01) - Asapp lo rechaza entero
+                            // ("The value '-0.01' is invalid... MinInclusive constraint failed", caso real
+                            // Carlogistica FAC-001-001-0116246, 2026-10-05). Clamping a 0 en vez de negativo: el
+                            // peor caso es un redondeo de centavo no reflejado en el item individual, muy por
+                            // debajo de lo que vale bloquear el envio entero.
+                            det.eled_descuento = Math.Max(0, (item.ddoc_cantidad * item.ddoc_precio) - item.ddoc_total);
+                        }
                         det.eled_totalsinimp = item.ddoc_total;
                         det.eled_adicional1 = item.ddoc_observaciones;
 
@@ -1234,6 +1289,211 @@ namespace Packages
             }
 
             return new Electronico().GenerateElectronicoSICE(com);
+        }
+
+        // Mapeo al codigo de tipo de documento SRI (2 digitos) usado en la clave de acceso - mismo mapeo que ya
+        // usa LoadElectronico internamente al llamar GetClave para cada rama (01/03/04/05/07), ver esos 5 call
+        // sites. Devuelve null para tipos no soportados por Asapp via este payload generico (ej. Guia de Remision,
+        // que tiene su propio flujo en ElectronicoAsapp.GenerateElectronicoGuiaRemision).
+        private static string GetTipoDocSri(int tipodoc)
+        {
+            if (tipodoc == Constantes.cFactura.tpd_codigo) return "01";
+            if (tipodoc == Constantes.cLiquidacionCompra.tpd_codigo) return "03";
+            if (tipodoc == Constantes.cNotacre.tpd_codigo) return "04";
+            if (tipodoc == Constantes.cNotadeb.tpd_codigo) return "05";
+            if (tipodoc == Constantes.cRetencion.tpd_codigo) return "07";
+            return null;
+        }
+
+        // Calcula la clave de acceso ANTES de enviar nada a Asapp y la guarda de una vez (UPDATE rapido, sin
+        // esperar respuesta de red) - asi la impresion (wfComprobantePrint.aspx.cs) puede leer com_claveelec
+        // apenas se guarda el comprobante, sin depender de que el envio en segundo piano (GenerateElectronicoAsync)
+        // haya terminado. Reutiliza GetClave/GetCheckDigit, el mismo algoritmo ya usado por el flujo legacy SICE
+        // (validado contra 40 claves reales ya autorizadas antes de habilitar esto, ver memoria del proyecto).
+        //
+        // Idempotente a proposito: si com_claveelec ya tiene valor (reintento de un comprobante ya precalculado,
+        // o uno recuperado via TryRecuperarClaveDeDuplicado), no se recalcula ni se vuelve a escribir - la clave
+        // y los datos que dependen de ella (fecha/ambiente/secuencial) deben quedar fijos desde el primer calculo,
+        // Asapp rechaza (CLAVE_ACCESO_INVALIDA) cualquier payload cuya clave no coincida exactamente con esos datos.
+        private static void PrecalcularClaveAcceso(Comprobante com)
+        {
+            try
+            {
+                Comprobante comp = new Comprobante { com_empresa = com.com_empresa, com_empresa_key = com.com_empresa, com_codigo = com.com_codigo, com_codigo_key = com.com_codigo };
+                comp = ComprobanteBLL.GetByPK(comp);
+
+                if (!string.IsNullOrEmpty(comp.com_claveelec))
+                    return; // ya calculada (reintento) - nunca recalcular
+
+                string tipoDocSri = GetTipoDocSri(comp.com_tipodoc);
+                if (tipoDocSri == null)
+                    return; // tipo no soportado por este payload (ej. Guia de Remision) - sigue su propio camino
+
+                Electronicos config = GetElectronicoConfig(comp);
+                if (config == null)
+                    return; // sin configuracion para este empresa+tipodoc - GenerateElectronico ya lo va a marcar NOCONFIG
+
+                Empresa empresa = EmpresaBLL.GetByPK(new Empresa { emp_codigo = comp.com_empresa, emp_codigo_key = comp.com_empresa });
+
+                Electronic ele = new Electronic
+                {
+                    ele_almacen = comp.com_almacenid,
+                    ele_pventa = comp.com_pventaid,
+                    ele_secuencia = comp.com_numero.ToString("000000000"),
+                    ele_ambiente = config.ambiente,
+                    ele_emision = 1
+                };
+
+                comp.com_claveelec = GetClave(comp, tipoDocSri, empresa, ele);
+                comp.com_ambiente = config.ambiente.ToString();
+                comp.com_emision = "1";
+                comp.com_empresa_key = comp.com_empresa;
+                comp.com_codigo_key = comp.com_codigo;
+                ComprobanteBLL.Update(comp);
+            }
+            catch (Exception ex)
+            {
+                // Nunca debe tumbar el guardado/envio por esto - si falla, GenerateElectronico sigue su camino
+                // normal (Asapp genera su propia clave, como antes de este cambio).
+                ExceptionHandling.Log.AddExepcion(ex);
+            }
+        }
+
+        // Dispara el envio en segundo plano (no bloquea el request de guardado de Factura/Guia). El gatillo
+        // IsElectronic/ResolveProvider es sincrono y sin red (solo lee el parametro "electronicos"), asi que se
+        // evalua aca mismo antes de encolar nada - evita que un comprobante que ni siquiera aplica a electronico
+        // quede "esperando" del lado del navegador. Solo se encola para Asapp: GenerateElectronicoSICE depende de
+        // HttpContext.Current (Server.MapPath), que no esta disponible en un QueueBackgroundWorkItem, asi que SICE
+        // conserva el comportamiento sincrono de siempre si algun dia se revierte el proveedor.
+        // Ver [[reference_async_envio_electronico]] en memoria: desde que Asapp soporta recibir la clave de acceso
+        // ya calculada (claveAcceso en el payload, confirmado en PROD 06-nov-2026), PrecalcularClaveAcceso corre
+        // SINCRONO aca mismo (antes de encolar el envio real) - la impresion ya no espera nada de Asapp para tener
+        // la clave, solo el calculo local (~2ms medido en pruebas de estres contra staging).
+        public static void GenerateElectronicoAsync(Comprobante com)
+        {
+            if (!IsElectronic(com))
+                return;
+
+            if (ResolveProvider(com) != "ASAPP")
+            {
+                GenerateElectronico(com);
+                return;
+            }
+
+            PrecalcularClaveAcceso(com);
+
+            // BUG REAL encontrado en produccion 30-oct-2026 (CL): Web.config fija <globalization culture="es-EC" />,
+            // pero eso solo aplica al hilo de la peticion ASP.NET - un hilo nuevo de QueueBackgroundWorkItem toma
+            // la cultura POR DEFECTO DEL SERVIDOR, no "es-EC". GenerateElectronico (via ResolveProvider/
+            // GetElectronicoConfig) parsea el parametro "electronicos" con JavaScriptSerializer, que tiene fechas
+            // como texto plano (ej. "desde":"2018-03-22") - en la cultura del servidor eso tiro
+            // "String was not recognized as a valid DateTime" y ningun envio llegaba a completarse (com_estadoelec
+            // se quedaba vacio en TODOS los comprobantes nuevos). Fix: fijar la cultura explicitamente adentro del
+            // hilo de fondo, igual a la que ya tenia el hilo de la peticion.
+            System.Web.Hosting.HostingEnvironment.QueueBackgroundWorkItem(ct =>
+            {
+                System.Globalization.CultureInfo cultura = new System.Globalization.CultureInfo("es-EC");
+                System.Threading.Thread.CurrentThread.CurrentCulture = cultura;
+                System.Threading.Thread.CurrentThread.CurrentUICulture = cultura;
+                GenerateElectronico(com);
+            });
+        }
+
+        // Interruptor del log de diagnostico GUARDADO_TOTAL/IMPRESION (no afecta el log "ENVIO" de Asapp, que
+        // es permanente). Pensado para prender/apagar sin otro deploy: parametro "DiagnosticoGuardado" en la
+        // tabla parametro, valor "0" lo apaga. Si el parametro no existe, queda HABILITADO por default (asi
+        // funciona apenas se despliega esto, sin un paso extra de configuracion). Cuando se decida que ya se
+        // midio lo suficiente, insertar/actualizar el parametro a "0" alcanza para apagarlo sin tocar codigo.
+        private static bool DiagnosticoGuardadoHabilitado()
+        {
+            string valor = Constantes.GetParameter("DiagnosticoGuardado");
+            return valor != "0";
+        }
+
+        // Mide el tiempo TOTAL de guardado (SaveObject completo, no solo el envio a Asapp) y lo deja en la
+        // misma tabla log_asapp (log_operacion="GUARDADO_TOTAL") para poder comparar antes/despues del cambio
+        // a GenerateElectronicoAsync con la misma herramienta que ya usamos para medir Asapp - evita crear una
+        // tabla nueva solo para esto. No tiene nada que ver con Asapp en si (corre para cualquier guardado,
+        // electronico o no), solo reusa el mismo mecanismo de logging ya probado.
+        // La duracion se calcula ACA (sincrono, instantaneo - solo resta dos DateTime), pero el INSERT real a
+        // la BD (incluido el chequeo del interruptor) se manda en segundo plano: la idea es medir el guardado
+        // sin que la propia medicion le agregue tiempo al guardado que se esta midiendo.
+        // Para ver el tiempo de Asapp junto a este: JOIN contra log_asapp log_operacion='ENVIO' por
+        // log_comprobante (ya existe, no hace falta duplicarlo aca).
+        public static void LogDuracionGuardado(Comprobante com, DateTime inicio)
+        {
+            int duracionMs = (int)(DateTime.Now - inicio).TotalMilliseconds;
+            int empresa = com.com_empresa;
+            long codigo = com.com_codigo;
+            System.Web.Hosting.HostingEnvironment.QueueBackgroundWorkItem(ct =>
+            {
+                try
+                {
+                    if (!DiagnosticoGuardadoHabilitado())
+                        return;
+
+                    LogAsapp log = new LogAsapp();
+                    log.log_empresa = empresa;
+                    log.log_comprobante = codigo;
+                    log.log_operacion = "GUARDADO_TOTAL";
+                    log.log_exitoso = 1;
+                    log.log_duracionms = duracionMs;
+                    log.crea_fecha = DateTime.Now;
+                    LogAsappBLL.Insert(log);
+                }
+                catch (Exception ex)
+                {
+                    ExceptionHandling.Log.AddExepcion(ex);
+                }
+            });
+        }
+
+        // Registra, al momento de imprimir (wfComprobantePrint.aspx), si el comprobante YA tenia la clave
+        // electronica puesta o no - para saber que tan seguido el envio en segundo plano (GenerateElectronicoAsync)
+        // alcanza a terminar antes de que el usuario imprima. com_estado se usa como el booleano "tenia clave"
+        // (1=si, 0=no) reusando el campo existente de la tabla, igual que log_exitoso en los demas logs de
+        // log_asapp. log_duracionms aca es el tiempo transcurrido desde que se creo/modifico el comprobante
+        // hasta el momento de imprimir (proxy de "cuanto tardo en llegar a la pantalla de impresion"), no el
+        // tiempo de Asapp (eso ya esta en log_operacion='ENVIO', se compara por log_comprobante).
+        public static void LogEstadoAlImprimir(Comprobante com)
+        {
+            if (com == null)
+                return;
+            try
+            {
+                if (!DiagnosticoGuardadoHabilitado())
+                    return;
+
+                bool teniaClave = !string.IsNullOrEmpty(com.com_claveelec);
+                DateTime? referencia = com.mod_fecha.HasValue && com.mod_fecha.Value != default(DateTime) ? com.mod_fecha : com.crea_fecha;
+                int msDesdeGuardado = (referencia.HasValue && referencia.Value != default(DateTime)) ? (int)(DateTime.Now - referencia.Value).TotalMilliseconds : 0;
+
+                int empresa = com.com_empresa;
+                long codigo = com.com_codigo;
+                System.Web.Hosting.HostingEnvironment.QueueBackgroundWorkItem(ct =>
+                {
+                    try
+                    {
+                        LogAsapp log = new LogAsapp();
+                        log.log_empresa = empresa;
+                        log.log_comprobante = codigo;
+                        log.log_operacion = "IMPRESION";
+                        log.log_exitoso = teniaClave ? 1 : 0;
+                        log.log_duracionms = msDesdeGuardado;
+                        log.log_mensaje = teniaClave ? "CON CLAVE AL IMPRIMIR" : "SIN CLAVE AL IMPRIMIR";
+                        log.crea_fecha = DateTime.Now;
+                        LogAsappBLL.Insert(log);
+                    }
+                    catch (Exception ex)
+                    {
+                        ExceptionHandling.Log.AddExepcion(ex);
+                    }
+                });
+            }
+            catch (Exception ex)
+            {
+                ExceptionHandling.Log.AddExepcion(ex);
+            }
         }
 
         // Integracion legacy SICE (SOAP) - logica intacta, solo renombrada. No modificar sin coordinar rollback del switch "provider".

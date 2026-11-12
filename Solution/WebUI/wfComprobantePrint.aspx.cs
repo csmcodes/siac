@@ -96,6 +96,14 @@ namespace WebUI
                 format = int.Parse(formato);
 
 
+            // Diagnostico temporal (ver [[project_asapp_lentitud_envio_async]]): registra si el comprobante ya
+            // tenia la clave electronica puesta al momento de imprimir, dado que el envio a Asapp ahora corre
+            // en segundo plano y la impresion ya no lo espera. Lectura liviana aparte (solo para el log), no
+            // afecta el comprobante que usan ImprimeTicket/ComprobantePDF mas abajo.
+            Comprobante comParaDiagnostico = new Comprobante { com_empresa = int.Parse(empresa), com_empresa_key = int.Parse(empresa), com_codigo = long.Parse(codigo), com_codigo_key = long.Parse(codigo) };
+            comParaDiagnostico = ComprobanteBLL.GetByPK(comParaDiagnostico);
+            Packages.Electronico.LogEstadoAlImprimir(comParaDiagnostico);
+
             if (!ImprimeTicket(int.Parse(empresa), codigo, usuario, path))
             {
                 string filename = Services.Pdf.ComprobantePDF(int.Parse(empresa), codigo, path, true, impresora, format);

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Globalization;
+using System.Text.RegularExpressions;
 using RestSharp;
 using Newtonsoft.Json;
 using BusinessObjects;
@@ -43,6 +44,28 @@ namespace Packages
             public string error { get; set; }
             public string errorCode { get; set; }
             public string mensaje { get; set; }
+        }
+
+        private static readonly Regex RxClaveDuplicado = new Regex(@"ClaveAcceso:\s*([0-9]{49})", RegexOptions.IgnoreCase);
+        private static readonly Regex RxEstadoDuplicado = new Regex(@"Estado actual:\s*([A-Za-z]+)", RegexOptions.IgnoreCase);
+
+        // SECUENCIAL_DUPLICADO significa que Asapp YA tiene este comprobante registrado - lo mas comun es que un
+        // envio anterior si llego y se proceso, pero la respuesta nunca volvio a SIAC (corte de red justo despues
+        // del OK, com_estadoelec se quedo en ERROR-ASAPP/vacio sin clave). El propio texto de error trae la clave
+        // y el estado real ("...ClaveAcceso: <49 digitos>. Estado actual: Autorizado."), asi que se recupera de
+        // ahi en vez de dejar el comprobante varado en DUPLICADO-ASAPP esperando una intervencion manual - caso
+        // real TORTIZ comprobante 3275896, 07-oct-2026 (resuelto a mano antes de agregar esto).
+        private static bool TryRecuperarClaveDeDuplicado(Comprobante comprobante, string mensajeError)
+        {
+            if (string.IsNullOrEmpty(mensajeError))
+                return false;
+            Match mClave = RxClaveDuplicado.Match(mensajeError);
+            if (!mClave.Success)
+                return false;
+            Match mEstado = RxEstadoDuplicado.Match(mensajeError);
+            comprobante.com_claveelec = mClave.Groups[1].Value;
+            comprobante.com_estadoelec = mEstado.Success ? mEstado.Groups[1].Value.ToUpper() : "GENERADO";
+            return true;
         }
 
         // Forma real de GET /api/v1/comprobantes/{id}/estado, confirmada contra el sandbox el 2026-07-10.
@@ -423,13 +446,16 @@ namespace Packages
                 // Ya existe en Asapp con ese secuencial: no es un fallo real, se recupera y no se reintenta.
                 if (error != null && error.errorCode == "SECUENCIAL_DUPLICADO")
                 {
-                    comprobante.com_estadoelec = "DUPLICADO-ASAPP";
+                    bool recuperada = TryRecuperarClaveDeDuplicado(comprobante, error.error);
+                    if (!recuperada)
+                        comprobante.com_estadoelec = "DUPLICADO-ASAPP";
                     comprobante.com_mensajeelec = error.mensaje;
                     comprobante.com_provider = "ASAPP";
                     ComprobanteBLL.Update(comprobante);
-                    Log(com, "ENVIO", config.endpoint_envio, response, false, requestJson, "SECUENCIAL_DUPLICADO: " + error.mensaje, inicio);
-                    ExceptionHandling.Log.AddExepcion(new Exception("Asapp SECUENCIAL_DUPLICADO comprobante " + com.com_codigo + ": " + error.mensaje));
-                    return false;
+                    Log(com, "ENVIO", config.endpoint_envio, response, recuperada, requestJson, "SECUENCIAL_DUPLICADO: " + error.mensaje, inicio);
+                    if (!recuperada)
+                        ExceptionHandling.Log.AddExepcion(new Exception("Asapp SECUENCIAL_DUPLICADO comprobante " + com.com_codigo + ": " + error.mensaje));
+                    return recuperada;
                 }
 
                 string mensajeError = error != null ? (error.error + ": " + error.mensaje) : ("HTTP " + (int)response.StatusCode + " - " + response.Content);
@@ -618,13 +644,16 @@ namespace Packages
 
                 if (error != null && error.errorCode == "SECUENCIAL_DUPLICADO")
                 {
-                    comprobante.com_estadoelec = "DUPLICADO-ASAPP";
+                    bool recuperada = TryRecuperarClaveDeDuplicado(comprobante, error.error);
+                    if (!recuperada)
+                        comprobante.com_estadoelec = "DUPLICADO-ASAPP";
                     comprobante.com_mensajeelec = error.mensaje;
                     comprobante.com_provider = "ASAPP";
                     ComprobanteBLL.Update(comprobante);
-                    Log(com, "ENVIO", asappConfig.endpoint_envio, response, false, requestJson, "SECUENCIAL_DUPLICADO: " + error.mensaje, inicio);
-                    ExceptionHandling.Log.AddExepcion(new Exception("Asapp SECUENCIAL_DUPLICADO comprobante " + com.com_codigo + ": " + error.mensaje));
-                    return false;
+                    Log(com, "ENVIO", asappConfig.endpoint_envio, response, recuperada, requestJson, "SECUENCIAL_DUPLICADO: " + error.mensaje, inicio);
+                    if (!recuperada)
+                        ExceptionHandling.Log.AddExepcion(new Exception("Asapp SECUENCIAL_DUPLICADO comprobante " + com.com_codigo + ": " + error.mensaje));
+                    return recuperada;
                 }
 
                 string mensajeError = error != null ? (error.error + ": " + error.mensaje) : ("HTTP " + (int)response.StatusCode + " - " + response.Content);
@@ -753,24 +782,41 @@ namespace Packages
         // que FACTURA, sin los adicionales de envio que no aplican a una compra a un individuo).
         private static object BuildLiquidacionCompra(Comprobante comprobante, Electronic electronic)
         {
-            return new
+            var payload = new Dictionary<string, object>
             {
-                tipo = "liquidacion_compra",
-                ambiente = Ambiente(electronic),
-                establecimiento = comprobante.com_almacenid,
-                puntoEmision = comprobante.com_pventaid,
-                fecha = FechaIso(comprobante.com_fecha),
-                secuencial = comprobante.com_numero,
-                cliente = new
-                {
-                    identificacion = electronic.ele_idcomprador,
-                    nombre = electronic.ele_razonsocial,
-                    email = electronic.ele_email,
-                    direccion = electronic.ele_dircomprador
+                { "tipo", "liquidacion_compra" },
+                { "ambiente", Ambiente(electronic) },
+                { "establecimiento", comprobante.com_almacenid },
+                { "puntoEmision", comprobante.com_pventaid },
+                { "fecha", FechaIso(comprobante.com_fecha) },
+                { "secuencial", comprobante.com_numero },
+                { "cliente", new
+                    {
+                        identificacion = electronic.ele_idcomprador,
+                        nombre = electronic.ele_razonsocial,
+                        email = electronic.ele_email,
+                        direccion = electronic.ele_dircomprador
+                    }
                 },
-                items = BuildItems(electronic),
-                pagos = BuildPagos(electronic)
+                { "items", BuildItems(electronic) },
+                { "pagos", BuildPagos(electronic) }
             };
+            AgregarClaveAcceso(payload, comprobante);
+            return payload;
+        }
+
+        // Agrega "claveAcceso" (y el "secuencial" ya va siempre en cada payload) cuando Electronico.
+        // PrecalcularClaveAcceso ya la calculo y guardo de forma sincrona antes del envio - confirmado por
+        // Asapp en PROD 06-nov-2026, 4 restricciones a respetar (ya cubiertas por como se calcula la clave):
+        // secuencial siempre presente, RUC de la cuenta duena de la api_key de PROD (empresa.emp_id), ambiente
+        // de la clave == ambiente del payload (misma fuente, Electronicos.ambiente), y el reintento duplicado
+        // responde 422/SECUENCIAL_DUPLICADO (ya se discrimina por errorCode, no por HTTP status - ver mas abajo).
+        // Si com_claveelec vino vacio (precalculo fallo o tipo no soportado), se omite el campo entero y Asapp
+        // sigue generando su propia clave como antes - nunca mandar el campo vacio.
+        private static void AgregarClaveAcceso(Dictionary<string, object> payload, Comprobante comprobante)
+        {
+            if (!string.IsNullOrEmpty(comprobante.com_claveelec))
+                payload["claveAcceso"] = comprobante.com_claveelec;
         }
 
         private static string Ambiente(Electronic electronic)
@@ -899,6 +945,8 @@ namespace Packages
                 { "infoAdicional", BuildInfoAdicional(electronic, empresa) }
             };
 
+            AgregarClaveAcceso(payload, comprobante);
+
             // Asapp rechaza el documento entero (422 XsdValidationError) si "placa" viene presente pero vacio -
             // solo incluirlo cuando hay un valor real. Empresas que hicieron la placa opcional (ej. TORTIZ, ver
             // Constantes.cPlacaSriObligatoria) pueden guardar una factura sin placa; en ese caso hay que omitir
@@ -914,62 +962,70 @@ namespace Packages
         // WebUI/xml/nc/notacredito.xml y ret/retencion.xml) - el dato sale directo de Ccomdoc.
         private static object BuildNotaCredito(Comprobante comprobante, Electronic electronic, Comprobante docSustento, Empresa empresa)
         {
-            return new
+            var payload = new Dictionary<string, object>
             {
-                tipo = "nota_credito",
-                ambiente = Ambiente(electronic),
-                establecimiento = comprobante.com_almacenid,
-                puntoEmision = comprobante.com_pventaid,
-                fecha = FechaIso(comprobante.com_fecha),
-                secuencial = comprobante.com_numero,
-                cliente = new
-                {
-                    identificacion = comprobante.ccomdoc.cdoc_ced_ruc,
-                    nombre = comprobante.ccomdoc.cdoc_nombre,
-                    email = electronic.ele_email,
-                    direccion = comprobante.ccomdoc.cdoc_direccion
+                { "tipo", "nota_credito" },
+                { "ambiente", Ambiente(electronic) },
+                { "establecimiento", comprobante.com_almacenid },
+                { "puntoEmision", comprobante.com_pventaid },
+                { "fecha", FechaIso(comprobante.com_fecha) },
+                { "secuencial", comprobante.com_numero },
+                { "cliente", new
+                    {
+                        identificacion = comprobante.ccomdoc.cdoc_ced_ruc,
+                        nombre = comprobante.ccomdoc.cdoc_nombre,
+                        email = electronic.ele_email,
+                        direccion = comprobante.ccomdoc.cdoc_direccion
+                    }
                 },
-                motivo = string.IsNullOrEmpty(comprobante.com_concepto) ? "Nota de credito" : comprobante.com_concepto,
-                documentoModificado = new
-                {
-                    tipo = "factura",
-                    numero = docSustento != null ? string.Format("{0:000}-{1:000}-{2:000000000}", docSustento.com_almacenid, docSustento.com_pventaid, docSustento.com_numero) : "",
-                    fechaEmision = docSustento != null ? FechaIso(docSustento.com_fecha) : ""
+                { "motivo", string.IsNullOrEmpty(comprobante.com_concepto) ? "Nota de credito" : comprobante.com_concepto },
+                { "documentoModificado", new
+                    {
+                        tipo = "factura",
+                        numero = docSustento != null ? string.Format("{0:000}-{1:000}-{2:000000000}", docSustento.com_almacenid, docSustento.com_pventaid, docSustento.com_numero) : "",
+                        fechaEmision = docSustento != null ? FechaIso(docSustento.com_fecha) : ""
+                    }
                 },
-                items = BuildItems(electronic),
-                pagos = BuildPagos(electronic),
-                infoAdicional = BuildInfoAdicional(electronic, empresa)
+                { "items", BuildItems(electronic) },
+                { "pagos", BuildPagos(electronic) },
+                { "infoAdicional", BuildInfoAdicional(electronic, empresa) }
             };
+            AgregarClaveAcceso(payload, comprobante);
+            return payload;
         }
 
         // Misma forma que nota_credito segun el spec de Asapp (sin "pagos"). SICE nunca implemento este tipo,
         // por lo que no hay plantilla XML legacy para contrastar el mapeo - validar contra el sandbox de Asapp.
         private static object BuildNotaDebito(Comprobante comprobante, Electronic electronic, Comprobante docSustento)
         {
-            return new
+            var payload = new Dictionary<string, object>
             {
-                tipo = "nota_debito",
-                ambiente = Ambiente(electronic),
-                establecimiento = comprobante.com_almacenid,
-                puntoEmision = comprobante.com_pventaid,
-                fecha = FechaIso(comprobante.com_fecha),
-                secuencial = comprobante.com_numero,
-                cliente = new
-                {
-                    identificacion = comprobante.ccomdoc.cdoc_ced_ruc,
-                    nombre = comprobante.ccomdoc.cdoc_nombre,
-                    email = electronic.ele_email,
-                    direccion = comprobante.ccomdoc.cdoc_direccion
+                { "tipo", "nota_debito" },
+                { "ambiente", Ambiente(electronic) },
+                { "establecimiento", comprobante.com_almacenid },
+                { "puntoEmision", comprobante.com_pventaid },
+                { "fecha", FechaIso(comprobante.com_fecha) },
+                { "secuencial", comprobante.com_numero },
+                { "cliente", new
+                    {
+                        identificacion = comprobante.ccomdoc.cdoc_ced_ruc,
+                        nombre = comprobante.ccomdoc.cdoc_nombre,
+                        email = electronic.ele_email,
+                        direccion = comprobante.ccomdoc.cdoc_direccion
+                    }
                 },
-                motivo = string.IsNullOrEmpty(comprobante.com_concepto) ? "Nota de debito" : comprobante.com_concepto,
-                documentoModificado = new
-                {
-                    tipo = "factura",
-                    numero = docSustento != null ? string.Format("{0:000}-{1:000}-{2:000000000}", docSustento.com_almacenid, docSustento.com_pventaid, docSustento.com_numero) : "",
-                    fechaEmision = docSustento != null ? FechaIso(docSustento.com_fecha) : ""
+                { "motivo", string.IsNullOrEmpty(comprobante.com_concepto) ? "Nota de debito" : comprobante.com_concepto },
+                { "documentoModificado", new
+                    {
+                        tipo = "factura",
+                        numero = docSustento != null ? string.Format("{0:000}-{1:000}-{2:000000000}", docSustento.com_almacenid, docSustento.com_pventaid, docSustento.com_numero) : "",
+                        fechaEmision = docSustento != null ? FechaIso(docSustento.com_fecha) : ""
+                    }
                 },
-                items = BuildItems(electronic)
+                { "items", BuildItems(electronic) }
             };
+            AgregarClaveAcceso(payload, comprobante);
+            return payload;
         }
 
         private static object BuildRetencion(Comprobante comprobante, Electronic electronic, Comprobante docSustento, Empresa empresa)
@@ -1005,25 +1061,28 @@ namespace Packages
                 }
             }
 
-            return new
+            var payload = new Dictionary<string, object>
             {
-                tipo = "retencion",
-                ambiente = Ambiente(electronic),
-                establecimiento = comprobante.com_almacenid,
-                puntoEmision = comprobante.com_pventaid,
-                fecha = FechaIso(comprobante.com_fecha),
-                secuencial = comprobante.com_numero,
-                retencion = new
-                {
-                    mes = comprobante.com_fecha.Month,
-                    anio = comprobante.com_fecha.Year,
-                    identificacion = comprobante.ccomdoc.cdoc_ced_ruc,
-                    nombre = comprobante.ccomdoc.cdoc_nombre,
-                    email = electronic.ele_email,
-                    documentosSustento = documentosSustento
+                { "tipo", "retencion" },
+                { "ambiente", Ambiente(electronic) },
+                { "establecimiento", comprobante.com_almacenid },
+                { "puntoEmision", comprobante.com_pventaid },
+                { "fecha", FechaIso(comprobante.com_fecha) },
+                { "secuencial", comprobante.com_numero },
+                { "retencion", new
+                    {
+                        mes = comprobante.com_fecha.Month,
+                        anio = comprobante.com_fecha.Year,
+                        identificacion = comprobante.ccomdoc.cdoc_ced_ruc,
+                        nombre = comprobante.ccomdoc.cdoc_nombre,
+                        email = electronic.ele_email,
+                        documentosSustento = documentosSustento
+                    }
                 },
-                infoAdicional = BuildInfoAdicional(electronic, empresa)
+                { "infoAdicional", BuildInfoAdicional(electronic, empresa) }
             };
+            AgregarClaveAcceso(payload, comprobante);
+            return payload;
         }
     }
 }

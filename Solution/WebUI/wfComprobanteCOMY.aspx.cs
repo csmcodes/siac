@@ -942,7 +942,7 @@ namespace WebUI
             tdatos.AddColumn("U.Medida", "width10", "", new Select() { id = "cmbUMEDIDA", placeholder = "Medida", diccionario = Dictionaries.GetUmedida(), clase = Css.blocklevel }.ToString() + new Input() { id = "txtFACTOR", visible = false });
             tdatos.AddColumn("Cant.", "width5", Css.center, new Input() { id = "txtCANTIDAD", placeholder = "CANT", clase = Css.blocklevel + Css.cantidades, numeric = true }.ToString());
             tdatos.AddColumn("Precio", "width10", Css.right, new Input() { id = "txtPRECIO", placeholder = "PRECIO", clase = Css.blocklevel + Css.amount, habilitado = false }.ToString());
-            tdatos.AddColumn("Desc.%", "width5", Css.right, new Input() { id = "txtDESC", placeholder = "DESC", clase = Css.blocklevel + Css.amount }.ToString());
+            tdatos.AddColumn("Desc.%", "width5", Css.right, new Input() { id = "txtDESC", placeholder = "DESC", clase = Css.blocklevel + Css.amount, habilitado = false }.ToString());
             tdatos.AddColumn("TOTAL", "width10", Css.right, new Input() { id = "txtTOTAL", placeholder = "TOTAL", clase = Css.blocklevel + Css.amount, habilitado = false }.ToString());
             tdatos.AddColumn("IVA", "width5", Css.center, new Check() { id = "chkIVA", clase = Css.blocklevel + Css.cantidades, habilitado = false, valor = 1 }.ToString());
             if (habilitado)
@@ -1196,6 +1196,9 @@ namespace WebUI
 
                 Rutaxfactura rfac = new Rutaxfactura(objetorfac);
 
+                // Mide el guardado completo (no solo el envio a Asapp) para poder comparar antes/despues del
+                // cambio a GenerateElectronicoAsync - ver [[project_asapp_lentitud_envio_async]] en memoria.
+                DateTime inicioGuardado = DateTime.Now;
                 try
                 {
                     if (obj.com_codigo > 0)
@@ -1224,14 +1227,22 @@ namespace WebUI
                         //FATLA CONTABILZIAR CANCELACION
                     }
 
-                    //NUEVO CODIGO PARA FACTURACION ELECTRONICA
-                    Packages.Electronico.GenerateElectronico(obj);
+                    //NUEVO CODIGO PARA FACTURACION ELECTRONICA - async (no bloquea el guardado esperando a Asapp)
+                    Packages.Electronico.GenerateElectronicoAsync(obj);
 
+                    Packages.Electronico.LogDuracionGuardado(obj, inicioGuardado);
                     return obj.com_codigo.ToString();
                 }
                 catch (Exception ex)
                 {
-                    obj.com_codigo = -1;
+                    // No pisar obj.com_codigo con -1: si la excepcion vino de account_factura (ej. el guardia de
+                    // cuadre), save_factura/update_factura ya se ejecuto con exito y el comprobante YA existe en
+                    // BD con ese codigo real. Devolverlo tal cual (mismo patron que wfComprobanteStd/TC.aspx.cs,
+                    // que nunca tuvieron este problema) para que un reintento actualice el mismo registro en vez
+                    // de crear uno nuevo - antes, el -1 hacia que el formulario nunca supiera que ya se habia
+                    // guardado, y cada "Guardar" generaba un comprobante huerfano distinto. Caso real
+                    // Carlogistica, FAC-001-001-0116503 a 06, 13-oct-2026 (8 reintentos, 4 huerfanos, factura
+                    // real nunca emitida).
                     ExceptionHandling.Log.AddExepcion(ex);
                     return obj.com_codigo.ToString();
                 }

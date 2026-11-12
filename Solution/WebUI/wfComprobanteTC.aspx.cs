@@ -885,7 +885,7 @@ namespace WebUI
             tdatos.AddColumn("U.Medida", "width10", "", new Select() { id = "cmbUMEDIDA", placeholder = "Medida", diccionario = Dictionaries.GetUmedida(), clase = Css.blocklevel }.ToString() + new Input() { id = "txtFACTOR", visible = false });
             tdatos.AddColumn("Cant.", "width5", Css.center, new Input() { id = "txtCANTIDAD", placeholder = "CANT", clase = Css.blocklevel + Css.cantidades, numeric = true }.ToString());
             tdatos.AddColumn("Precio", "width10", Css.right, new Input() { id = "txtPRECIO", placeholder = "PRECIO", clase = Css.blocklevel + Css.amount, habilitado = false }.ToString());
-            tdatos.AddColumn("Desc.%", "width5", Css.right, new Input() { id = "txtDESC", placeholder = "DESC", clase = Css.blocklevel + Css.amount }.ToString());
+            tdatos.AddColumn("Desc.%", "width5", Css.right, new Input() { id = "txtDESC", placeholder = "DESC", clase = Css.blocklevel + Css.amount, habilitado = false }.ToString());
             tdatos.AddColumn("TOTAL", "width10", Css.right, new Input() { id = "txtTOTAL", placeholder = "TOTAL", clase = Css.blocklevel + Css.amount, habilitado = false }.ToString());
             tdatos.AddColumn("IVA", "width5", Css.center, new Check() { id = "chkIVA", clase = Css.blocklevel + Css.cantidades, habilitado = false, valor = 1 }.ToString());
             if (habilitado)
@@ -967,7 +967,7 @@ namespace WebUI
             tdatos.AddColumn("U.Medida", "width10", "", new Select() { id = "cmbUMEDIDA", placeholder = "Medida", diccionario = Dictionaries.GetUmedida(), clase = Css.blocklevel }.ToString() + new Input() { id = "txtFACTOR", visible = false });
             tdatos.AddColumn("Cant.", "width5", Css.center, new Input() { id = "txtCANTIDAD", placeholder = "CANT", clase = Css.blocklevel + Css.cantidades, numeric = true }.ToString());
             tdatos.AddColumn("Precio", "width10", Css.right, new Input() { id = "txtPRECIO", placeholder = "PRECIO", clase = Css.blocklevel + Css.amount, habilitado = false }.ToString());
-            tdatos.AddColumn("", "width5", Css.right, new Input() { id = "txtDESC", placeholder = "DESC", clase = Css.blocklevel + Css.amount }.ToString());
+            tdatos.AddColumn("", "width5", Css.right, new Input() { id = "txtDESC", placeholder = "DESC", clase = Css.blocklevel + Css.amount, habilitado = false }.ToString());
             tdatos.AddColumn("TOTAL", "width10", Css.right, new Input() { id = "txtTOTAL", placeholder = "TOTAL", clase = Css.blocklevel + Css.amount, habilitado = false }.ToString());
             tdatos.AddColumn("IVA", "width5", Css.center, new Check() { id = "chkIVA", clase = Css.blocklevel + Css.cantidades, habilitado = false, valor = 1 }.ToString());
             if (habilitado)
@@ -1188,6 +1188,9 @@ namespace WebUI
 
             Rutaxfactura rfac = new Rutaxfactura(objetorfac);
 
+            // Mide el guardado completo (no solo el envio a Asapp) para poder comparar antes/despues del
+            // cambio a GenerateElectronicoAsync - ver [[project_asapp_lentitud_envio_async]] en memoria.
+            DateTime inicioGuardado = DateTime.Now;
             try
             {
                 if (obj.com_codigo > 0)
@@ -1212,9 +1215,10 @@ namespace WebUI
                     FAC.account_recibo(can);
                     //FATLA CONTABILZIAR CANCELACION
                 }
-                //NUEVO CODIGO PARA FACTURACION ELECTRONICA
-                Packages.Electronico.GenerateElectronico(obj);
+                //NUEVO CODIGO PARA FACTURACION ELECTRONICA - async (no bloquea el guardado esperando a Asapp)
+                Packages.Electronico.GenerateElectronicoAsync(obj);
 
+                Packages.Electronico.LogDuracionGuardado(obj, inicioGuardado);
                 return obj.com_codigo.ToString();
             }
             catch (Exception ex)
