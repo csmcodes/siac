@@ -607,18 +607,74 @@ namespace Packages
             return comp;
 
         }
+        // Valida que cada linea del detalle sea internamente consistente (cantidad*precio-descuento == total)
+        // antes de dejar mayorizar. Si el total de una linea fue sobreescrito manualmente (ej. item de
+        // cortesia/sin costo) sin registrar el descuento correspondiente, cantidad*precio no coincide con el
+        // total real aunque dcontable/ddocumento queden balanceados entre si (el descuadre es invisible para
+        // SIAC, pero Asapp SI recalcula cada item como cantidad*precioUnitario-descuento y termina autorizando
+        // un monto distinto ante el SRI - ver caso real FAC-002-001-0146066, Carlogistica, 2026-10-01). Se
+        // corta aca, antes de crear ningun asiento o documento, para que la factura nunca llegue a Mayorizado
+        // en este estado - ni manualmente ni por el cierre automatico de Hoja de Ruta.
+        private static void ValidarCuadreDetalle(Comprobante comp)
+        {
+            if (comp.ccomdoc == null || comp.ccomdoc.detalle == null)
+                return;
+
+            Dictionary<int, bool> esTotProCache = new Dictionary<int, bool>();
+
+            foreach (Dcomdoc item in comp.ccomdoc.detalle)
+            {
+                // Productos "total por producto" (producto.pro_total=1, ej. codigo 252 "TOTAL" en Carlogistica)
+                // dejan que el usuario digite el TOTAL directamente y el precio se deriva al reves (total/cantidad,
+                // redondeado a 2 decimales solo para mostrar - ver CalculaTotal() en los 4 js/forms/Comprobante*.js).
+                // Para estas lineas, cantidad*precio NUNCA va a cuadrar exacto contra el total cuando la division
+                // no cae en 2 decimales limpios (ej. 41.04/25=1.6416 -> precio guardado 1.64 -> 25*1.64=41.00,
+                // diferencia de 4 centavos matematicamente inevitable, no un error real). Se omite la validacion
+                // para estas lineas - el total es la fuente de verdad, no hay nada que cuadrar contra el precio.
+                // Caso real Carlogistica, FAC-001-001-0116503 a 06, 13-oct-2026 (bloqueada 8 veces, 4 borradores
+                // huerfanos, factura real del cliente nunca se llego a emitir).
+                if (item.ddoc_producto.HasValue)
+                {
+                    bool esTotPro;
+                    if (!esTotProCache.TryGetValue(item.ddoc_producto.Value, out esTotPro))
+                    {
+                        Producto pro = new Producto { pro_empresa = comp.com_empresa, pro_empresa_key = comp.com_empresa, pro_codigo = item.ddoc_producto.Value, pro_codigo_key = item.ddoc_producto.Value };
+                        pro = ProductoBLL.GetByPK(pro);
+                        esTotPro = pro != null && pro.pro_total == 1;
+                        esTotProCache[item.ddoc_producto.Value] = esTotPro;
+                    }
+                    if (esTotPro)
+                        continue;
+                }
+
+                decimal descuento = item.ddoc_dscitem ?? 0;
+                decimal esperado = (item.ddoc_cantidad * item.ddoc_precio) - descuento;
+                decimal diferencia = esperado - item.ddoc_total;
+
+                if (Math.Abs(diferencia) > 0.02m)
+                {
+                    throw new Exception(string.Format(
+                        "No se puede mayorizar: la linea \"{0}\" no cuadra (cant.{1} x precio ${2:0.00} - desc.${3:0.00} = ${4:0.00}, pero el total de la linea es ${5:0.00}, diferencia ${6:0.00}). Corrija el detalle antes de mayorizar.",
+                        item.ddoc_observaciones, item.ddoc_cantidad, item.ddoc_precio, descuento, esperado, item.ddoc_total, diferencia));
+                }
+            }
+        }
+
         public static Comprobante account_factura(Comprobante comp)
         {
             comp.com_empresa_key = comp.com_empresa;
             comp.com_codigo_key = comp.com_codigo;
             comp = ComprobanteBLL.GetByPK(comp);
-            
+
             comp.com_empresa_key = comp.com_empresa;
             comp.com_codigo_key = comp.com_codigo;
 
             comp.total = TotalBLL.GetByPK(new Total { tot_empresa = comp.com_empresa, tot_empresa_key = comp.com_empresa, tot_comprobante = comp.com_codigo, tot_comprobante_key = comp.com_codigo });
             comp.ccomdoc = CcomdocBLL.GetByPK(new Ccomdoc { cdoc_empresa = comp.com_empresa, cdoc_empresa_key = comp.com_empresa, cdoc_comprobante = comp.com_codigo, cdoc_comprobante_key = comp.com_codigo });
             comp.ccomdoc.detalle = DcomdocBLL.GetAll(new WhereParams("ddoc_empresa ={0} and ddoc_comprobante={1}", comp.com_empresa, comp.com_codigo), "");
+
+            ValidarCuadreDetalle(comp);
+
             comp.contables = DcontableBLL.GetAll(new WhereParams("dco_empresa ={0} and dco_comprobante={1}", comp.com_empresa, comp.com_codigo), "");
             comp.bancario = DbancarioBLL.GetAll(new WhereParams("dban_empresa ={0} and dban_cco_comproba={1}", comp.com_empresa, comp.com_codigo), "");
             comp.documentos = DdocumentoBLL.GetAll(new WhereParams("ddo_empresa ={0} and ddo_comprobante={1}", comp.com_empresa, comp.com_codigo), "");
@@ -740,6 +796,9 @@ namespace Packages
             comp.total = TotalBLL.GetByPK(new Total { tot_empresa = comp.com_empresa, tot_empresa_key = comp.com_empresa, tot_comprobante = comp.com_codigo, tot_comprobante_key = comp.com_codigo });
             comp.ccomdoc = CcomdocBLL.GetByPK(new Ccomdoc { cdoc_empresa = comp.com_empresa, cdoc_empresa_key = comp.com_empresa, cdoc_comprobante = comp.com_codigo, cdoc_comprobante_key = comp.com_codigo });
             comp.ccomdoc.detalle = DcomdocBLL.GetAll(new WhereParams("ddoc_empresa ={0} and ddoc_comprobante={1}", comp.com_empresa, comp.com_codigo), "");
+
+            ValidarCuadreDetalle(comp);
+
             comp.contables = DcontableBLL.GetAll(new WhereParams("dco_empresa ={0} and dco_comprobante={1}", comp.com_empresa, comp.com_codigo), "");
             comp.bancario = DbancarioBLL.GetAll(new WhereParams("dban_empresa ={0} and dban_cco_comproba={1}", comp.com_empresa, comp.com_codigo), "");
             comp.documentos = DdocumentoBLL.GetAll(new WhereParams("ddo_empresa ={0} and ddo_comprobante={1}", comp.com_empresa, comp.com_codigo), "");
@@ -2369,9 +2428,19 @@ namespace Packages
                     // descuadre real al crearse (dcontable desbalanceado), recontabilizar primero
                     // en vez de mayorizar con la contabilidad vieja/incorrecta (ver [[project_cuadre_ventas_tortiz]]
                     // causa raiz #3 - antes esto "escondia" el descuadre mayorizando igual, sin corregirlo).
+                    // reaccount_factura ahora tambien valida cuadre de detalle (ValidarCuadreDetalle) - si
+                    // lanza excepcion, no se marca Mayorizado y queda registrado para revisar a mano, en vez
+                    // de tumbar el cierre completo de la Hoja de Ruta por un solo comprobante descuadrado.
                     if (!CNT.comprobante_cuadrado(comp.com_empresa, comp.com_codigo))
                     {
-                        comp = reaccount_factura(comp);
+                        try
+                        {
+                            comp = reaccount_factura(comp);
+                        }
+                        catch (Exception ex)
+                        {
+                            ExceptionHandling.Log.AddExepcion(ex);
+                        }
                     }
 
                     if (CNT.comprobante_cuadrado(comp.com_empresa, comp.com_codigo))

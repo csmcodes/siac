@@ -2690,15 +2690,22 @@ namespace WebUI.ws
 
 
 
-                if (comprobante.com_tipodoc == Constantes.cFactura.tpd_codigo)
-                    comprobante = FAC.account_factura(comprobante);
-                //comprobante = FAC.reaccount_factura(comprobante);
-                if (comprobante.com_tipodoc == Constantes.cDiario.tpd_codigo)
-                    comprobante = CNT.account_diario(comprobante);
-                if (comprobante.com_tipodoc == Constantes.cNotacre.tpd_codigo)
-                    comprobante = BAN.account_notacredeb(comprobante);
-                if (comprobante.com_tipodoc == Constantes.cRecibo.tpd_codigo)
-                    comprobante = FAC.account_recibo(comprobante);
+                try
+                {
+                    if (comprobante.com_tipodoc == Constantes.cFactura.tpd_codigo)
+                        comprobante = FAC.account_factura(comprobante);
+                    //comprobante = FAC.reaccount_factura(comprobante);
+                    if (comprobante.com_tipodoc == Constantes.cDiario.tpd_codigo)
+                        comprobante = CNT.account_diario(comprobante);
+                    if (comprobante.com_tipodoc == Constantes.cNotacre.tpd_codigo)
+                        comprobante = BAN.account_notacredeb(comprobante);
+                    if (comprobante.com_tipodoc == Constantes.cRecibo.tpd_codigo)
+                        comprobante = FAC.account_recibo(comprobante);
+                }
+                catch (Exception ex)
+                {
+                    return ex.Message;
+                }
                 return "OK";
             }
             else
@@ -2738,13 +2745,20 @@ namespace WebUI.ws
 
 
 
-                if (comprobante.com_tipodoc == Constantes.cFactura.tpd_codigo)
-                    comprobante = FAC.reaccount_factura(comprobante);
-                if (comprobante.com_tipodoc == Constantes.cRecibo.tpd_codigo)
-                    comprobante = FAC.account_recibo(comprobante);
+                try
+                {
+                    if (comprobante.com_tipodoc == Constantes.cFactura.tpd_codigo)
+                        comprobante = FAC.reaccount_factura(comprobante);
+                    if (comprobante.com_tipodoc == Constantes.cRecibo.tpd_codigo)
+                        comprobante = FAC.account_recibo(comprobante);
                     /*if (comprobante.com_tipodoc == Constantes.cDiario.tpd_codigo)
                         comprobante = CNT.account_diario(comprobante);*/
-                    return "OK";
+                }
+                catch (Exception ex)
+                {
+                    return ex.Message;
+                }
+                return "OK";
             }
             else
                 return mensaje;
