@@ -521,13 +521,23 @@ function GeneraRetencionResult(data) {
 
 ///////////////////////////ELECTRONICOS///////////////////
 
+// Evita el doble clic en "Generar Electrónico" del mismo comprobante, que mandaba
+// dos POST casi simultaneos y generaba un segundo envio duplicado hacia Asapp.
+var electronicoEnProceso = {};
+
 function GenerarElectronico(cod) {
+    if (electronicoEnProceso[cod]) {
+        return;
+    }
+    electronicoEnProceso[cod] = true;
     var obj = {};
     obj["com_empresa"] = parseInt(empresasigned["emp_codigo"]);
     obj["com_codigo"] = cod;
     var jsonText = JSON.stringify({ objeto: obj });
     CallServerMethods("ws/Metodos.asmx/GenerarElectronico", jsonText, "ELEC");
-
+    call.always(function () {
+        delete electronicoEnProceso[cod];
+    });
 }
 
 function GenerarElectronicoResult(data) {
